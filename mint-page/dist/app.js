@@ -1,13 +1,11 @@
 import { validateConfig, shortAddress, rpc, submitMint, mintedToken, friendlyError, isAddress } from "./wallet.mjs";
+import { showGallery, tokenImage } from "./gallery.js";
 
 const $ = id => document.getElementById(id);
 const state = { config: null, network: null, provider: null, account: null, chainId: null, busy: false, connecting: false, soldOut: false };
 const wallets = new Map();
 let subscription = null;
 let supplyRequest = 0;
-const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-const examples = [{ seed: 42, count: 2, motion: "Ricochet" }, { seed: 2, count: 1, motion: "Orbit" }, { seed: 6, count: 6, motion: "Figure Eight" }, { seed: 2026, count: 4, motion: "Float" }, { seed: 4, count: 6, motion: "Orbit" }, { seed: 99, count: 1, motion: "Float" }];
-let example = 0;
 
 function setButton(button, text, arrow = false) {
   button.replaceChildren(document.createTextNode(text));
@@ -24,39 +22,29 @@ function render() {
   const { network: n, account, busy, config } = state;
   $("network").disabled = busy || state.connecting || !config;
   $("connect-wallet").disabled = busy || state.connecting;
-  setButton($("connect-wallet"), state.connecting ? "Connecting…" : account ? shortAddress(account) : "Connect wallet", !account && !state.connecting);
+  setButton($("connect-wallet"), state.connecting ? "…" : account ? shortAddress(account) : "Connect");
   $("connect-wallet").title = account ? "Disconnect wallet" : "Connect wallet";
   $("connect-wallet").setAttribute("aria-label", account ? "Disconnect wallet " + account : "Connect wallet");
   const button = $("mint-button");
-  if (!n) { button.disabled = true; setButton(button, "Mint unavailable", true); return; }
-  $("availability-text").textContent = n.deployed ? `Minting is open on ${n.name}.` : `${n.name} mint opens after deployment.`;
-  $("availability").classList.toggle("open", n.deployed);
-  document.querySelector(".gas-note").textContent = n.testnet ? "Free to mint. Testnet ETH covers gas." : "Free to mint. Network gas applies.";
+  if (!n) { button.disabled = true; setButton(button, "MINT"); return; }
+  $("availability-text").textContent = n.deployed ? "FREE" : "NOT LIVE";
   const link = $("contract-link");
-  link.href = n.deployed ? n.explorerUrl + "/address/" + n.collectionAddress : "https://github.com/ColinPlatt/sol_vid";
-  link.textContent = n.deployed ? "View contract ↗" : "View source ↗";
+  link.hidden = !n.deployed;
+  if (n.deployed) link.href = n.explorerUrl + "/address/" + n.collectionAddress;
   button.disabled = busy || state.connecting || !n.deployed || state.soldOut;
-  if (busy) setButton(button, "Mint in progress…");
-  else if (state.soldOut) setButton(button, "Sold out");
-  else if (!n.deployed) setButton(button, "Mint opens soon", true);
-  else if (!account) setButton(button, "Connect to mint", true);
-  else setButton(button, state.chainId === n.chainId ? "Mint a ghoulball" : "Switch & mint", true);
+  setButton(button, busy ? "MINTING…" : state.soldOut ? "SOLD OUT" : "MINT");
 }
 
-function drawExample() {
-  const selected = examples[example];
-  $("hero-image").src = `assets/seed-${selected.seed}.${motion.matches ? "png" : "gif"}`;
-  $("hero-image").alt = `${selected.count} shaded neon ${selected.count === 1 ? "ball" : "balls"} in a vaporwave sunset, ${selected.motion} motion, example seed ${selected.seed}`;
-  $("seed-label").textContent = `Seed ${selected.seed} · ${selected.count} ${selected.count === 1 ? "ball" : "balls"} · ${selected.motion}`;
-  for (const img of document.querySelectorAll("img[data-motion]")) img.src = motion.matches ? img.dataset.motion.replace(/\.gif$/, ".png") : img.dataset.motion;
+// The screen shows the newest token of the current collection, straight from its tokenURI.
+let heroRequest = 0;
+async function showLatest(n, supply) {
+  const request = ++heroRequest;
+  if (!n?.deployed || !supply) return;
+  try {
+    const token = await tokenImage(n, n.collectionAddress, supply);
+    if (request === heroRequest && state.network === n) { $("hero-image").src = token.image; $("hero-image").alt = token.name; }
+  } catch { /* Keep the placeholder. */ }
 }
-motion.addEventListener("change", drawExample);
-$("shuffle").addEventListener("click", () => {
-  const random = new Uint32Array(1); crypto.getRandomValues(random);
-  example = (example + 1 + random[0] % (examples.length - 1)) % examples.length;
-  drawExample();
-});
-drawExample();
 
 function rememberWallet(detail) {
   if (detail?.provider && typeof detail.provider.request === "function" && typeof detail.info?.uuid === "string") {
@@ -106,7 +94,7 @@ function chooseWallet() {
   if (choices.length === 1) { void connect(choices[0].provider); return; }
   const list = $("wallet-list"); list.replaceChildren();
   if (!choices.length) {
-    const p = document.createElement("p"); p.textContent = "No wallet was detected. Open this page in a browser with an Ethereum wallet, then try again."; list.append(p);
+    const p = document.createElement("p"); p.textContent = "No wallet found."; list.append(p);
   } else {
     for (const choice of choices) { const b = document.createElement("button"); b.type = "button"; b.textContent = choice.name; b.addEventListener("click", () => connect(choice.provider)); list.append(b); }
   }
@@ -122,14 +110,15 @@ $("connect-wallet").addEventListener("click", () => {
 
 async function updateSupply() {
   const n = state.network; const request = ++supplyRequest;
-  $("minted-count").textContent = "6,667 editions. No per-wallet limit.";
+  $("minted-count").textContent = "— / 6,667";
   if (!n?.deployed) return;
   try {
     const result = await rpc(n, "eth_call", [{ to: n.collectionAddress, data: "0x18160ddd", gas: "0x186a0" }, "latest"]);
     if (request === supplyRequest && /^0x[0-9a-f]+$/i.test(result)) {
       state.soldOut = BigInt(result) >= 6667n;
-      $("minted-count").textContent = `${new Intl.NumberFormat().format(BigInt(result))} / 6,667 minted.`;
+      $("minted-count").textContent = `${new Intl.NumberFormat().format(BigInt(result))} / 6,667`;
       render();
+      void showLatest(n, Number(BigInt(result)));
     }
   } catch { /* Supply is optional and never blocks minting. */ }
 }
@@ -144,7 +133,7 @@ function savePending(value) { try { if (value) sessionStorage.setItem("ghoulball
 async function waitForMint(snapshot) {
   const n = state.config.networks.find(n => n.chainId === snapshot.chainId);
   transactionLink(n, snapshot.hash);
-  status("Your mint is on its way. Waiting for the network…");
+  status("CONFIRMING…");
   for (let attempt = 0; attempt < 120; ++attempt) {
     let receipt;
     try { receipt = await rpc(n, "eth_getTransactionReceipt", [snapshot.hash]); }
@@ -152,8 +141,9 @@ async function waitForMint(snapshot) {
     if (receipt) {
       savePending(null);
       const tokenId = mintedToken(receipt, n, snapshot.account);
-      status(`Hello, ghoulball #${tokenId}. It’s in your wallet.`, "success");
+      status(`MINTED #${tokenId}`, "success");
       await updateSupply();
+      void showGallery(state.network);
       return;
     }
     await new Promise(resolve => setTimeout(resolve, 5000));
@@ -166,7 +156,7 @@ $("mint-button").addEventListener("click", async () => {
   if (!state.account) { chooseWallet(); return; }
   const n = state.network, account = state.account, provider = state.provider;
   state.busy = true; $("transaction-link").hidden = true; render();
-  const messages = { network: `Select ${n.name} in your wallet if asked.`, checking: "Getting your free mint ready…", wallet: "Confirm the mint in your wallet. Only network gas is charged." };
+  const messages = { network: `SWITCH TO ${n.name.toUpperCase()}`, checking: "CHECKING…", wallet: "CONFIRM IN WALLET" };
   try {
     const hash = await submitMint(provider, n, account, stage => status(messages[stage]));
     const snapshot = { hash, chainId: n.chainId, collection: n.collectionAddress, account };
@@ -180,7 +170,7 @@ $("network").addEventListener("change", () => {
   if (state.busy) return;
   state.network = state.config.networks.find(n => n.chainId === Number($("network").value));
   state.soldOut = false;
-  status(""); $("transaction-link").hidden = true; render(); void updateSupply();
+  status(""); $("transaction-link").hidden = true; $("hero-image").src = "assets/seed-42.gif"; render(); void updateSupply(); void showGallery(state.network);
 });
 
 async function init() {
@@ -190,7 +180,7 @@ async function init() {
     state.config = validateConfig(await response.json());
     state.network = state.config.networks.find(n => n.chainId === state.config.defaultChainId);
     $("network").replaceChildren(...state.config.networks.map(n => { const option = document.createElement("option"); option.value = String(n.chainId); option.textContent = n.name; return option; }));
-    $("network").value = String(state.network.chainId); render(); void updateSupply();
+    $("network").value = String(state.network.chainId); render(); void updateSupply(); void showGallery(state.network);
     let pending;
     try { pending = JSON.parse(sessionStorage.getItem("ghoulballs.pending") ?? "null"); } catch {}
     if (pending) {
@@ -201,6 +191,6 @@ async function init() {
         finally { state.busy = false; render(); }
       } else savePending(null);
     }
-  } catch (error) { $("availability-text").textContent = "Mint settings are temporarily unavailable."; status(friendlyError(error), "error"); render(); }
+  } catch (error) { $("availability-text").textContent = "UNAVAILABLE"; status(friendlyError(error), "error"); render(); }
 }
 void init();

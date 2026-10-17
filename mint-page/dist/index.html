@@ -3,73 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f3eb">
-  <meta name="description" content="ghoulballs: little generative loops, entirely onchain. Free to mint. Yours to keep moving.">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https:; object-src 'none'; base-uri 'none'; form-action 'none'">
-  <title>ghoulballs — a little chaos, all onchain.</title>
+  <meta name="theme-color" content="#070708">
+  <meta name="description" content="ghoulballs. Free mint. 6,667. Onchain.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>ghoulballs</title>
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="style.css">
   <script type="module" src="app.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#mint">Skip to mint</a>
-  <header class="site-header wrap">
-    <a class="wordmark" href="./" aria-label="ghoulballs home"><span class="brand-balls" aria-hidden="true"><i></i><i></i><i></i></span>ghoulballs</a>
-    <nav aria-label="Main"><a href="#collection">The collection</a><a href="#about">The idea</a><a href="gallery.html">The minted</a></nav>
-    <button id="connect-wallet" class="wallet-button" type="button">Connect wallet <span aria-hidden="true">↗</span></button>
+  <header class="top">
+    <a class="wordmark" href="./">GHOULBALLS</a>
+    <select id="network" aria-label="Network"><option value="11155111">Sepolia</option></select>
+    <button id="connect-wallet" class="chip-button" type="button">Connect</button>
   </header>
 
   <main>
-    <section class="hero wrap" id="mint" aria-labelledby="headline">
-      <div class="hero-copy">
-        <p class="eyebrow"><span class="little-dot"></span> LITTLE LOOPS. ENTIRELY ONCHAIN.</p>
-        <h1 id="headline">a little chaos.<br><em>all onchain.</em></h1>
-        <p class="intro">Neon balls, sunset skies and a different dance in every seed. Every ghoulball is a generative two-second loop. No two seeds tell quite the same story.</p>
-
-        <div class="mint-card" aria-labelledby="mint-heading">
-          <div class="mint-card-top"><h2 id="mint-heading">Make a little chaos.</h2><span class="free-stamp">FREE MINT</span></div>
-          <div class="mint-fields">
-            <label class="network-field" for="network"><span>Network</span><select id="network" aria-label="Mint network"><option value="11155111">Sepolia</option><option value="8453">Base</option><option value="84532">Base Sepolia</option></select></label>
-            <div class="mint-stat"><span>Mint price</span><strong>0 ETH</strong></div>
-            <div class="mint-stat"><span>Supply</span><strong>6,667</strong></div>
-          </div>
-          <p id="availability" class="availability"><span class="status-dot"></span><span id="availability-text">Checking the collection…</span></p>
-          <button id="mint-button" class="mint-button" type="button" disabled>Loading… <span aria-hidden="true">↗</span></button>
-          <p class="gas-note">Free to mint. Network gas applies.</p>
-          <div id="mint-status" class="mint-status" role="status" aria-live="polite" hidden></div>
-          <a id="transaction-link" class="transaction-link" target="_blank" rel="noopener noreferrer" hidden>View transaction ↗</a>
-          <div class="card-bottom"><span id="minted-count">6,667 editions. No per-wallet limit.</span><a class="gallery-link" href="gallery.html">See the minted →</a></div>
-        </div>
-      </div>
-
-      <figure class="hero-art">
-        <div class="art-frame"><img id="hero-image" src="assets/seed-42.png" alt="Two shaded neon balls in a purple vaporwave sunset" width="512" height="512" fetchpriority="high"><span class="onchain-tag">100% ONCHAIN</span></div>
-        <figcaption><div><span class="caption-label">A LITTLE POSSIBILITY</span><span id="seed-label">Seed 42 · 2 balls · Ricochet</span></div><button id="shuffle" class="shuffle-button" type="button" aria-label="Show another example seed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h3l12 12h3M18 15l3 3-3 3M3 18h3l4-4M14 10l4-4h3M18 3l3 3-3 3"/></svg><span>Another seed</span></button></figcaption>
-        <p class="preview-note">Your mint gets its own seed. Let it surprise you.</p>
-      </figure>
-    </section>
-
-    <div class="ticker" aria-hidden="true"><div>NO ROADMAP. JUST ROUND THINGS. <span>✳</span> FREE MINT. ENDLESS POSSIBILITIES. <span>✳</span> NO ROADMAP. JUST ROUND THINGS. <span>✳</span></div></div>
-
-    <section class="collection wrap" id="collection" aria-labelledby="collection-heading">
-      <div class="section-title"><div><p class="eyebrow">SAME RULES. DIFFERENT LITTLE WORLDS.</p><h2 id="collection-heading">It starts with a seed.</h2></div><p>One, two, four or six balls.<br>A different palette. A different dance.</p></div>
-      <div class="example-grid">
-        <figure><div><img src="assets/seed-2.png" data-motion="assets/seed-2.gif" alt="A glossy neon ball orbiting over an ultraviolet sunset" width="256" height="256" loading="lazy"></div><figcaption><strong>the solo act</strong><span>Seed 2 · 1 ball · Orbit</span></figcaption></figure>
-        <figure><div><img src="assets/seed-1.png" data-motion="assets/seed-1.gif" alt="Two shaded neon balls bouncing across a midnight landscape" width="256" height="256" loading="lazy"></div><figcaption><strong>better together</strong><span>Seed 1 · 2 balls · Ricochet</span></figcaption></figure>
-        <figure><div><img src="assets/seed-2026.png" data-motion="assets/seed-2026.gif" alt="Four neon balls floating over a blue lagoon grid" width="256" height="256" loading="lazy"></div><figcaption><strong>a small gathering</strong><span>Seed 2026 · 4 balls · Float</span></figcaption></figure>
-        <figure><div><img src="assets/seed-6.png" data-motion="assets/seed-6.gif" alt="Six neon balls tracing figure eights across a midnight sunset" width="256" height="256" loading="lazy"></div><figcaption><strong>beautiful chaos</strong><span>Seed 6 · 6 balls · Figure Eight</span></figcaption></figure>
+    <section class="machine" id="mint" aria-label="Mint">
+      <div class="screen"><img id="hero-image" src="assets/seed-42.gif" alt="ghoulballs" width="512" height="512"><span class="scanlines" aria-hidden="true"></span></div>
+      <div class="controls">
+        <p id="minted-count" class="counter">— / 6,667</p>
+        <button id="mint-button" class="mint-button" type="button" disabled>MINT</button>
+        <p id="availability" class="availability"><span id="availability-text">FREE</span></p>
+        <div id="mint-status" class="mint-status" role="status" aria-live="polite" hidden></div>
+        <a id="transaction-link" class="tx-link" target="_blank" rel="noopener noreferrer" hidden>TX ↗</a>
       </div>
     </section>
 
-    <section class="about wrap" id="about" aria-labelledby="about-heading">
-      <div><p class="eyebrow">SMALL ART. LONG LIFE.</p><h2 id="about-heading">Nothing to unlock.<br>Just something to keep.</h2></div>
-      <div class="about-copy"><p>Sunset palettes, ball sizes and motion styles come from a seed. Ricochet, orbit, float or trace a figure eight. The artwork is generated by a smart contract, and lives entirely onchain. No image server. No disappearing files.</p><p>6,667 editions, with no mint fee or per-wallet limit. Pick up one, or come back for a little more chaos. You only cover the network gas.</p><a class="text-link" href="https://github.com/ColinPlatt/sol_vid" target="_blank" rel="noopener noreferrer">See how it’s made <span aria-hidden="true">↗</span></a></div>
+    <section class="minted" id="minted" aria-label="Minted">
+      <p id="gallery-status" class="gallery-status" role="status" aria-live="polite"><span id="gallery-status-text"></span></p>
+      <div id="gallery-versions"></div>
     </section>
   </main>
 
-  <footer class="site-footer wrap"><a class="wordmark" href="./">ghoulballs<span class="footer-period">●</span></a><p>Round things. Open source. Entirely onchain.</p><a id="contract-link" href="https://github.com/ColinPlatt/sol_vid" target="_blank" rel="noopener noreferrer">View source ↗</a></footer>
+  <footer class="bottom"><a id="contract-link" href="https://github.com/ColinPlatt/sol_vid" target="_blank" rel="noopener noreferrer">CONTRACT ↗</a><a href="https://github.com/ColinPlatt/sol_vid" target="_blank" rel="noopener noreferrer">SOURCE ↗</a></footer>
 
-  <dialog id="wallet-dialog" aria-labelledby="wallet-title"><div class="dialog-top"><h2 id="wallet-title">Choose your wallet.</h2><button id="close-wallet-dialog" class="icon-button" aria-label="Close wallet selection" type="button">×</button></div><p>Your wallet will ask before connecting or minting.</p><div id="wallet-list"></div></dialog>
-  <noscript><p class="noscript">Enable JavaScript to connect your wallet and mint. The artwork is available above.</p></noscript>
+  <dialog id="wallet-dialog" aria-labelledby="wallet-title"><div class="dialog-top"><h2 id="wallet-title">WALLET</h2><button id="close-wallet-dialog" class="icon-button" aria-label="Close" type="button">×</button></div><div id="wallet-list"></div></dialog>
+  <noscript><p class="noscript">JavaScript required.</p></noscript>
 </body>
 </html>

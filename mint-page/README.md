@@ -6,18 +6,18 @@ zero-value `mint()` submission, transaction links and receipt tracking. Supports
 Sepolia, Base and Base Sepolia. Network gas applies; no per-wallet mint limit.
 
 Sepolia is deployed and enabled (collection v2). Base and Base Sepolia remain
-disabled. The page uses confirmed deployment addresses. The mint view never
-fetches the expensive video metadata; only the gallery does. The contract
+disabled. The page uses confirmed deployment addresses. The contract
 enforces the cap; the page also shows supply and disables sold-out minting when
 a supply read succeeds.
 
-`gallery.html` lists every token from every collection version in the deployment
-manifest, with no indexer. It reads `totalSupply` and `ownerOf` through the normal
-RPC, and each token's full `tokenURI` with a 500M gas cap through `renderRpcUrl`
-(the Tenderly public gateway, since most public RPCs stop at 50M). It shows each
-version's image exactly as the contract returned it. If that read fails, it falls
-back to the cheaper raw `gif(id)` read. Tokens load as they scroll into view, three
-reads at a time.
+Below the mint panel, the page lists every token from every collection version in
+the deployment manifest, newest first, with no indexer. It reads `totalSupply` and
+`ownerOf` through the normal RPC, and each token's full `tokenURI` with a 500M gas
+cap through `renderRpcUrl` (the Tenderly public gateway, since most public RPCs
+stop at 50M). It shows each version's image exactly as the contract returned it.
+If that read fails, it falls back to the cheaper raw `gif(id)` read. Tokens load
+as they scroll into view, three reads at a time. The screen shows the current
+collection's newest token. `/gallery.html` redirects to `/#minted`.
 
 ```bash
 cd mint-page

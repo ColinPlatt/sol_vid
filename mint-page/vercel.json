@@ -7,7 +7,19 @@
   "headers": [
     {
       "source": "/config.json",
-      "headers": [{ "key": "Cache-Control", "value": "no-store" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/gallery.html",
+      "destination": "/#minted",
+      "permanent": false
     }
   ]
 }

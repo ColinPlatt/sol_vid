@@ -59,7 +59,7 @@ try {
     const account = '0x'+'a'.repeat(40), hash = '0x'+'d'.repeat(64);
     const abiString = value => '0x'+(32n).toString(16).padStart(64,'0')+BigInt(value.length).toString(16).padStart(64,'0')+[...new TextEncoder().encode(value)].map(b=>b.toString(16).padStart(2,'0')).join('').padEnd(64,'0');
     window.__qaCalls=[];
-    const live = new URL(location.href).searchParams.has('mint-qa') || location.pathname.endsWith('gallery.html');
+    const live = new URL(location.href).searchParams.has('mint-qa');
     const nativeFetch = window.fetch.bind(window);
     window.fetch = async (url, options) => {
       if (String(url).endsWith('config.json')) {
@@ -75,7 +75,7 @@ try {
       if (String(url).startsWith('https:')) {
         const request=JSON.parse(options.body);
         const data=request.params?.[0]?.data??'';
-        if(request.method==='eth_call'&&location.pathname.endsWith('gallery.html')){
+        if(request.method==='eth_call'&&live){
           window.__qaCalls.push({rpc:String(url),data,gas:request.params[0].gas});
           let result='0x'+'0'.repeat(64);
           if(data==='0x18160ddd') result='0x'+(request.params[0].to===collection?'1':'0').padStart(64,'0');
@@ -104,68 +104,57 @@ try {
       throw Error('Unexpected wallet action '+r.method);
     }};
   ` });
-  await cdp("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
-  await cdp("Page.navigate", { url: origin });
-  await until("document.getElementById('availability-text')?.textContent.includes('opens after deployment')");
-  assert(await evaluate("document.getElementById('mint-button').disabled"));
-  assert.equal(await evaluate("document.getElementById('network').value"), "11155111");
-  const firstSeed = await evaluate("document.getElementById('seed-label').textContent");
-  await evaluate("document.getElementById('shuffle').click()");
-  assert.notEqual(await evaluate("document.getElementById('seed-label').textContent"), firstSeed);
-  await evaluate("document.getElementById('connect-wallet').click()");
-  await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
-  assert.equal(await evaluate("window.__qaCalls.filter(c=>c.method==='eth_sendTransaction').length"), 0);
-  await evaluate("document.getElementById('network').value='8453';document.getElementById('network').dispatchEvent(new Event('change'))");
-  assert.match(await evaluate("document.getElementById('availability-text').textContent"), /Base mint opens/);
-  assert(await evaluate("document.getElementById('mint-button').disabled"));
-  assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"));
-  await cdp("Page.navigate", { url: origin });
-  await until("document.getElementById('availability-text')?.textContent.includes('opens after deployment')");
-  await evaluate("Promise.all([...document.images].map(i=>{i.loading='eager';return i.decode().catch(()=>{})}))");
   async function screenshot(file) {
     const { cssContentSize: size } = await cdp("Page.getLayoutMetrics");
     const result = await cdp("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: size.width, height: size.height, scale: 1 } });
     await writeFile(file, Buffer.from(result.data, "base64"));
   }
-  assert(await evaluate("[...document.images].every(i=>i.complete && i.naturalWidth>0)"), "Artwork image failed to load");
-  assert.match(await evaluate("document.getElementById('seed-label').textContent"), /2 balls.*Ricochet/);
+  await cdp("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
+  // Undeployed: minting disabled, nothing to show.
+  await cdp("Page.navigate", { url: origin });
+  await until("document.getElementById('availability-text')?.textContent === 'NOT LIVE'");
+  assert(await evaluate("document.getElementById('mint-button').disabled"));
+  assert.equal(await evaluate("document.getElementById('network').value"), "11155111");
+  assert.equal(await evaluate("document.querySelectorAll('.gallery-version').length"), 0);
+  await evaluate("document.getElementById('connect-wallet').click()");
+  await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
+  assert.equal(await evaluate("window.__qaCalls.filter(c=>c.method==='eth_sendTransaction').length"), 0);
+  await evaluate("document.getElementById('network').value='8453';document.getElementById('network').dispatchEvent(new Event('change'))");
+  assert(await evaluate("document.getElementById('mint-button').disabled"));
+
+  // Live: supply, newest token on screen, every version listed newest first, then a mocked mint.
+  await cdp("Page.navigate", { url: origin + "/?mint-qa=1" });
+  await until("document.getElementById('availability-text')?.textContent === 'FREE'");
+  await until("document.getElementById('hero-image').src.startsWith('data:image/svg+xml')");
+  await until("document.querySelector('.token-card img')?.complete && document.querySelector('.token-card img').naturalWidth>0");
+  assert.equal(await evaluate("document.getElementById('minted-count').textContent"), "1 / 6,667");
+  assert.equal(await evaluate("document.getElementById('gallery-status-text').textContent"), "");
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.version-head h2')].map(h=>h.textContent)"), ["V2", "V1"]);
+  assert.match(await evaluate("document.querySelector('.token-card img').src"), /^data:image\/svg\+xml,.*pixelated/);
+  assert.equal(await evaluate("document.querySelector('.token-card strong').textContent"), "#1");
+  const renderCall = await evaluate("window.__qaCalls.find(c=>c.data?.startsWith('0xc87b56dd'))");
+  assert.equal(renderCall.rpc, sepolia.renderRpcUrl);
+  assert.equal(renderCall.gas, "0x1dcd6500");
+  assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"), "Desktop layout overflows");
   await screenshot("/tmp/ghoulballs-mint-desktop.png");
   await cdp("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-  await new Promise(r => setTimeout(r, 100));
-  assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"), "Mobile layout overflows");
+  await new Promise(r => setTimeout(r, 150));
+  assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth && [...document.querySelectorAll('.top > *')].every(e=>e.getBoundingClientRect().right<=window.innerWidth)"), "Mobile layout overflows");
   await screenshot("/tmp/ghoulballs-mint-mobile.png");
-  await cdp("Page.navigate", { url: origin + "/?mint-qa=1" });
-  await until("document.getElementById('availability-text')?.textContent.includes('Minting is open on Sepolia')");
+  await cdp("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
   assert.equal(await evaluate("document.getElementById('mint-button').disabled"), false);
   await evaluate("document.getElementById('connect-wallet').click()");
   await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
   await evaluate("document.getElementById('mint-button').click()");
-  await until("document.getElementById('mint-status').textContent.includes('ghoulball #1.')");
+  await until("document.getElementById('mint-status').textContent === 'MINTED #1'");
   const sends = await evaluate("window.__qaCalls.filter(c=>c.method==='eth_sendTransaction')");
   assert.equal(sends.length, 1);
   assert.equal(sends[0].params[0].value, "0x0");
   assert.equal(sends[0].params[0].data, "0x1249c58b");
   assert.equal(sends[0].params[0].to.toLowerCase(), mockCollection.toLowerCase());
   assert.match(await evaluate("document.getElementById('transaction-link').href"), /sepolia.etherscan.io\/tx\/0x/);
-  await cdp("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
-  await cdp("Page.navigate", { url: origin + "/gallery.html" });
-  await until("document.querySelector('.token-card img')?.complete && document.querySelector('.token-card img').naturalWidth>0");
-  assert.match(await evaluate("document.getElementById('gallery-status-text').textContent"), /1 minted across 2 versions on Sepolia/);
-  assert.equal(await evaluate("document.querySelectorAll('.gallery-version').length"), 2);
-  assert.match(await evaluate("document.querySelector('.token-card img').src"), /^data:image\/svg\+xml,.*pixelated/);
-  assert.match(await evaluate("document.querySelector('.token-card strong').textContent"), /ghoulballs #1/);
-  const renderCall = await evaluate("window.__qaCalls.find(c=>c.data?.startsWith('0xc87b56dd'))");
-  assert.equal(renderCall.rpc, sepolia.renderRpcUrl);
-  assert.equal(renderCall.gas, "0x1dcd6500");
-  assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"), "Gallery layout overflows");
-  await screenshot("/tmp/ghoulballs-gallery-desktop.png");
-  await cdp("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
-  await new Promise(r => setTimeout(r, 100));
-  assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"), "Mobile gallery overflows");
-  await screenshot("/tmp/ghoulballs-gallery-mobile.png");
-  assert(await evaluate("window.__qaCalls.every(c=>!c.method)"), "Gallery must not touch the wallet");
   assert.deepEqual(exceptions, []);
-  console.log("PASS onchain gallery (both versions, render RPC at 500M gas, pixelated SVG image) and desktop/mobile layout, animated assets, preview shuffle, mock wallet connection, Base selection, undeployed mint guard, simulated live mint/receipt, no real transaction or script errors.");
+  console.log("PASS undeployed guard, Base selection, live supply, newest token on screen, both versions from chain (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
   console.log("Screenshots: /tmp/ghoulballs-mint-desktop.png and /tmp/ghoulballs-mint-mobile.png");
 } finally {
   ws?.close(); chrome?.kill("SIGTERM"); await new Promise(r => server.close(r));
