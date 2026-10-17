@@ -36,7 +36,7 @@ def main():
         for attempt in range(5):
             last=attempt==4
             try:
-                req=urllib.request.Request(args.rpc_url,data=body,headers={'Content-Type':'application/json'})
+                req=urllib.request.Request(args.rpc_url,data=body,headers={'Content-Type':'application/json','User-Agent':'foundry'})
                 with urllib.request.urlopen(req,timeout=90) as response:result=json.load(response)
                 if 'error' in result:
                     error=result['error']
