@@ -39,7 +39,9 @@ crawlers do not run JavaScript. It carries Open Graph / X card tags whose image 
 `/t/:id.png` (`api/card.js`): a 1200x630 PNG of the token's first GIF frame at 8x,
 decoded from the contract's `gif(id)`. X shows card images as stills. Both read Base
 through `renderRpcUrl`, are cached at the edge for a year (tokens never change), and
-return uncached 404s for unminted or malformed IDs. Clicking a gallery card opens its token page (the owner link still goes to Basescan).
+return uncached 404s for unminted or malformed IDs. `/t/:id.gif` (`api/gif.js`) serves the
+token's exact `gif(id)` bytes; the token page's DOWNLOAD GIF button saves it as
+`ghoulballs-<id>.gif`. Clicking a gallery card opens its token page (the owner link still goes to Basescan).
 
 ## Icons
 

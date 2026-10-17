@@ -127,6 +127,7 @@ export function tokenPage(id, metadata, origin) {
         <div class="trait-row token-traits">${traits.map(t => `<span>${escape(String(t).toUpperCase())}</span>`).join("")}</div>
         <a class="mint-button mint-link" href="/">MINT YOURS</a>
         <p class="availability"><span>FREE · 1 PER ADDRESS</span></p>
+        <a class="chip-button download-gif" href="/t/${id}.gif" download="ghoulballs-${id}.gif">DOWNLOAD GIF ↓</a>
       </div>
     </section>
   </main>

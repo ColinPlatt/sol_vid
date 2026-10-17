@@ -47,6 +47,7 @@ test("the token page carries its own preview card and escapes chain text", () =>
   assert.doesNotMatch(html, /<b>/);
   assert.match(html, /script-src 'none'/);
   assert.match(html, /href="\/">MINT YOURS<\/a>/);
+  assert.match(html, /<a class="chip-button download-gif" href="\/t\/12\.gif" download="ghoulballs-12\.gif">DOWNLOAD GIF ↓<\/a>/);
 });
 
 test("chain reads parse the exported tokenURI and flag unminted tokens", async () => {

@@ -28,6 +28,10 @@
       "destination": "/api/card?id=:id"
     },
     {
+      "source": "/t/:id(\\d+).gif",
+      "destination": "/api/gif?id=:id"
+    },
+    {
       "source": "/t/:id(\\d+)",
       "destination": "/api/token?id=:id"
     }
