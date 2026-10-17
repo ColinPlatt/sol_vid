@@ -82,7 +82,7 @@ try {
           window.__qaCalls.push({rpc:String(url),data,gas:request.params[0].gas,to:request.params[0].to});
           let result='0x'+'0'.repeat(64);
           const id=data.length>=74?Number(BigInt('0x'+data.slice(10,74))):0, set=request.params[0].to===collection;
-          if(data==='0x18160ddd') result='0x'+(request.params[0].to==='0x'+'3'.repeat(40)?'3':'1').padStart(64,'0');
+          if(data==='0x18160ddd') result='0x'+(window.__supply??1).toString(16).padStart(64,'0');
           else if(data.startsWith('0x38e21cce')) result='0x'+(minted?'1':'0').padStart(64,'0');
           else if(data.startsWith('0x6352211e')) result='0x'+account.slice(2).padStart(64,'0');
           else if(data.startsWith('0xc87b56dd')) result=abiString(exportedURI);
@@ -160,6 +160,18 @@ try {
   assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth && [...document.querySelectorAll('.top > *')].every(e=>e.getBoundingClientRect().right<=window.innerWidth)"), "Mobile layout overflows");
   await screenshot("/tmp/ghoulballs-mint-mobile.png");
   await cdp("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
+  // Someone else mints: on the next supply check (here, returning to the tab) the counter, screen and list update.
+  await evaluate("window.__supply=2; document.dispatchEvent(new Event('visibilitychange'))");
+  await until("document.getElementById('minted-count').textContent === '2 / 6,667'");
+  await until("document.querySelectorAll('.token-card').length === 2");
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.token-card strong')].map(s=>s.textContent)"), ["#2", "#1"]);
+  await until("window.__qaCalls.some(c=>c.data==='0xc87b56dd'+'2'.padStart(64,'0'))");
+  const tokenOneReads = await evaluate("window.__qaCalls.filter(c=>c.data==='0xc87b56dd'+'1'.padStart(64,'0')).length");
+  await evaluate("document.dispatchEvent(new Event('visibilitychange'))");
+  await new Promise(r => setTimeout(r, 500));
+  assert.equal(await evaluate("document.querySelectorAll('.token-card').length"), 2, "Unchanged supply must not rebuild the list");
+  assert.equal(await evaluate("window.__qaCalls.filter(c=>c.data==='0xc87b56dd'+'1'.padStart(64,'0')).length"), tokenOneReads, "Existing cards must not be re-read");
+  await evaluate("window.__supply=1");
   assert.equal(await evaluate("document.getElementById('mint-button').disabled"), false);
   await evaluate("document.getElementById('connect-wallet').click()");
   await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
@@ -168,8 +180,14 @@ try {
   await until("document.getElementById('mint-button').textContent === 'MINT'");
   await evaluate("document.getElementById('mint-button').click()");
   await until("document.getElementById('mint-status').textContent === 'MINTED #1'");
+  // The confirmed mint opens the share pop-up with the minted GIF and a link to the token's page.
+  await until("document.getElementById('share-dialog').open");
+  await until("document.getElementById('mint-button').textContent === 'MINTED' && document.getElementById('mint-button').disabled");
+  assert.equal(await evaluate("document.getElementById('share-title').textContent"), "MINTED #1");
+  assert.equal(await evaluate("document.getElementById('share-view').getAttribute('href')"), "/t/1");
+  await until("document.getElementById('share-image').src.startsWith('data:image/gif;base64,R0lGODlh') && document.getElementById('share-image').naturalWidth === 64");
+  await screenshot("/tmp/ghoulballs-share-modal.png");
   const share = new URL(await evaluate("document.getElementById('share-link').href"));
-  assert(await evaluate("!document.getElementById('share-link').hidden"), "Share button hidden after mint");
   assert.equal(share.origin + share.pathname, "https://x.com/intent/post");
   assert.equal(share.searchParams.get("text"), "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for free at:");
   assert.equal(share.searchParams.get("url"), origin + "/t/1");
@@ -188,16 +206,30 @@ try {
   await evaluate("document.getElementById('share-link').click()");
   assert.equal(await evaluate("window.__followed"), true);
   // Gallery cards link to each token's page.
-  assert.equal(await evaluate("document.querySelector('.token-card strong a').getAttribute('href')"), "/t/1");
-  await until("document.getElementById('mint-button').textContent === 'MINTED' && document.getElementById('mint-button').disabled");
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.token-card strong a')].map(a=>a.getAttribute('href'))"), ["/t/2", "/t/1"]);
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.token-media > a')].map(a=>a.getAttribute('href'))"), ["/t/2", "/t/1"]);
+  await evaluate("document.getElementById('close-share-dialog').click()");
+  assert.equal(await evaluate("document.getElementById('share-dialog').open"), false);
   const sends = await evaluate("window.__qaCalls.filter(c=>c.method==='eth_sendTransaction')");
   assert.equal(sends.length, 1);
   assert.equal(sends[0].params[0].value, "0x0");
   assert.equal(sends[0].params[0].data, "0x1249c58b");
   assert.equal(sends[0].params[0].to.toLowerCase(), mockCollection.toLowerCase());
   assert.match(await evaluate("document.getElementById('transaction-link').href"), /basescan.org\/tx\/0x/);
+  // Clicking anywhere on a card (but not its owner link) opens the token page.
+  await evaluate("document.querySelector('.token-card').click()");
+  // The test server has no /t/ route, so check where the browser navigated rather than the page it shows.
+  let navigated = "";
+  for (let i = 0; i < 40 && !navigated.endsWith("/t/2"); ++i) {
+    const history = await cdp("Page.getNavigationHistory");
+    navigated = history.entries[history.currentIndex].url;
+    await new Promise(r => setTimeout(r, 100));
+  }
+  assert.equal(new URL(navigated).pathname, "/t/2");
+  await cdp("Page.navigate", { url: origin + "/?mint-qa=1" });
+  await until("document.getElementById('availability-text')?.textContent === 'FREE · 1 PER ADDRESS'");
   assert.deepEqual(exceptions, []);
-  console.log("PASS undeployed guard, live supply, newest token on screen, current collection's GIFs only, Base only with automatic switch to Base, 1 per address note, share on X after mint, animated favicon (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
+  console.log("PASS undeployed guard, live supply, newest token on screen, current collection's GIFs only, Base only with automatic switch to Base, 1 per address note, share on X after mint, animated favicon, live pickup of new mints, share pop-up, clickable cards (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
   console.log("Screenshots: /tmp/ghoulballs-mint-desktop.png and /tmp/ghoulballs-mint-mobile.png");
 } finally {
   ws?.close(); chrome?.kill("SIGTERM"); await new Promise(r => server.close(r));

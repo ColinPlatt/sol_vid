@@ -1,6 +1,6 @@
 import { validateConfig, shortAddress, rpc, submitMint, mintedToken, friendlyError, isAddress, ensureChain } from "./wallet.mjs";
-import { showGallery, tokenImage } from "./gallery.js";
-import { hasMintedCall, gifCall, decodeBytes, RENDER_GAS } from "./gallery.mjs";
+import { showGallery, showNewMints, tokenImage } from "./gallery.js";
+import { hasMintedCall, gifCall, decodeBytes, RENDER_GAS, bytesToBase64 } from "./gallery.mjs";
 import { animateFavicon, gifFromImage } from "./favicon.js";
 
 const $ = id => document.getElementById(id);
@@ -140,9 +140,12 @@ async function checkMinted() {
   } catch { /* The contract still enforces the limit. */ }
 }
 
+// Supply is re-read every 15s while the page is visible (and on return to it), so other people's mints show up:
+// the counter, the newest token on the screen and in the tab icon, and new cards on top of the list.
+let lastSupply = null;
 async function updateSupply() {
   const n = state.network; const request = ++supplyRequest;
-  $("minted-count").textContent = "— / 6,667";
+  if (lastSupply === null) $("minted-count").textContent = "— / 6,667";
   if (!n?.deployed) return;
   try {
     const result = await rpc(n, "eth_call", [{ to: n.collectionAddress, data: "0x18160ddd", gas: "0x186a0" }, "latest"]);
@@ -152,27 +155,39 @@ async function updateSupply() {
       state.soldOut = mints >= 6667n;
       $("minted-count").textContent = `${new Intl.NumberFormat().format(mints)} / 6,667`;
       render();
-      if (mints) void showLatest(n, Number((mints - 1n) * per + 1n));
+      const supply = Number(BigInt(result));
+      if (supply !== lastSupply && mints) void showLatest(n, Number((mints - 1n) * per + 1n));
+      if (lastSupply !== null) showNewMints(n, supply);
+      lastSupply = supply;
     }
   } catch { /* Supply is optional and never blocks minting. */ }
 }
 
-// After a confirmed mint, share the token's own page (/t/:id), whose preview card is the token's GIF. Where the browser
-// can share files (most phones), the share sheet also gets the GIF itself, read from the chain. Nothing is posted
-// without the user.
+// A confirmed mint opens the share pop-up: the minted GIF, read from the chain, a link to share the token's own page
+// (/t/:id, whose preview card is the token's GIF) and a link to that page. Where the browser can share files (most
+// phones), the share sheet also gets the GIF itself. Nothing is posted without the user.
 const SHARE_TEXT = "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for free at:";
 let shareFile = null;
-async function prepareShare(n, tokenId) {
+async function prepareShare(n, tokenId, minted) {
   const url = `${location.origin}/t/${tokenId}`;
+  $("share-title").textContent = `MINTED #${minted}`;
   $("share-link").href = "https://x.com/intent/post?" + new URLSearchParams({ text: SHARE_TEXT, url });
-  $("share-link").hidden = false;
+  $("share-view").href = `/t/${tokenId}`;
+  $("share-image").hidden = true;
   shareFile = null;
+  if (!$("share-dialog").open) $("share-dialog").showModal();
   try {
     // Fetched now: the share sheet must open directly from the click, with no network wait in between.
     const result = await rpc({ ...n, rpcUrl: n.renderRpcUrl ?? n.rpcUrl }, "eth_call", [{ to: n.collectionAddress, data: gifCall(tokenId), gas: RENDER_GAS }, "latest"]);
-    shareFile = new File([decodeBytes(result)], "ghoulballs.gif", { type: "image/gif" });
+    const gif = decodeBytes(result);
+    shareFile = new File([gif], "ghoulballs.gif", { type: "image/gif" });
+    $("share-image").src = "data:image/gif;base64," + bytesToBase64(gif);
+    $("share-image").alt = `ghoulballs #${minted}`;
+    $("share-image").hidden = false;
   } catch { /* The link still shares the page. */ }
 }
+$("close-share-dialog").addEventListener("click", () => $("share-dialog").close());
+$("share-dialog").addEventListener("click", event => { if (event.target === $("share-dialog")) { const r = event.target.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) event.target.close(); } });
 $("share-link").addEventListener("click", event => {
   if (!shareFile) return;
   const data = { files: [shareFile], text: `${SHARE_TEXT} ${new URL($("share-link").href).searchParams.get("url")}` };
@@ -202,10 +217,9 @@ async function waitForMint(snapshot) {
       const tokenId = mintedToken(receipt, n, snapshot.account);
       const minted = Math.ceil(Number(tokenId) / (n.tokensPerMint ?? 1));
       status(`MINTED #${minted}`, "success");
-      void prepareShare(n, tokenId);
+      void prepareShare(n, tokenId, minted);
       await updateSupply();
       void checkMinted();
-      void showGallery(state.network);
       return;
     }
     await new Promise(resolve => setTimeout(resolve, 5000));
@@ -217,7 +231,7 @@ $("mint-button").addEventListener("click", async () => {
   if (state.busy || state.connecting || state.soldOut || !state.network?.deployed) return;
   if (!state.account) { chooseWallet(); return; }
   const n = state.network, account = state.account, provider = state.provider;
-  state.busy = true; $("transaction-link").hidden = true; $("share-link").hidden = true; render();
+  state.busy = true; $("transaction-link").hidden = true; render();
   const messages = { network: `SWITCH TO ${n.name.toUpperCase()}`, checking: "CHECKING…", wallet: "CONFIRM IN WALLET" };
   try {
     const hash = await submitMint(provider, n, account, stage => status(messages[stage]));
@@ -232,6 +246,9 @@ $("mint-button").addEventListener("click", async () => {
 // The tab icon animates the deployed collection's GIFs: token #1's (favicon.gif, read from the contract) until the
 // newest token is read from the chain.
 gifFromImage("assets/favicon.gif").then(animateFavicon).catch(() => {});
+
+setInterval(() => { if (!document.hidden) void updateSupply(); }, 15000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) void updateSupply(); });
 
 async function init() {
   try {

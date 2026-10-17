@@ -58,7 +58,10 @@ async function loadToken(network, collection, id, card, run) {
   const { image, attributes } = token.value;
   const img = el("img");
   img.src = image; img.alt = token.value.name; img.width = 256; img.height = 256;
-  media.replaceChildren(img);
+  const link = el("a");
+  link.href = `/t/${id}`;
+  link.append(img);
+  media.replaceChildren(link);
   const traits = el("div", "trait-row");
   const count = attributes["Ball Count"];
   for (const value of [count && `${count} ${count === 1 ? "BALL" : "BALLS"}`, attributes.Theme, attributes.Motion]) if (value) traits.append(el("span", "", String(value).toUpperCase()));
@@ -76,14 +79,20 @@ function tokenCard(network, collection, id, run, observer) {
   strong.append(label);
   caption.append(strong);
   card.append(media, caption);
+  // The whole card opens the token's page; the owner link keeps going to the explorer.
+  card.addEventListener("click", event => { if (!event.target.closest("a")) location.href = `/t/${id}`; });
   card.load = () => schedule(() => loadToken(network, collection, id, card, run));
   observer.observe(card);
   return card;
 }
 
+// The list being shown, so new mints can be added to its top without rebuilding it.
+let live = null;
+
 // Every token from every collection deployed on the network, read from chain: one list, newest first.
 export async function showGallery(network) {
   const run = ++generation;
+  live = null;
   queue.length = 0;
   const container = $("gallery-versions");
   container.replaceChildren();
@@ -100,7 +109,9 @@ export async function showGallery(network) {
     for (let id = Number(BigInt(supplies[i].value)) - per + 1; id > 0; id -= per) tokens.push([collection, id]);
   });
   if (supplies.some(r => r.status === "rejected")) $("gallery-status-text").textContent = "SOME READS FAILED";
-  if (!tokens.length) return;
+  const current = collections.findIndex(c => c.current);
+  const known = current >= 0 && supplies[current].status === "fulfilled" ? Number(BigInt(supplies[current].value)) : null;
+  if (!tokens.length) { if (known !== null) live = { run, network, collection: collections[current], known, grid: null }; return; }
   const observer = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting) { observer.unobserve(entry.target); entry.target.load(); }
   }, { rootMargin: "400px" });
@@ -116,4 +127,14 @@ export async function showGallery(network) {
   more.addEventListener("click", showMore);
   container.append(grid, more);
   showMore();
+  if (known !== null) live = { run, network, collection: collections[current], known, grid, observer };
+}
+
+/** New mints of the current collection go on top of the list; the rest of the list is left as it is. */
+export function showNewMints(network, supply) {
+  if (!live || live.network !== network || live.run !== generation || supply <= live.known) return;
+  if (!live.grid) { void showGallery(network); return; }
+  const per = live.collection.tokensPerMint === 3 ? 3 : 1;
+  for (let id = live.known + 1; id <= supply - per + 1; id += per) live.grid.prepend(tokenCard(network, live.collection, id, live.run, live.observer));
+  live.known = supply;
 }

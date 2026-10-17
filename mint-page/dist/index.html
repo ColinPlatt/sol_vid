@@ -39,7 +39,6 @@
         <button id="mint-button" class="mint-button" type="button" disabled>MINT</button>
         <p id="availability" class="availability"><span id="availability-text">FREE</span></p>
         <div id="mint-status" class="mint-status" role="status" aria-live="polite" hidden></div>
-        <a id="share-link" class="chip-button share-button" target="_blank" rel="noopener noreferrer" hidden>SHARE ON X ↗</a>
         <a id="transaction-link" class="tx-link" target="_blank" rel="noopener noreferrer" hidden>TX ↗</a>
       </div>
     </section>
@@ -52,6 +51,7 @@
 
   <footer class="bottom"><a id="contract-link" href="https://github.com/ColinPlatt/sol_vid" target="_blank" rel="noopener noreferrer">CONTRACT ↗</a><a href="https://github.com/ColinPlatt/sol_vid" target="_blank" rel="noopener noreferrer">SOURCE ↗</a></footer>
 
+  <dialog id="share-dialog" aria-labelledby="share-title"><div class="dialog-top"><h2 id="share-title">MINTED</h2><button id="close-share-dialog" class="icon-button" aria-label="Close" type="button">×</button></div><div class="share-art"><img id="share-image" alt="" width="256" height="256" hidden></div><a id="share-link" class="mint-button share-x" target="_blank" rel="noopener noreferrer">SHARE ON X ↗</a><a id="share-view" class="chip-button share-view" href="/">VIEW YOUR GHOULBALL</a></dialog>
   <dialog id="wallet-dialog" aria-labelledby="wallet-title"><div class="dialog-top"><h2 id="wallet-title">WALLET</h2><button id="close-wallet-dialog" class="icon-button" aria-label="Close" type="button">×</button></div><div id="wallet-list"></div></dialog>
   <noscript><p class="noscript">JavaScript required.</p></noscript>
 </body>

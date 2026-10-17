@@ -21,12 +21,16 @@ stop at 50M). It shows each version's image exactly as the contract returned it.
 If that read fails, it falls back to the cheaper raw `gif(id)` read. Tokens load
 as they scroll into view, three reads at a time. Every card shows the token's GIF. The screen shows the current
 collection's newest token. `/gallery.html` redirects to `/#minted`.
+The page re-reads `totalSupply` every 15 seconds while visible, and on return to the
+tab. When it rises, the counter, the screen, the tab icon and the top of the list
+update with the new tokens; existing cards are not re-read.
 
 ## Sharing and token pages
 
-After a confirmed mint, **SHARE ON X** opens X's post intent with "Just minted
-ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for
-free at:" and the token's own page. Where the browser can share files (most phones),
+A confirmed mint opens a pop-up with the minted GIF (read from the contract), **SHARE
+ON X** and **VIEW YOUR GHOULBALL** (the token's page). SHARE ON X opens X's post intent
+with "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF.
+Mint yours for free at:" and the token's own page. Where the browser can share files (most phones),
 the share sheet also gets the minted GIF itself, read from the contract. Nothing is
 posted without the user.
 
@@ -35,7 +39,7 @@ crawlers do not run JavaScript. It carries Open Graph / X card tags whose image 
 `/t/:id.png` (`api/card.js`): a 1200x630 PNG of the token's first GIF frame at 8x,
 decoded from the contract's `gif(id)`. X shows card images as stills. Both read Base
 through `renderRpcUrl`, are cached at the edge for a year (tokens never change), and
-return uncached 404s for unminted or malformed IDs. Gallery cards link to their page.
+return uncached 404s for unminted or malformed IDs. Clicking a gallery card opens its token page (the owner link still goes to Basescan).
 
 ## Icons
 
