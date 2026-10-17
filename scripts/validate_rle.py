@@ -5,6 +5,8 @@ from pathlib import Path
 from PIL import Image
 from vapor_reference import frame
 ROOT=Path(__file__).resolve().parents[1]
+subprocess.run(['python3', str(ROOT/'scripts/build_video_player.py'), '--check'], check=True)
+subprocess.run(['node', str(ROOT/'scripts/validate_rle_players.mjs')], cwd=ROOT, check=True)
 for size in (256,512):
     path=ROOT/f'previews/video/avi-rle-{size}-42.avi'
     stream=json.loads(subprocess.check_output(['ffprobe','-v','error','-count_frames','-show_streams','-of','json',str(path)]))['streams'][0]

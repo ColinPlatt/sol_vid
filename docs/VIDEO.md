@@ -20,13 +20,30 @@ is live; its real Base reads, moving sandboxed player and mobile layout pass bro
 QA without a wallet or any transaction. The original GIF HTML, config, app and
 wallet files remain byte-identical to the previous public deployment.
 
+## Development revision after the codec review
+
+PR #2 revision `c82ab0e` shares recipe/header code and updates the embedded player
+with indexed-frame storage, redraw-on-change and stricter AVI stream checks.
+These changes apply to new builds only. The deployed edition and canary still use
+the original immutable player and renderer; their verification inputs, receipts,
+OpenSea evidence and `validation-amsterdam.json` / `validation-base.json` remain
+pinned release records. New verification exports go to `verification-development/`,
+leaving the deployed Standard JSON inputs in `verification/` intact.
+Current development validation writes separate
+`validation-*-development.json` reports. It does not certify a new deployment or
+transfer the prior OpenSea gate to modified player bytecode.
+
+The development matrix currently measures **230,871,178–310,032,060 gas** on
+Amsterdam, with maximum metadata URI size **1,171,965 bytes**. The development
+Chromium/Firefox and mocked mint-page checks pass; Safari remains untested.
+
 ## Implementation and validation
 
 `AviRleVideo` exposes `aviFromSeed(size, seed)` (256/512), `posterFromSeed(seed)`
 and the same recipe/trait ABI as the existing renderer. RLE8 emits complete,
 independent bottom-up frames with `00dc` chunks and a complete RIFF index. It
 rasterizes each logical frame once and copies compressed rows vertically. The
-original uncompressed AVI, MPEG and GIF encoders are unchanged.
+original uncompressed AVI, MPEG and GIF media bytes are unchanged.
 
 `VideoNFT` exposes `mint`, `mintTo`, `seedOf`, `recipeOf`, `video`, `imageURI`,
 `animationURI`, `tokenURI`, format and dimension getters. It has no owner, upgrade,
@@ -42,7 +59,7 @@ FFmpeg; the embedded JS decoder matches FFmpeg RGBA on every frame. Static poste
 also match frame zero. Full metadata is approximately **231–311M gas**, including
 poster, player, base64 layers and ABI return copying; maximum URI size is about
 **1.17MB**. These measurements are sampled coverage, not a mathematical worst-case
-proof over all seeds. Exact profile measurements live in `previews/video/validation-*.json`.
+proof over all seeds. Those release measurements live in `previews/video/validation-amsterdam.json` and `validation-base.json`; development reports are separate.
 
 Chrome and Firefox have passed real loop, pause and resume tests. Chrome also
 passes the separate mint page with a mocked wallet, original AVI download, gallery,

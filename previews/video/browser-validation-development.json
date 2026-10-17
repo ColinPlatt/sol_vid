@@ -1,0 +1,7 @@
+{
+  "scope": "current development fixtures, not live deployment evidence",
+  "chrome": true,
+  "firefox": true,
+  "safari": "not_tested_requires_macOS",
+  "marketplace": "not_checked"
+}

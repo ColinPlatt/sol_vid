@@ -24,7 +24,7 @@ const server=createServer(async(req,res)=>{
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin=`http://127.0.0.1:${server.address().port}`;
 let chrome,ws,driver,session;
-const report={chrome:false,firefox:false,safari:'not_tested_requires_macOS',marketplace:'not_checked'};
+const report={scope:'current development fixtures, not live deployment evidence',chrome:false,firefox:false,safari:'not_tested_requires_macOS',marketplace:'not_checked'};
 try{
  chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((resolve,reject)=>{let log='';const timer=setTimeout(()=>reject(Error('Chrome startup timeout')),20000);chrome.once('error',reject);chrome.stderr.on('data',d=>{log+=d;const m=log.match(/DevTools listening on (ws:\/\/\S+)/);if(m){clearTimeout(timer);resolve(m[1]);}});});
@@ -41,7 +41,7 @@ try{
  const f=await evaluate('window.__videoFrame');await delay(170);assert.notEqual(await evaluate('window.__videoFrame'),f);
  await evaluate("document.querySelector('button').click()");await delay(80);const paused=await evaluate('window.__videoFrame');await delay(200);assert.equal(await evaluate('window.__videoFrame'),paused);
  await evaluate("document.querySelector('button').click()");await delay(200);assert.notEqual(await evaluate('window.__videoFrame'),paused);
- const screenshot=(await cdp('Page.captureScreenshot',{format:'png'})).data;await writeFile(path.join(root,'previews/video/chrome-player.png'),Buffer.from(screenshot,'base64'));
+ const screenshot=(await cdp('Page.captureScreenshot',{format:'png'})).data;await writeFile(path.join(root,'previews/video/chrome-player-development.png'),Buffer.from(screenshot,'base64'));
  await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`
  const settings=${JSON.stringify(config)},uri=${JSON.stringify(uri)};
  const account='0x'+'a'.repeat(40),collection='0x'+'b'.repeat(40),renderer='0x'+'c'.repeat(40),hash='0x'+'d'.repeat(64);
@@ -67,7 +67,7 @@ try{
  const embeddedBefore=(await cdp('Page.captureScreenshot',{format:'png',clip:rect})).data;await delay(230);
  const embeddedAfter=(await cdp('Page.captureScreenshot',{format:'png',clip:rect})).data;
  assert(embeddedBefore!==embeddedAfter,'Sandboxed onchain player did not animate');
- await writeFile(path.join(root,'previews/video/chrome-embedded-player.png'),Buffer.from(embeddedAfter,'base64'));
+ await writeFile(path.join(root,'previews/video/chrome-embedded-player-development.png'),Buffer.from(embeddedAfter,'base64'));
 
  assert(await evaluate("document.querySelector('#download').href.startsWith('blob:')"));
  await evaluate("document.querySelector('#connect').click()");await until("!document.querySelector('#mint').disabled");await evaluate("document.querySelector('#mint').click()");await until("document.querySelector('#mint-status').textContent.includes('Minted ghoulballs')");
@@ -75,7 +75,7 @@ try{
  await evaluate("document.querySelector('#refresh').click()");await until("document.querySelectorAll('.tile').length===1");
  await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
  assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
- await writeFile(path.join(root,'previews/video/chrome-mint-mobile.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await writeFile(path.join(root,'previews/video/chrome-mint-mobile-development.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
  await evaluate("window.__qaReadFail=true;document.querySelector('#token-form').requestSubmit()");await until("document.querySelector('#view-status').textContent.includes('Unable to read')");
  report.chrome=true;
  // Use actual Firefox/Geckodriver binaries, avoiding Snap's profile path indirection.
@@ -92,9 +92,9 @@ try{
  assert(await execute('return window.__videoLoops>=1'),'Firefox failed to loop');
  await execute("document.querySelector('button').click();return true;");await delay(80);const pause2=await execute('return window.__videoFrame');await delay(200);assert.equal(await execute('return window.__videoFrame'),pause2);
  await execute("document.querySelector('button').click();return true;");await delay(200);assert.notEqual(await execute('return window.__videoFrame'),pause2);
- const shot=await webdriver(`/session/${session}/screenshot`,undefined,'GET');await writeFile(path.join(root,'previews/video/firefox-player.png'),Buffer.from(shot,'base64'));
+ const shot=await webdriver(`/session/${session}/screenshot`,undefined,'GET');await writeFile(path.join(root,'previews/video/firefox-player-development.png'),Buffer.from(shot,'base64'));
  await webdriver(`/session/${session}`,undefined,'DELETE');session=null;report.firefox=true;
- await writeFile(path.join(root,'previews/video/browser-validation.json'),JSON.stringify(report,null,2)+'\n');
+ await writeFile(path.join(root,'previews/video/browser-validation-development.json'),JSON.stringify(report,null,2)+'\n');
  console.log('PASS: Chrome self-contained loop/pause/resume, disabled release, mocked zero-value mint, gallery, download, RPC errors and mobile layout; Firefox loop/pause/resume. Safari requires a macOS check.');
 }finally{
  ws?.close();chrome?.kill('SIGTERM');driver?.kill('SIGTERM');await new Promise(resolve=>server.close(resolve));await delay(250);await rm(profile,{recursive:true,force:true}).catch(()=>{});

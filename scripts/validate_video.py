@@ -48,6 +48,7 @@ def inspect(path,seed):
     frame.cache_clear()
     return hashes
 parser=argparse.ArgumentParser();parser.add_argument('--profile',choices=['amsterdam','base'],required=True);args=parser.parse_args()
+subprocess.run([sys.executable,str(ROOT/'scripts/build_video_player.py'),'--check'],check=True)
 rows=[];paths=[];expected_hashes=[];coverage=set()
 for path in sorted((OUT/'matrix').glob('*.uri'),key=lambda p:int(p.stem)):
     record=json.loads(path.with_suffix('.json').read_text());seed=int(record['seed']);r=traits(seed)
@@ -68,6 +69,6 @@ for size in (256,512):inspect(OUT/f'avi-rle-{size}-42.avi',42)
 metadata,media,svg=unpack((OUT/'nft-metadata.bin').read_text());seed=int((OUT/'nft-seed.txt').read_text());poster(svg,frame(0,25,seed)[0]);assert media==(OUT/'nft-video.bin').read_bytes()
 assert metadata['animation_url']==(OUT/'nft-animation.bin').read_text()
 (OUT/'nft-player.html').write_text(unquote(metadata['animation_url'][len('data:text/html,'):]))
-report={'profile':args.profile,'budget':500_000_000,'matrix_cases':64,'frames_per_case':50,'width':512,'height':512,'fps':25,'duration_seconds':2,'full_metadata_max_gas':max(r['gas'] for r in rows),'full_metadata_min_gas':min(r['gas'] for r in rows),'full_metadata_max_bytes':max(r['bytes'] for r in rows),'rgb_reference':'all frames exact','embedded_decoder':'all frames equal FFmpeg RGBA','poster':'all first frames exact','marketplace_playback':'not_checked','rows':rows}
-(OUT/f'validation-{args.profile}.json').write_text(json.dumps(report,indent=2)+'\n')
+report={'scope':'Current development source; deployed release evidence remains pinned separately','profile':args.profile,'budget':500_000_000,'matrix_cases':64,'frames_per_case':50,'width':512,'height':512,'fps':25,'duration_seconds':2,'full_metadata_max_gas':max(r['gas'] for r in rows),'full_metadata_min_gas':min(r['gas'] for r in rows),'full_metadata_max_bytes':max(r['bytes'] for r in rows),'rgb_reference':'all frames exact','embedded_decoder':'all frames equal FFmpeg RGBA','poster':'all first frames exact','marketplace_playback':'not_checked','rows':rows}
+(OUT/f'validation-{args.profile}-development.json').write_text(json.dumps(report,indent=2)+'\n')
 print(f"PASS {args.profile}: 64 artwork combinations × 50 exact RGB frames, embedded decoder, posters; max full metadata {report['full_metadata_max_gas']:,} gas / {report['full_metadata_max_bytes']:,} bytes. Marketplace playback unverified.")
