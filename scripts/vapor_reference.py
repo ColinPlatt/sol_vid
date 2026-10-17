@@ -1,4 +1,4 @@
-"""Independent Python rasterizer for GHOULBALLS_VAPOR_V2 (no Solidity frame input)."""
+"""Independent Python rasterizer for GHOULBALLS_VAPOR_V3 (no Solidity frame input)."""
 from functools import lru_cache
 import subprocess
 
@@ -10,7 +10,15 @@ SKIES = [
     "13091f29113546184176264f9250bcf26d9bffd18cd5b9ff",
     "160b262c153b55214e9039587e55adff8eb8ffe3a39ef5ed",
 ]
-NEON = bytes.fromhex("65f5e8ff78cf9b8affffc49162b9ffe4a5ff")
+
+def neon(h):
+    """Ball colour from the ball's hash: integer HSV, hue 0..359, saturation 120..229, value 220..255."""
+    hue, sat, val = (h >> 136) % 360, 120 + (h >> 152) % 110, 220 + (h >> 168) % 36
+    rem = hue % 60 * 255 // 60
+    p = val * (255 - sat) // 255
+    q = val * (255 - sat * rem // 255) // 255
+    t = val * (255 - sat * (255 - rem) // 255) // 255
+    return bytes([(val, t, p), (q, val, p), (p, val, t), (p, q, val), (t, p, val), (val, p, q)][hue // 60])
 
 @lru_cache(None)
 def keccak(data):
@@ -18,11 +26,11 @@ def keccak(data):
 
 @lru_cache(None)
 def traits(seed):
-    domain = b"GHOULBALLS_VAPOR_V2"
+    domain = b"GHOULBALLS_VAPOR_V3"
     key = keccak((64).to_bytes(32, "big") + seed.to_bytes(32, "big") + len(domain).to_bytes(32, "big") + domain.ljust(32, b"\0"))
     theme, motion = (key >> 8) % 4, (key >> 16) % 4
-    rotation = (key >> 24) % 6 * 3
-    palette = bytes.fromhex(SKIES[theme]) + NEON[rotation:] + NEON[:rotation] + bytes.fromhex("4a376ff5fff3")
+    ball_colours = b"".join(neon(keccak(seed.to_bytes(32, "big") + i.to_bytes(32, "big"))) for i in range(6))
+    palette = bytes.fromhex(SKIES[theme]) + ball_colours + bytes.fromhex("4a376ff5fff3")
     balls = []
     for i in range([1, 2, 4, 6][key % 4]):
         h = keccak(seed.to_bytes(32, "big") + i.to_bytes(32, "big"))

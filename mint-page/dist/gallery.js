@@ -7,7 +7,6 @@ const CONCURRENCY = 3;
 const queue = [];
 let active = 0;
 let generation = 0;
-const format = value => new Intl.NumberFormat().format(value);
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -56,19 +55,14 @@ async function loadToken(network, collection, id, card, run) {
     caption.append(a);
   }
   if (token.status === "rejected") { media.replaceChildren(el("span", "token-error", "UNREADABLE")); return; }
-  const { image, attributes, animation } = token.value;
+  const { image, attributes } = token.value;
   const img = el("img");
-  img.src = image; img.alt = `ghoulballs #${id}`; img.width = 256; img.height = 256;
+  img.src = image; img.alt = token.value.name; img.width = 256; img.height = 256;
   media.replaceChildren(img);
   const traits = el("div", "trait-row");
   const count = attributes["Ball Count"];
   for (const value of [count && `${count} ${count === 1 ? "BALL" : "BALLS"}`, attributes.Theme, attributes.Motion]) if (value) traits.append(el("span", "", String(value).toUpperCase()));
   if (traits.childElementCount) caption.append(traits);
-  if (animation) {
-    const link = el("a", "", "MPG ↓");
-    link.href = animation; link.download = `ghoulballs-v${collection.version}-${id}.mpg`;
-    caption.append(link);
-  }
 }
 
 function tokenCard(network, collection, id, run, observer) {
@@ -76,44 +70,14 @@ function tokenCard(network, collection, id, run, observer) {
   const media = el("div", "token-media");
   media.append(el("span", "token-loading", "●"));
   const caption = el("figcaption");
-  caption.append(el("strong", "", `#${id}`));
+  caption.append(el("strong", "", `#${collection.tokensPerMint === 3 ? (id + 2) / 3 : id}`));
   card.append(media, caption);
   card.load = () => schedule(() => loadToken(network, collection, id, card, run));
   observer.observe(card);
   return card;
 }
 
-async function renderVersion(network, collection, run, observer, container) {
-  const section = el("section", "gallery-version");
-  const head = el("div", "version-head");
-  const link = el("a", "", shortAddress(collection.address) + " ↗");
-  link.href = `${network.explorerUrl}/address/${collection.address}`; link.target = "_blank"; link.rel = "noopener noreferrer";
-  const count = el("span", "version-count", "…");
-  head.append(el("h2", "", `V${collection.version}`), count, link);
-  const grid = el("div", "token-grid");
-  section.append(head, grid);
-  container.append(section);
-  const supply = Number(BigInt(await rpc(network, "eth_call", [{ to: collection.address, data: TOTAL_SUPPLY, gas: "0x186a0" }, "latest"])));
-  if (run !== generation) return 0;
-  count.textContent = format(supply);
-  if (!supply) { grid.replaceWith(el("p", "gallery-empty", "NONE YET")); return 0; }
-  // Newest first.
-  let next = supply;
-  const more = el("button", "chip-button gallery-more", "MORE");
-  more.type = "button";
-  const showMore = () => {
-    const end = Math.max(0, next - PAGE);
-    for (let id = next; id > end; --id) grid.append(tokenCard(network, collection, id, run, observer));
-    next = end;
-    more.hidden = next === 0;
-  };
-  more.addEventListener("click", showMore);
-  section.append(more);
-  showMore();
-  return supply;
-}
-
-// Every token from every collection version on the network, read from chain.
+// Every token from every collection deployed on the network, read from chain: one list, newest first.
 export async function showGallery(network) {
   const run = ++generation;
   queue.length = 0;
@@ -122,10 +86,30 @@ export async function showGallery(network) {
   $("gallery-status-text").textContent = "";
   const collections = galleryCollections(network);
   if (!collections.length) return;
+  const supplies = await Promise.allSettled(collections.map(c => rpc(network, "eth_call", [{ to: c.address, data: TOTAL_SUPPLY, gas: "0x186a0" }, "latest"])));
+  if (run !== generation) return;
+  const tokens = [];
+  collections.forEach((collection, i) => {
+    if (supplies[i].status !== "fulfilled") return;
+    // A set collection lists one card per set, keyed by its first (GIF) token.
+    const per = collection.tokensPerMint === 3 ? 3 : 1;
+    for (let id = Number(BigInt(supplies[i].value)) - per + 1; id > 0; id -= per) tokens.push([collection, id]);
+  });
+  if (supplies.some(r => r.status === "rejected")) $("gallery-status-text").textContent = "SOME READS FAILED";
+  if (!tokens.length) return;
   const observer = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting) { observer.unobserve(entry.target); entry.target.load(); }
   }, { rootMargin: "400px" });
-  const results = await Promise.allSettled(collections.map(c => renderVersion(network, c, run, observer, container)));
-  if (run !== generation) return;
-  $("gallery-status-text").textContent = results.some(r => r.status === "rejected") ? "SOME READS FAILED" : "";
+  const grid = el("div", "token-grid");
+  const more = el("button", "chip-button gallery-more", "MORE");
+  more.type = "button";
+  let shown = 0;
+  const showMore = () => {
+    for (const [collection, id] of tokens.slice(shown, shown + PAGE)) grid.append(tokenCard(network, collection, id, run, observer));
+    shown = Math.min(tokens.length, shown + PAGE);
+    more.hidden = shown >= tokens.length;
+  };
+  more.addEventListener("click", showMore);
+  container.append(grid, more);
+  showMore();
 }

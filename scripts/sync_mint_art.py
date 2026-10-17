@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Copy exact Solidity-generated V2 GIFs and derived static posters to the mint page."""
+"""Copy exact Solidity-generated V3 GIFs and derived static posters to the mint page."""
 import json
 import shutil
 from pathlib import Path
@@ -22,4 +22,4 @@ for seed in seeds:
 for old in assets.glob("seed-*.*"):
     if int(old.stem.split("-")[1]) not in seeds:
         old.unlink()
-print("Synced exact onchain GIFs and offchain static posters for seven V2 seeds.")
+print("Synced exact onchain GIFs and offchain static posters for seven V3 seeds.")

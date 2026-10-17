@@ -22,10 +22,13 @@ abstract contract DeployGhoulballs {
         vm.startBroadcast();
         renderer = new GenerativeVideo();
         collection = new SolVideoNFT(renderer);
+        // Always mint the first token to the deployer straight away, so the collection is live with a token.
+        collection.mint();
         vm.stopBroadcast();
         require(address(collection.renderer()) == address(renderer), "Renderer mismatch");
         require(collection.MAX_SUPPLY() == 6667, "Unexpected supply cap");
-        require(collection.totalSupply() == 0, "Unexpected initial supply");
+        require(collection.totalSupply() == 1, "Deployer token not minted");
+        require(collection.hasMinted(collection.ownerOf(1)), "Deployer token owner");
         require(keccak256(bytes(collection.name())) == keccak256("ghoulballs"), "Unexpected name");
         require(keccak256(bytes(collection.symbol())) == keccak256("ghoulballs"), "Unexpected symbol");
         require(

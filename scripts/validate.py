@@ -75,7 +75,7 @@ def validate_recipe(seed):
         colour = reference["palette"][3 * (8 + i):3 * (9 + i)]
         assert data[start + 96:start + 99] == colour == palette[3 * (8 + i):3 * (9 + i)]
         balls.append(dict(radius=radius, x_phase=word(start + 32), y_phase=word(start + 64), colour="#" + colour.hex()))
-    return dict(seed=seed, scene=scene, ball_count=count, theme=THEMES[reference["theme"]], motion=MOTIONS[reference["motion"]], art_version="GHOULBALLS_VAPOR_V2", balls=balls)
+    return dict(seed=seed, scene=scene, ball_count=count, theme=THEMES[reference["theme"]], motion=MOTIONS[reference["motion"]], art_version="GHOULBALLS_VAPOR_V3", balls=balls)
 
 
 @lru_cache(maxsize=None)

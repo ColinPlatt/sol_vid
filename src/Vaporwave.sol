@@ -4,7 +4,7 @@ pragma solidity ^0.8.30;
 /// @dev Version-two artwork, isolated from the original scene experiments.
 abstract contract Vaporwave {
     function _vaporKey(uint256 seed) internal pure returns (uint256) {
-        return uint256(keccak256(abi.encode("GHOULBALLS_VAPOR_V2", seed)));
+        return uint256(keccak256(abi.encode("GHOULBALLS_VAPOR_V3", seed)));
     }
 
     function _vaporPalette(uint256 seed) internal pure returns (bytes memory palette) {
@@ -19,14 +19,16 @@ abstract contract Vaporwave {
                         ? hex"13091f29113546184176264f9250bcf26d9bffd18cd5b9ff"
                         : hex"160b262c153b55214e9039587e55adff8eb8ffe3a39ef5ed"
         );
-        bytes memory neon = hex"65f5e8ff78cf9b8affffc49162b9ffe4a5ff";
         palette = new bytes(48);
         for (uint256 i; i < 24; ++i) {
             palette[i] = sky[i];
         }
-        uint256 rotation = (key >> 24) % 6;
-        for (uint256 i; i < 18; ++i) {
-            palette[24 + i] = neon[(i + rotation * 3) % 18];
+        // Ball i's colour comes from its own hash: any hue, neon-range saturation and brightness.
+        for (uint256 i; i < 6; ++i) {
+            (uint256 r, uint256 g, uint256 b) = _neon(uint256(keccak256(abi.encode(seed, i))));
+            palette[24 + 3 * i] = bytes1(uint8(r));
+            palette[25 + 3 * i] = bytes1(uint8(g));
+            palette[26 + 3 * i] = bytes1(uint8(b));
         }
         palette[42] = 0x4a;
         palette[43] = 0x37;
@@ -34,6 +36,24 @@ abstract contract Vaporwave {
         palette[45] = 0xf5;
         palette[46] = 0xff;
         palette[47] = 0xf3;
+    }
+
+    /// @dev Integer HSV to RGB: hue 0..359, saturation 120..229, value 220..255 (all /255).
+    function _neon(uint256 hash) internal pure returns (uint256 r, uint256 g, uint256 b) {
+        uint256 hue = (hash >> 136) % 360;
+        uint256 s = 120 + (hash >> 152) % 110;
+        uint256 v = 220 + (hash >> 168) % 36;
+        uint256 rem = (hue % 60) * 255 / 60;
+        uint256 p = v * (255 - s) / 255;
+        uint256 q = v * (255 - s * rem / 255) / 255;
+        uint256 t = v * (255 - s * (255 - rem) / 255) / 255;
+        uint256 region = hue / 60;
+        if (region == 0) return (v, t, p);
+        if (region == 1) return (q, v, p);
+        if (region == 2) return (p, v, t);
+        if (region == 3) return (p, q, v);
+        if (region == 4) return (t, p, v);
+        return (v, p, q);
     }
 
     function _vaporBackdrop(uint256 size, uint256 seed) internal pure returns (bytes memory pixels) {

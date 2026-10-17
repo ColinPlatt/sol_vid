@@ -6,9 +6,10 @@ export const RENDER_GAS = "0x1dcd6500"; // 500M, the documented render budget.
 const uint = value => BigInt(value).toString(16).padStart(64, "0");
 export const tokenURICall = id => "0xc87b56dd" + uint(id);
 export const ownerOfCall = id => "0x6352211e" + uint(id);
+export const hasMintedCall = account => "0x38e21cce" + account.slice(2).toLowerCase().padStart(64, "0");
 export const gifCall = id => "0x7492d87c" + uint(id);
 
-// Every collection version ever deployed on a network, newest first.
+// Every collection ever deployed on a network, current first.
 export function galleryCollections(network) {
   if (!network?.deployed || !Array.isArray(network.collections)) return [];
   return network.collections.filter(c => Number.isSafeInteger(c.version) && isAddress(c.address)).sort((a, b) => b.version - a.version);
@@ -36,7 +37,7 @@ export function parseTokenURI(uri) {
   const metadata = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(base64(uri.slice(prefix.length))));
   if (typeof metadata.name !== "string" || typeof metadata.image !== "string") throw new Error("Metadata has no image.");
   if (!/^data:image\/(?:gif;base64,|svg\+xml,)/.test(metadata.image)) throw new Error("Unexpected image encoding.");
-  if (metadata.animation_url !== undefined && !/^data:video\/mpeg;base64,/.test(metadata.animation_url)) throw new Error("Unexpected animation encoding.");
+  if (metadata.animation_url !== undefined && !/^data:(?:video\/mpeg;base64,|text\/html,)/.test(metadata.animation_url)) throw new Error("Unexpected animation encoding.");
   const attributes = Array.isArray(metadata.attributes) ? metadata.attributes : [];
   return { name: metadata.name, description: String(metadata.description ?? ""), image: metadata.image, animation: metadata.animation_url ?? null,
     attributes: Object.fromEntries(attributes.filter(a => typeof a?.trait_type === "string").map(a => [a.trait_type, a.value])) };

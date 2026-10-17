@@ -12,7 +12,12 @@ measurements and example media in sync as this experiment develops.
   an explicit version change and updated independent reference validation.
 - Do not modify sibling inspiration repositories without an explicit request.
 - The NFT collection name and symbol are both `ghoulballs`. Minting is free of
-  protocol fees, with a fixed maximum supply of 6,667 and no per-wallet limit. Network gas still applies.
+  protocol fees; network gas still applies. The NFT artwork is the GIF only (no `animation_url`);
+  at most 6,667 tokens, one mint per caller address. The AVI/MPEG HTML-player
+  version is parked on the `avi-mpeg-players` branch; do not merge it into `main`
+  without an explicit request.
+- Deployment scripts mint the first set to the deployer immediately after deploying
+  the collection, in the same broadcast; keep that in new deployment scripts.
 - `deployments/sepolia.json` records deployment status. Keep simulation addresses
   separate from real deployments; preparation does not authorize broadcasting.
 - Check the vendored OpenZeppelin snapshot with `python3 scripts/check_vendor.py`.
@@ -34,6 +39,7 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
 - Rebuild page deployment settings with `python3 scripts/sync_mint_config.py`
   after updating confirmed deployment manifests. Never put signing keys in page files.
 
-- Current seed-only artwork is `GHOULBALLS_VAPOR_V2` (scenes 7–10). Preserve
-  the original scenes 0–6. Update `scripts/vapor_reference.py` independently when
-  the V2 recipe changes; refresh mint-page media using `scripts/sync_mint_art.py`.
+- Current seed-only artwork is `GHOULBALLS_VAPOR_V3` (scenes 7–10; per-ball HSV
+  colours). Preserve the original scenes 0–6. Update `scripts/vapor_reference.py`
+  independently when the recipe changes; refresh mint-page media using
+  `scripts/sync_mint_art.py`.

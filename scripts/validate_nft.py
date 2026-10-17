@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decode exported NFT tokenURI, verify its traits, media, timing and pixels."""
+"""Decode exported NFT tokenURIs: verify traits, seed, the pixelated SVG image and every GIF frame's pixels."""
 import base64
 import json
 import subprocess
@@ -11,6 +11,10 @@ from vapor_reference import traits as vapor_traits, frame as vapor_frame, THEMES
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / "previews" / "nft"
+SVG_HEAD = ("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'"
+            "%20width='1024'%20height='1024'%3E%3Cimage%20width='64'%20height='64'%20image-rendering='optimizeSpeed'"
+            "%20style='image-rendering:crisp-edges;image-rendering:pixelated'%20href='data:image/gif;base64,")
+SVG_TAIL = "'/%3E%3C/svg%3E"
 
 
 def run(*args):
@@ -23,12 +27,6 @@ def data_uri(uri, mime):
     prefix = f"data:{mime};base64,"
     assert uri.startswith(prefix)
     return base64.b64decode(uri[len(prefix):], validate=True)
-
-
-SVG_HEAD = ("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'"
-            "%20width='1024'%20height='1024'%3E%3Cimage%20width='64'%20height='64'%20image-rendering='optimizeSpeed'"
-            "%20style='image-rendering:crisp-edges;image-rendering:pixelated'%20href='data:image/gif;base64,")
-SVG_TAIL = "'/%3E%3C/svg%3E"
 
 
 def sharp_gif(uri):
@@ -56,16 +54,14 @@ for label in ["token-1", "stress"]:
     uri = (ART / f"{label}.uri.txt").read_text()
     assert len(uri) == measured["uri_bytes"] and measured["gas"] < 500_000_000
     metadata = json.loads(data_uri(uri, "application/json"))
-    assert metadata["name"] == f"ghoulballs #{token_id}"
+    assert metadata["name"] == f"ghoulballs #{token_id}" and "animation_url" not in metadata
     attributes = {a["trait_type"]: a["value"] for a in metadata["attributes"]}
     reference = vapor_traits(seed)
-    assert attributes["Art Version"] == "GHOULBALLS_VAPOR_V2"
+    assert attributes["Art Version"] == "GHOULBALLS_VAPOR_V3"
     assert attributes["Theme"] == THEMES[reference["theme"]]
     assert attributes["Motion"] == MOTIONS[reference["motion"]]
-    assert attributes["Seed"] == str(seed)
-    assert attributes["Ball Count"] in [1, 2, 4, 6]
-    assert attributes["Duration Seconds"] == 2 and attributes["Video FPS"] == 25
-    assert attributes["Video Format"] == "MPEG-1"
+    assert attributes["Seed"] == str(seed) and attributes["Ball Count"] == reference["ball_count"]
+    assert attributes["Duration Seconds"] == 2 and attributes["FPS"] == 10
 
     # Independent ABI encoding of the public seed derivation.
     domain = b"SOL_VIDEO_NFT_V1"
@@ -79,25 +75,17 @@ for label in ["token-1", "stress"]:
     start = word(0)
     assert word(start) == seed and word(start + 64) == attributes["Ball Count"]
     ball_start = start + word(start + 128)
-    assert word(ball_start) == attributes["Ball Count"]
     for i in range(attributes["Ball Count"]):
         p = ball_start + 32 + i * 128
-        assert attributes[f"Ball {i + 1} Radius"] == word(p)
+        assert attributes[f"Ball {i + 1} Radius"] == word(p) == reference["balls"][i]["radius"]
         assert attributes[f"Ball {i + 1} Colour"] == "0x" + recipe[p + 96:p + 99].hex()
+        assert reference["balls"][i]["colour"] == "#" + recipe[p + 96:p + 99].hex()
 
     gif = sharp_gif(metadata["image"])
-    mpg = data_uri(metadata["animation_url"], "video/mpeg")
-    (ART / f"{label}.gif").write_bytes(gif)
-    (ART / f"{label}.mpg").write_bytes(mpg)
+    assert gif == (ART / f"{label}.gif").read_bytes(), "tokenURI image must embed the token's gif() bytes"
+    if (ART / f"{label}.image-uri.abi").exists():
+        assert abi_string(ART / f"{label}.image-uri.abi") == metadata["image"]
     (ART / f"{label}.metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
-    for field, stem in [("image", "image-uri"), ("animation_url", "animation-uri")]:
-        path = ART / f"{label}.{stem}.abi"
-        if path.exists(): assert abi_string(path) == metadata[field]
-
-    avi = run("ffmpeg", "-v", "error", "-i", str(ART / f"{label}.avi"), "-vsync", "0", "-f", "rawvideo", "-pix_fmt", "rgb24", "-")
-    assert len(avi) == 50 * 64 * 64 * 3
-    for f in range(50):
-        assert avi[f * 64 * 64 * 3:(f + 1) * 64 * 64 * 3] == vapor_frame(f, 25, seed)[0], f"V2 reference mismatch: {label}, frame {f}"
     with Image.open(ART / f"{label}.gif") as im:
         assert im.size == (64, 64) and im.n_frames == 20 and im.info["loop"] == 0
         duration = 0
@@ -105,27 +93,9 @@ for label in ["token-1", "stress"]:
             im.seek(f)
             duration += im.info["duration"]
             assert im.info["duration"] == 100
-            if f % 2 == 0:
-                offset = (f * 5 // 2) * 64 * 64 * 3
-                assert im.convert("RGB").tobytes() == avi[offset:offset + 64 * 64 * 3]
+            assert im.convert("RGB").tobytes() == vapor_frame(f, 10, seed)[0], f"V3 reference mismatch: {label}, frame {f}"
         assert duration == 2000
-
-    frames = json.loads(run("ffprobe", "-v", "error", "-show_frames", "-show_entries", "frame=width,height,pts_time,pkt_duration_time", "-of", "json", str(ART / f"{label}.mpg")))["frames"]
-    assert len(frames) == 50
-    for i, frame in enumerate(frames):
-        assert (frame["width"], frame["height"]) == (512, 512)
-        assert abs(float(frame["pts_time"]) - i / 25) < 1e-6
-        assert abs(float(frame["pkt_duration_time"]) - 0.04) < 1e-6
-    yuv = run("ffmpeg", "-v", "error", "-i", str(ART / f"{label}.mpg"), "-vsync", "0", "-f", "rawvideo", "-pix_fmt", "yuv420p", "-")
-    stride = 512 * 512 * 3 // 2
-    assert len(yuv) == 50 * stride
-    for f in range(50):
-        frame = avi[f * 64 * 64 * 3:(f + 1) * 64 * 64 * 3]
-        expected = bytes(16 + ((66 * frame[p] + 129 * frame[p + 1] + 25 * frame[p + 2] + 128) >> 8) for p in range(0, len(frame), 3))
-        expected = Image.frombytes("L", (64, 64), expected).resize((512, 512), Image.Resampling.NEAREST).tobytes()
-        assert yuv[f * stride:f * stride + 512 * 512] == expected
-    run("ffmpeg", "-v", "error", "-y", "-i", str(ART / f"{label}.mpg"), "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart", str(ART / f"{label}.preview.mp4"))
-    results.append(dict(token_id=token_id, gas=measured["gas"], uri_bytes=len(uri), gif_bytes=len(gif), mpg_bytes=len(mpg), ball_count=attributes["Ball Count"]))
+    results.append(dict(token_id=token_id, gas=measured["gas"], uri_bytes=len(uri), gif_bytes=len(gif), ball_count=attributes["Ball Count"]))
     print(f"PASS {label}: {measured['gas']:,} gas, {len(uri):,} URI bytes, {attributes['Ball Count']} balls")
 (ART / "validation.json").write_text(json.dumps(results, indent=2) + "\n")
-print("NFT JSON, seed, traits, pixelated SVG-wrapped GIF, MPEG, standalone URI methods and AVI correspondence verified.")
+print("NFT JSON, seed, traits, ball colours, pixelated SVG image and every GIF frame verified against the independent V3 reference.")

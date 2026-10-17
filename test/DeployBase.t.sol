@@ -21,13 +21,13 @@ contract DeployBaseTest {
         vm.chainId(8453);
         (GenerativeVideo renderer, SolVideoNFT collection) = new DeployBase().run();
         require(address(collection.renderer()) == address(renderer), "Wrong Base renderer");
-        require(collection.totalSupply() == 0 && collection.supportsInterface(0x80ac58cd), "Bad Base collection");
+        require(collection.totalSupply() == 1 && collection.supportsInterface(0x80ac58cd), "Bad Base collection");
     }
 
     function testBaseSepoliaRehearsal() public {
         vm.chainId(84532);
         (GenerativeVideo renderer, SolVideoNFT collection) = new DeployBaseSepolia().run();
         require(address(collection.renderer()) == address(renderer), "Wrong Base Sepolia renderer");
-        require(collection.totalSupply() == 0, "Deployment minted tokens");
+        require(collection.totalSupply() == 1, "Deployment did not mint the first token");
     }
 }

@@ -9,6 +9,10 @@ import {Vm} from "./SolVideo.t.sol";
 interface VmNFT is Vm {
     function toString(address value) external pure returns (string memory);
     function prank(address sender) external;
+    function startPrank(address sender) external;
+    function stopPrank() external;
+    function store(address target, bytes32 slot, bytes32 value) external;
+    function load(address target, bytes32 slot) external view returns (bytes32);
     function deal(address account, uint256 balance) external;
     function warp(uint256 timestamp) external;
     function expectRevert(bytes calldata data) external;
@@ -80,14 +84,24 @@ contract SolVideoNFTTest is IERC721Receiver {
         require(address(nft).balance == 0, "Mint collected payment");
     }
 
-    function testFuzzRepeatedMintsNoWalletLimit(uint8 quantity) public {
-        uint256 count = uint256(quantity) % 64 + 1;
-        for (uint256 i; i < count; ++i) {
-            vm.prank(ALICE);
-            require(nft.mint() == i + 1, "Wrong token ID");
-        }
-        require(nft.totalSupply() == count && nft.balanceOf(ALICE) == count, "Wallet mint limit");
-        require(nft.ownerOf(count) == ALICE, "Final token missing");
+    function testOneMintPerCallerAddress() public {
+        vm.startPrank(ALICE);
+        nft.mint();
+        vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.AlreadyMinted.selector));
+        nft.mint();
+        vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.AlreadyMinted.selector));
+        nft.mintTo(BOB);
+        vm.stopPrank();
+        require(nft.hasMinted(ALICE) && !nft.hasMinted(BOB), "Wrong minted flags");
+        // Receiving a gift does not use the recipient's own mint, and transfers do not reset it.
+        vm.prank(BOB);
+        nft.mintTo(ALICE);
+        vm.prank(ALICE);
+        nft.transferFrom(ALICE, BOB, 1);
+        vm.prank(ALICE);
+        vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.AlreadyMinted.selector));
+        nft.mint();
+        require(nft.totalSupply() == 2 && nft.balanceOf(ALICE) == 1 && nft.balanceOf(BOB) == 1, "Wrong supply");
     }
 
     function testPaymentIsRejected() public {
@@ -96,11 +110,11 @@ contract SolVideoNFTTest is IERC721Receiver {
         require(!ok && nft.totalSupply() == 0 && address(nft).balance == 0, "Paid mint accepted");
     }
 
-    function testRejectedSafeMintRollsBackCounter() public {
+    function testRejectedSafeMintRollsBackCounterAndMintFlag() public {
         RejectingReceiver receiver = new RejectingReceiver();
         vm.expectRevert(abi.encodeWithSignature("ERC721InvalidReceiver(address)", address(receiver)));
         nft.mintTo(address(receiver));
-        require(nft.totalSupply() == 0, "Failed mint changed supply");
+        require(nft.totalSupply() == 0 && !nft.hasMinted(address(this)), "Failed mint changed state");
         require(nft.mintTo(ALICE) == 1, "Failed mint consumed ID");
     }
 
@@ -110,25 +124,24 @@ contract SolVideoNFTTest is IERC721Receiver {
         require(nft.totalSupply() == 0, "Zero recipient consumed ID");
     }
 
-    function testReceiverCanReenterWithoutDuplicateIDs() public {
+    function testReentrantSecondMintFromSameCallerReverts() public {
         ReentrantMinter receiver = new ReentrantMinter(nft);
+        vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.AlreadyMinted.selector));
         receiver.start();
-        require(nft.totalSupply() == 2 && nft.balanceOf(address(receiver)) == 2, "Wrong reentrant supply");
-        require(nft.ownerOf(1) == address(receiver) && nft.ownerOf(2) == address(receiver), "Duplicate ID");
+        require(nft.totalSupply() == 0 && nft.balanceOf(address(receiver)) == 0, "Reentrant mint escaped rollback");
     }
 
-    function testSupplyCapBothMintPathsAndReentrantBoundary() public {
-        for (uint256 i; i < nft.MAX_SUPPLY() - 1; ++i) {
-            nft.mintTo(ALICE);
-        }
-        ReentrantMinter receiver = new ReentrantMinter(nft);
-        vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.SoldOut.selector));
-        receiver.start();
-        require(nft.totalSupply() == 6666, "Reentrant failure did not roll back");
-        require(nft.balanceOf(address(receiver)) == 0, "Reentrant mint escaped rollback");
+    function testSupplyCapBothMintPaths() public {
+        nft.mint();
+        // Jump the counter (storage slot 6) to just before the cap instead of minting 6,665 more.
+        require(uint256(vm.load(address(nft), bytes32(uint256(6)))) == 1, "totalSupply slot moved");
+        vm.store(address(nft), bytes32(uint256(6)), bytes32(uint256(6666)));
+        vm.prank(BOB);
         require(nft.mintTo(BOB) == 6667 && nft.ownerOf(6667) == BOB, "Final mint failed");
+        vm.prank(ALICE);
         vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.SoldOut.selector));
         nft.mint();
+        vm.prank(ALICE);
         vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.SoldOut.selector));
         nft.mintTo(ALICE);
         require(nft.totalSupply() == 6667, "Supply exceeded cap");
@@ -165,7 +178,7 @@ contract SolVideoNFTTest is IERC721Receiver {
         vm.expectRevert(abi.encodeWithSignature("ERC721NonexistentToken(uint256)", uint256(1)));
         nft.imageURI(1);
         vm.expectRevert(abi.encodeWithSignature("ERC721NonexistentToken(uint256)", uint256(1)));
-        nft.mpeg(1);
+        nft.gif(1);
     }
 
     function testRejectsMissingRenderer() public {
@@ -204,14 +217,14 @@ contract SolVideoNFTTest is IERC721Receiver {
         );
         vm.writeFileBinary("previews/nft/token-1.recipe.abi", abi.encode(nft.recipeOf(1)));
         vm.writeFileBinary("previews/nft/token-1.image-uri.abi", abi.encode(nft.imageURI(1)));
-        vm.writeFileBinary("previews/nft/token-1.animation-uri.abi", abi.encode(nft.animationURI(1)));
-        vm.writeFileBinary("previews/nft/token-1.avi", nft.avi(1));
+        vm.writeFileBinary("previews/nft/token-1.gif", nft.gif(1));
     }
 
     function testSixBallMetadataBudgetForEveryMotion() public {
         uint256[] memory selected = new uint256[](4);
         uint256[] memory areas = new uint256[](4);
         for (uint256 id = 1; id <= 128; ++id) {
+            vm.prank(address(uint160(0x10000 + id)));
             nft.mintTo(ALICE);
             GenerativeVideo.Recipe memory r = nft.recipeOf(id);
             if (r.ballCount != 6) continue;
@@ -237,6 +250,7 @@ contract SolVideoNFTTest is IERC721Receiver {
         uint256 largest;
         uint256 selected;
         for (uint256 id = 1; id <= 64; ++id) {
+            vm.prank(address(uint160(0x10000 + id)));
             nft.mintTo(ALICE);
             GenerativeVideo.Recipe memory r = nft.recipeOf(id);
             if (r.ballCount != 6) continue;
@@ -278,6 +292,6 @@ contract SolVideoNFTTest is IERC721Receiver {
             )
         );
         vm.writeFileBinary("previews/nft/stress.recipe.abi", abi.encode(nft.recipeOf(selected)));
-        vm.writeFileBinary("previews/nft/stress.avi", nft.avi(selected));
+        vm.writeFileBinary("previews/nft/stress.gif", nft.gif(selected));
     }
 }

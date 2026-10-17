@@ -35,15 +35,21 @@ for slug, chain_id, name, subtitle, rpc, render_rpc, explorer, testnet in networ
             raise ValueError(f"{slug}: successful deployment transaction hashes are required")
         # Every collection version ever deployed, for the onchain gallery; the current one is the mint target.
         versions = manifest.get("collections") or [dict(version=1, address=collection, status="current")]
-        versions = [dict(version=v["version"], address=address(v["address"]), current=v["status"] == "current") for v in versions]
+        versions = [dict(version=v["version"], address=address(v["address"]), current=v["status"] == "current",
+                         tokensPerMint=v.get("tokens_per_mint", 1), mintLimit=v.get("mint_limit")) for v in versions]
+        if any(v["tokensPerMint"] not in (1, 3) for v in versions):
+            raise ValueError(f"{slug}: tokens_per_mint must be 1 or 3")
         if [v["address"].lower() for v in versions if v["current"]] != [collection.lower()]:
             raise ValueError(f"{slug}: exactly one current collection must match the manifest collection")
     else:
         collection = renderer = None
         versions = []
+    tokens_per_mint = next((v["tokensPerMint"] for v in versions if v["current"]), 1)
+    mint_limit = next((v["mintLimit"] for v in versions if v["current"]), None)
     output["networks"].append(dict(chainId=chain_id, chainHex=hex(chain_id), name=name,
         subtitle=subtitle, testnet=testnet, rpcUrl=rpc, renderRpcUrl=render_rpc, explorerUrl=explorer,
-        collectionAddress=collection, rendererAddress=renderer, deployed=deployed, collections=versions))
+        collectionAddress=collection, rendererAddress=renderer, deployed=deployed, tokensPerMint=tokens_per_mint, mintLimit=mint_limit,
+        collections=versions))
 destination = ROOT / "mint-page" / "dist" / "config.json"
 destination.parent.mkdir(parents=True, exist_ok=True)
 destination.write_text(json.dumps(output, indent=2) + "\n")

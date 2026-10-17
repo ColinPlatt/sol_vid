@@ -11,19 +11,39 @@
       "rpcUrl": "https://ethereum-sepolia-rpc.publicnode.com",
       "renderRpcUrl": "https://sepolia.gateway.tenderly.co",
       "explorerUrl": "https://sepolia.etherscan.io",
-      "collectionAddress": "0xe7b06a27957ad992db764939c1836f92386369f1",
-      "rendererAddress": "0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a",
+      "collectionAddress": "0x02f3825aaf1d07efbdee52b5308981ecf47d769d",
+      "rendererAddress": "0xbd0e5fbcffd843f8c58a7bbb3cb6f75400fd60f9",
       "deployed": true,
+      "tokensPerMint": 1,
+      "mintLimit": 1,
       "collections": [
         {
           "version": 1,
           "address": "0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a",
-          "current": false
+          "current": false,
+          "tokensPerMint": 1,
+          "mintLimit": null
         },
         {
           "version": 2,
           "address": "0xe7b06a27957ad992db764939c1836f92386369f1",
-          "current": true
+          "current": false,
+          "tokensPerMint": 1,
+          "mintLimit": null
+        },
+        {
+          "version": 3,
+          "address": "0x48cd7822a357b473bab2b0bc90a0926c1e1897ab",
+          "current": false,
+          "tokensPerMint": 3,
+          "mintLimit": 1
+        },
+        {
+          "version": 4,
+          "address": "0x02f3825aaf1d07efbdee52b5308981ecf47d769d",
+          "current": true,
+          "tokensPerMint": 1,
+          "mintLimit": 1
         }
       ]
     },
@@ -39,6 +59,8 @@
       "collectionAddress": null,
       "rendererAddress": null,
       "deployed": false,
+      "tokensPerMint": 1,
+      "mintLimit": null,
       "collections": []
     },
     {
@@ -53,6 +75,8 @@
       "collectionAddress": null,
       "rendererAddress": null,
       "deployed": false,
+      "tokensPerMint": 1,
+      "mintLimit": null,
       "collections": []
     }
   ]

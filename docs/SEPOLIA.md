@@ -6,10 +6,33 @@ The confirmed addresses and receipts are recorded in `deployments/sepolia.json`.
 | Contract | Address | Deployment transaction |
 | --- | --- | --- |
 | Renderer | [0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a](https://sepolia.etherscan.io/address/0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a) | [Receipt](https://sepolia.etherscan.io/tx/0x6a179b483b949a68467f99c623b4146c9587a74b953590f02787eb0185ff8dc7) |
-| Collection v2 (current) | [0xe7b06a27957ad992db764939c1836f92386369f1](https://sepolia.etherscan.io/address/0xe7b06a27957ad992db764939c1836f92386369f1) | [Receipt](https://sepolia.etherscan.io/tx/0xec3a1c9e999859f74bd70c1bbf000f808703810dd6872274db1cbc93ea0f2b06) |
+| Renderer v2 (`GHOULBALLS_VAPOR_V3`) | [0xbd0e5fbcffd843f8c58a7bbb3cb6f75400fd60f9](https://sepolia.etherscan.io/address/0xbd0e5fbcffd843f8c58a7bbb3cb6f75400fd60f9) | [Receipt](https://sepolia.etherscan.io/tx/0x992893d44113e1e2ba6405f315ae4bab0bffebc690f756859dbdbffe630494b6) |
+| Collection v4 (current, GIF-only) | [0x02f3825aaf1d07efbdee52b5308981ecf47d769d](https://sepolia.etherscan.io/address/0x02f3825aaf1d07efbdee52b5308981ecf47d769d) | [Receipt](https://sepolia.etherscan.io/tx/0x88f4758b1256197573031a51635c973a2b6ae65ef2a642c59e4a6faf67dae175) |
+| Collection v3 (superseded, 3-token sets) | [0x48cd7822a357b473bab2b0bc90a0926c1e1897ab](https://sepolia.etherscan.io/address/0x48cd7822a357b473bab2b0bc90a0926c1e1897ab) | [Receipt](https://sepolia.etherscan.io/tx/0x09cdd0148367078ed61600af75118a90672f384f0f67243b89faf4c77d7bcaeb) |
+| Collection v2 (superseded) | [0xe7b06a27957ad992db764939c1836f92386369f1](https://sepolia.etherscan.io/address/0xe7b06a27957ad992db764939c1836f92386369f1) | [Receipt](https://sepolia.etherscan.io/tx/0xec3a1c9e999859f74bd70c1bbf000f808703810dd6872274db1cbc93ea0f2b06) |
 | Collection v1 (superseded) | [0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a](https://sepolia.etherscan.io/address/0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a) | [Receipt](https://sepolia.etherscan.io/tx/0xdf886f93b5bc533907780983f2cb91c538accb587b8d96864e8c1489f56ece97) |
 
-Successful deployments used 24,165,972 (renderer), 13,941,559 (v1) and 14,620,477 (v2) gas.
+Successful deployments used 24,165,972 (renderer), 13,941,559 (v1), 14,620,477 (v2) and 33,788,545 (v3) gas.
+
+**v4** (current) is `main`: GIF-only metadata, one token per mint, one mint per caller
+address, on a new renderer with `GHOULBALLS_VAPOR_V3` per-ball colours. One broadcast
+deployed the renderer (24,659,281 gas) and collection (13,192,352) and minted token 1 to
+the deployer (458,924). Both runtime bytecodes match the build. Token 1's full `tokenURI`
+(100,200 bytes) is served by the 50M-cap public RPC, and its GIF frames match the
+independent V3 reference.
+
+**v3** made each mint a set of three tokens with one shared `GHOULBALLS_SET_V1` seed:
+GIF, AVI and MPEG-1. The AVI and MPEG tokens' `animation_url` is an onchain HTML page
+holding the exact file and its decoder (`players/` and generated `src/Players.sol`, on the `avi-mpeg-players` branch).
+6,667 mints (20,001 tokens), one mint per caller address (`AlreadyMinted()`).
+It reuses the same renderer. Live runtime bytecode matches the build; a mint estimates
+691,886 gas. On a Sepolia fork, one mint used 685,280 gas, a second mint from the same
+address reverted with `AlreadyMinted()`, and tokens 1–3 decoded with their embedded
+players matching FFmpeg. v3 was deployed before the scripts began minting the first
+set on deployment, so it started at zero supply. Deployment scripts now mint the
+first token to the deployer in the same broadcast. The set source lives on the
+`avi-mpeg-players` branch; `main` is back to one GIF token per mint, still one
+mint per caller address. The v2 notes below are historical.
 
 **v2** fixes blurry marketplace previews (Manifold upscales the 64px GIF with
 smoothing). Its `image` is a percent-encoded `data:image/svg+xml,` wrapping the same
@@ -61,20 +84,21 @@ There is no stored metadata blob or rendering work in the mint transaction.
 
 Each token exposes:
 
-- `tokenURI(id)`: base64 JSON with name, description, attributes, embedded GIF
-  `image` (v2: inside a pixelated SVG wrapper) and embedded MPEG-1 `.mpg` `animation_url`.
+- `tokenURI(id)`: base64 JSON with name, description, attributes and the GIF
+  `image` inside a pixelated SVG wrapper. Collections v1 and v2 also embedded an
+  MPEG-1 `animation_url`; v3 was the set version (see above). The current source
+  has no `animation_url`.
 - `seedOf(id)` and `recipeOf(id)`: inspectable seed and traits.
 - `imageURI(id)` / `gif(id)`: 64×64 GIF, 20 frames at 10fps, a two-second loop.
-- `animationURI(id)` / `mpeg(id)`: 512×512 MPEG, 50 frames at 25fps. It contains
-  64×64 logical colour samples with MPEG's chroma approximation.
-- `avi(id)`: lossless indexed AVI, 64×64, 50 frames at 25fps.
+- v1/v2 only: `animationURI(id)` / `mpeg(id)` (512×512 MPEG) and `avi(id)` (lossless AVI).
 
 Reads reject nonexistent tokens. ERC-165, ERC-721 and ERC-721 Metadata are
 supported. Enumerable and burn extensions are not exposed.
 
 ## Playback and RPC requirements
 
-The artwork recipe is `GHOULBALLS_VAPOR_V2`: four sunset palettes and four
+The current source recipe is `GHOULBALLS_VAPOR_V3` (per-ball colours from each ball's hash);
+the deployed renderer used by v1–v3 is `GHOULBALLS_VAPOR_V2`. Both have four sunset palettes and four
 motion styles (Ricochet, Orbit, Float and Figure Eight). Theme, motion and art
 version are included in metadata; `recipeOf` exposes the full seeded recipe.
 

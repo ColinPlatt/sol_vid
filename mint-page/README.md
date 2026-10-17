@@ -5,7 +5,7 @@ Solidity-rendered vaporwave GIF examples (four themes and four motion styles), w
 zero-value `mint()` submission, transaction links and receipt tracking. Supports
 Sepolia, Base and Base Sepolia. Network gas applies; no per-wallet mint limit.
 
-Sepolia is deployed and enabled (collection v2). Base and Base Sepolia remain
+Sepolia is deployed and enabled; the current collection allows one mint per wallet (`mintLimit` in the config), and the button shows MINTED once used. Base and Base Sepolia remain
 disabled. The page uses confirmed deployment addresses. The contract
 enforces the cap; the page also shows supply and disables sold-out minting when
 a supply read succeeds.
@@ -16,7 +16,8 @@ the deployment manifest, newest first, with no indexer. It reads `totalSupply` a
 cap through `renderRpcUrl` (the Tenderly public gateway, since most public RPCs
 stop at 50M). It shows each version's image exactly as the contract returned it.
 If that read fails, it falls back to the cheaper raw `gif(id)` read. Tokens load
-as they scroll into view, three reads at a time. The screen shows the current
+as they scroll into view, three reads at a time. Every card shows the token's GIF;
+a set collection (v3) shows one card per set, its GIF token. The screen shows the current
 collection's newest token. `/gallery.html` redirects to `/#minted`.
 
 ```bash

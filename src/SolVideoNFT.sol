@@ -4,13 +4,14 @@ pragma solidity ^0.8.30;
 import {ERC721, Base64, Strings} from "../vendor/openzeppelin/Flattened.sol";
 import {GenerativeVideo} from "./GenerativeVideo.sol";
 
-/// @notice Limited-edition, zero-price ERC-721 with deterministic, fully onchain video.
-/// @dev No owner, upgrade, pause, fees, wallet cap, or privileged mint path.
+/// @notice Limited-edition, zero-price ERC-721 whose artwork is an animated GIF rendered entirely onchain.
+/// @dev One mint per caller address. No owner, upgrade, pause, fees, or privileged mint path.
 contract SolVideoNFT is ERC721 {
     using Strings for uint256;
 
     error InvalidRenderer();
     error SoldOut();
+    error AlreadyMinted();
 
     /// @dev The image is a small SVG around the base64 GIF. It asks for nearest-neighbour scaling at 16x, so viewers
     /// that upscale the 64px GIF keep hard pixel edges instead of smoothing it. Spaces and angle brackets are
@@ -23,6 +24,7 @@ contract SolVideoNFT is ERC721 {
     string public constant COLLECTION_SYMBOL = "ghoulballs";
     GenerativeVideo public immutable renderer;
     uint256 public totalSupply;
+    mapping(address => bool) public hasMinted;
 
     constructor(GenerativeVideo renderer_) ERC721(COLLECTION_NAME, COLLECTION_SYMBOL) {
         if (address(renderer_).code.length == 0) revert InvalidRenderer();
@@ -34,13 +36,15 @@ contract SolVideoNFT is ERC721 {
         return _mintNext(msg.sender);
     }
 
-    /// @notice Gift one token. Contract recipients must implement IERC721Receiver.
+    /// @notice Gift one token. It uses the caller's single mint. Contract recipients must implement IERC721Receiver.
     function mintTo(address recipient) external returns (uint256 tokenId) {
         return _mintNext(recipient);
     }
 
     function _mintNext(address recipient) private returns (uint256 tokenId) {
         if (totalSupply >= MAX_SUPPLY) revert SoldOut();
+        if (hasMinted[msg.sender]) revert AlreadyMinted();
+        hasMinted[msg.sender] = true;
         tokenId = ++totalSupply;
         // The counter advances before the receiver hook, including reentrant mints.
         _safeMint(recipient, tokenId);
@@ -56,44 +60,31 @@ contract SolVideoNFT is ERC721 {
         return renderer.recipe(seedOf(tokenId));
     }
 
+    /// @notice The token's raw GIF: 64x64, 20 frames at 10fps, a two-second loop.
     function gif(uint256 tokenId) external view returns (bytes memory) {
         return renderer.gifFromSeed(64, 10, seedOf(tokenId));
     }
 
-    function avi(uint256 tokenId) external view returns (bytes memory) {
-        return renderer.aviFromSeed(64, 25, seedOf(tokenId));
-    }
-
-    function mpeg(uint256 tokenId) external view returns (bytes memory) {
-        return renderer.mpgFromSeed(512, seedOf(tokenId));
-    }
-
-    /// @notice Pixel-sharp SVG around the GIF, the image fallback for clients that cannot play MPEG-1.
-    function imageURI(uint256 tokenId) external view returns (string memory) {
+    /// @notice Pixel-sharp SVG around the token's GIF.
+    function imageURI(uint256 tokenId) public view returns (string memory) {
         return string.concat(SVG_HEAD, Base64.encode(renderer.gifFromSeed(64, 10, seedOf(tokenId))), SVG_TAIL);
     }
 
-    function animationURI(uint256 tokenId) external view returns (string memory) {
-        return string.concat("data:video/mpeg;base64,", Base64.encode(renderer.mpgFromSeed(512, seedOf(tokenId))));
-    }
-
-    /// @notice Both media files and JSON are produced in one read-only call.
+    /// @notice The GIF and JSON are produced in one read-only call.
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         uint256 seed = seedOf(tokenId);
         GenerativeVideo.Recipe memory r = renderer.recipe(seed);
         string memory attributes = string.concat(
             '[{"trait_type":"Ball Count","value":',
             r.ballCount.toString(),
-            '},{"trait_type":"Art Version","value":"GHOULBALLS_VAPOR_V2"},',
+            '},{"trait_type":"Art Version","value":"GHOULBALLS_VAPOR_V3"},',
             '{"trait_type":"Theme","value":"',
             renderer.themeName(r.theme),
             '"},{"trait_type":"Motion","value":"',
             renderer.motionName(r.motion),
             '"},{"trait_type":"Seed","value":"',
             seed.toString(),
-            '"},{"trait_type":"Duration Seconds","value":2},',
-            '{"trait_type":"Video FPS","value":25},',
-            '{"trait_type":"Video Format","value":"MPEG-1"}'
+            '"},{"trait_type":"Duration Seconds","value":2},{"trait_type":"FPS","value":10}'
         );
         for (uint256 i; i < r.balls.length; ++i) {
             attributes = string.concat(
@@ -114,14 +105,9 @@ contract SolVideoNFT is ERC721 {
             COLLECTION_NAME,
             " #",
             tokenId.toString(),
-            '","description":"A two-second generative vaporwave loop with neon balls, rendered entirely in Solidity. ',
-            '6,667 editions. Free mint; network gas applies. GIF image and MPEG-1 animation are fully onchain.",',
+            '","description":"A two-second generative vaporwave loop with neon balls: an animated GIF rendered entirely in Solidity.",',
             '"image":"',
-            SVG_HEAD,
-            Base64.encode(renderer.gifFromSeed(64, 10, seed)),
-            SVG_TAIL,
-            '","animation_url":"data:video/mpeg;base64,',
-            Base64.encode(renderer.mpgFromSeed(512, seed)),
+            imageURI(tokenId),
             '","attributes":',
             attributes,
             "]}"

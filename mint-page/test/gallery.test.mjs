@@ -36,13 +36,12 @@ test("large ABI returns decode exactly and reject truncation", () => {
   assert.equal(decodeAddress("0x" + "a".repeat(64)), "0x" + "a".repeat(40));
 });
 
-test("the exported tokenURI parses with its pixelated SVG image and MPEG kept as returned", async () => {
-  const uri = await readFile(new URL("../../previews/nft/token-1.uri.txt", import.meta.url), "utf8");
-  const token = parseTokenURI(uri);
+test("the exported tokenURI parses with its pixelated SVG GIF and no animation", async () => {
+  const token = parseTokenURI(await readFile(new URL("../../previews/nft/token-1.uri.txt", import.meta.url), "utf8"));
   assert.equal(token.name, "ghoulballs #1");
   assert.match(token.image, /^data:image\/svg\+xml,.*image-rendering:pixelated.*href='data:image\/gif;base64,R0lGOD/);
-  assert.match(token.animation, /^data:video\/mpeg;base64,/);
-  assert.equal(token.attributes["Art Version"], "GHOULBALLS_VAPOR_V2");
+  assert.equal(token.animation, null);
+  assert.equal(token.attributes["Art Version"], "GHOULBALLS_VAPOR_V3");
 });
 
 test("version 1's plain GIF metadata also parses; unexpected media is rejected", () => {
