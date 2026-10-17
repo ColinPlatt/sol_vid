@@ -132,7 +132,7 @@ export function tokenPage(id, metadata, origin, mintedOut = false) {
   <link rel="icon" href="/t/${id}.gif" type="image/gif">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <script type="module" src="/token-page.js"></script>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Pixelify+Sans:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
