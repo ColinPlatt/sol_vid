@@ -80,6 +80,8 @@ try {
         const data=request.params?.[0]?.data??'';
         if(request.method==='eth_call'&&live){
           window.__qaCalls.push({rpc:String(url),data,gas:request.params[0].gas,to:request.params[0].to});
+          // The first full read of each token is rate-limited, like public RPCs under a burst.
+          if(data.startsWith('0xc87b56dd')&&!(window.__limited??=new Set()).has(data)){window.__limited.add(data);return new Response(JSON.stringify({jsonrpc:'2.0',id:1,error:{code:-32005,message:'rate limit exceeded'}}),{status:429});}
           let result='0x'+'0'.repeat(64);
           const id=data.length>=74?Number(BigInt('0x'+data.slice(10,74))):0, set=request.params[0].to===collection;
           if(data==='0x18160ddd') result='0x'+(window.__supply??1).toString(16).padStart(64,'0');
@@ -127,7 +129,9 @@ try {
   await until("document.querySelector('link[rel=icon][type=\"image/png\"]')?.href.startsWith('data:image/png')");
   const iconFrames = await evaluate("new Promise(r=>{const l=document.querySelector('link[rel=icon][type=\"image/png\"]'),s=new Set();const t=setInterval(()=>{s.add(l.href);if(s.size>3){clearInterval(t);r(s.size)}},40);setTimeout(()=>{clearInterval(t);r(s.size)},2000)})");
   assert(iconFrames > 3, "Favicon is not animating");
-  assert.deepEqual(await evaluate("[...document.querySelectorAll('link[rel=icon][href], link[rel=apple-touch-icon]')].map(l=>l.getAttribute('href')).filter(h=>!h.startsWith('data:'))"), ["/favicon.ico", "/assets/favicon.gif", "/assets/apple-touch-icon.png"]);
+  // With scripts, the animated icon is the only tab icon (the static ones are for browsers without scripts).
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('link[rel~=icon]')].map(l=>l.href.slice(0, 22))"), ["data:image/png;base64,"]);
+  assert.equal(await evaluate("document.querySelectorAll('link[rel=apple-touch-icon]').length"), 1);
   assert.equal(await evaluate("document.querySelectorAll('.token-card').length"), 0);
   await evaluate("document.getElementById('connect-wallet').click()");
   await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
@@ -142,6 +146,8 @@ try {
   assert.equal(await evaluate("document.getElementById('minted-count').textContent"), "1 / 6,667");
   assert.equal(await evaluate("document.getElementById('gallery-status-text').textContent"), "");
   assert.equal(await evaluate("document.querySelectorAll('.version-head, .gallery-version').length"), 0);
+  // Rate-limited reads are retried on the next RPC, so every card keeps its traits.
+  await until("document.querySelectorAll('.token-card .trait-row').length === document.querySelectorAll('.token-card').length");
   // Only the current collection is shown.
   assert.deepEqual(await evaluate("[...document.querySelectorAll('.token-card strong')].map(s=>s.textContent)"), ["#1"]);
   assert.deepEqual(await evaluate("[...new Set(window.__qaCalls.filter(c=>c.to).map(c=>c.to))]"), [mockCollection]);

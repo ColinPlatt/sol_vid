@@ -45,7 +45,9 @@ test("the token page carries its own preview card and escapes chain text", () =>
   assert.match(html, /<title>ghoulballs #12<\/title>/);
   assert.match(html, /&lt;B&gt;LAGOON&lt;\/B&gt;/);
   assert.doesNotMatch(html, /<b>/);
-  assert.match(html, /script-src 'none'/);
+  assert.match(html, /script-src 'self'/);
+  assert.match(html, /<link rel="icon" href="\/t\/12\.gif" type="image\/gif">/);
+  assert.match(html, /<script type="module" src="\/token-page\.js"><\/script>/);
   assert.match(html, /href="\/">MINT YOURS<\/a>/);
   assert.match(html, /<a class="chip-button download-gif" href="\/t\/12\.gif" download="ghoulballs-12\.gif">DOWNLOAD GIF ↓<\/a>/);
 });

@@ -9,7 +9,11 @@
       "subtitle": "Mainnet",
       "testnet": false,
       "rpcUrl": "https://mainnet.base.org",
-      "renderRpcUrl": "https://base.gateway.tenderly.co",
+      "renderRpcUrl": "https://mainnet.base.org",
+      "renderRpcUrls": [
+        "https://mainnet.base.org",
+        "https://base.gateway.tenderly.co"
+      ],
       "explorerUrl": "https://basescan.org",
       "collectionAddress": "0xf3654d0ce6cf518f4efbbe490f4a26483fb0969c",
       "rendererAddress": "0x5902e513c974f5d644dde577b46626a4bf7ceb30",

@@ -9,6 +9,9 @@ export const ownerOfCall = id => "0x6352211e" + uint(id);
 export const hasMintedCall = account => "0x38e21cce" + account.slice(2).toLowerCase().padStart(64, "0");
 export const gifCall = id => "0x7492d87c" + uint(id);
 
+/** RPCs for full tokenURI reads, in order: the render RPCs, then the normal one. */
+export const renderRpcs = network => [...new Set([...(network.renderRpcUrls ?? []), network.renderRpcUrl, network.rpcUrl].filter(Boolean))];
+
 // Every collection ever deployed on a network, current first.
 export function galleryCollections(network) {
   if (!network?.deployed || !Array.isArray(network.collections)) return [];

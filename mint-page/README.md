@@ -16,8 +16,9 @@ supply, disables sold-out minting, and shows MINTED once the connected wallet ha
 Below the mint panel, the page lists every token of the current collection, newest
 first, with no indexer (older Sepolia versions stay in the manifest only). It reads `totalSupply` and
 `ownerOf` through the normal RPC, and each token's full `tokenURI` with a 500M gas
-cap through `renderRpcUrl` (the Tenderly public gateway, since most public RPCs
-stop at 50M). It shows each version's image exactly as the contract returned it.
+cap through the render RPCs: Base's own `mainnet.base.org` (it grants the full gas and
+handled 18 simultaneous reads), then the Tenderly gateway, which rate-limits bursts;
+failed reads retry before falling back. It shows each version's image exactly as the contract returned it.
 If that read fails, it falls back to the cheaper raw `gif(id)` read. Tokens load
 as they scroll into view, three reads at a time. Every card shows the token's GIF. The screen shows the current
 collection's newest token. `/gallery.html` redirects to `/#minted`.
@@ -53,8 +54,9 @@ token's exact `gif(id)` bytes; the token page's DOWNLOAD GIF button saves it as
 #1's exact `gif(id)` bytes (and its first frame), so the icon matches the deployed
 artwork; Firefox animates the GIF natively. As in numerate_www's live favicon,
 `favicon.js` also swaps PNG frames into a `<link>` at 10fps (Chrome, Edge, Firefox),
-starting with token #1 and then following the newest token. Safari keeps the static
-icon. `gif.mjs` is the GIF decoder shared by the page and the server.
+starting with token #1 and then following the newest token, and it removes the static
+icon links so Chrome shows the frames. Token pages animate their own token's GIF.
+Safari and browsers without scripts keep the static icon. `gif.mjs` is the GIF decoder shared by the page and the server.
 
 ```bash
 cd mint-page

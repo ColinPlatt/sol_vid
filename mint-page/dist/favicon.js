@@ -11,6 +11,9 @@ export function animateFavicon(gifBytes) {
     const context = canvas.getContext("2d");
     const frames = gif.frames.map((_, i) => { context.putImageData(new ImageData(rgba(gif, i), gif.width, gif.height), 0, 0); return canvas.toDataURL("image/png"); });
     if (!link) {
+      // The static icons stay for browsers without scripts; with them, this is the only tab icon, so Chrome cannot
+      // keep showing the static .ico instead of the frames.
+      for (const old of document.querySelectorAll('link[rel~="icon"]')) old.remove();
       link = document.createElement("link");
       link.rel = "icon"; link.type = "image/png"; link.setAttribute("sizes", "any");
       document.head.appendChild(link);

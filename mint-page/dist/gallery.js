@@ -1,5 +1,5 @@
 import { shortAddress, rpc } from "./wallet.mjs";
-import { TOTAL_SUPPLY, RENDER_GAS, tokenURICall, ownerOfCall, gifCall, galleryCollections, decodeBytes, parseTokenURI, decodeAddress, bytesToBase64 } from "./gallery.mjs";
+import { TOTAL_SUPPLY, RENDER_GAS, tokenURICall, ownerOfCall, gifCall, galleryCollections, decodeBytes, parseTokenURI, decodeAddress, bytesToBase64, renderRpcs } from "./gallery.mjs";
 
 const $ = id => document.getElementById(id);
 const PAGE = 24;
@@ -28,16 +28,21 @@ function pump() {
   }
 }
 
-// The token's image exactly as its tokenURI returns it, falling back to the cheaper raw gif() read.
+// The token's image and traits exactly as its tokenURI returns them. Public RPCs rate-limit bursts (the gallery reads
+// several at once), so each render RPC is tried in turn, and the round repeats after a pause, before falling back to
+// the cheaper raw gif() read, which has no traits.
 export async function tokenImage(network, address, id) {
-  const renderNetwork = { ...network, rpcUrl: network.renderRpcUrl ?? network.rpcUrl };
-  try {
-    const result = await rpc(renderNetwork, "eth_call", [{ to: address, data: tokenURICall(id), gas: RENDER_GAS }, "latest"], (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(60000) }));
-    return parseTokenURI(new TextDecoder().decode(decodeBytes(result)));
-  } catch {
-    const gif = decodeBytes(await rpc(network, "eth_call", [{ to: address, data: gifCall(id), gas: "0x2faf080" }, "latest"]));
-    return { name: `ghoulballs #${id}`, image: "data:image/gif;base64," + bytesToBase64(gif), animation: null, attributes: {} };
+  for (let round = 0; round < 3; ++round) {
+    if (round) await new Promise(resolve => setTimeout(resolve, 700 * round + Math.random() * 500));
+    for (const rpcUrl of renderRpcs(network)) {
+      try {
+        const result = await rpc({ ...network, rpcUrl }, "eth_call", [{ to: address, data: tokenURICall(id), gas: RENDER_GAS }, "latest"], (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(60000) }));
+        return parseTokenURI(new TextDecoder().decode(decodeBytes(result)));
+      } catch (error) { if (/nonexistent|7e273289/i.test(String(error?.message))) throw error; }
+    }
   }
+  const gif = decodeBytes(await rpc(network, "eth_call", [{ to: address, data: gifCall(id), gas: "0x2faf080" }, "latest"]));
+  return { name: `ghoulballs #${id}`, image: "data:image/gif;base64," + bytesToBase64(gif), animation: null, attributes: {} };
 }
 
 async function loadToken(network, collection, id, card, run) {

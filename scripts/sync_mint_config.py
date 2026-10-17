@@ -5,9 +5,11 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-# The render RPC serves the gallery's full tokenURI reads, which need a ~500M eth_call gas cap (most public RPCs stop at 50M).
+# Render RPCs serve full tokenURI reads, which need more eth_call gas than 50M-capped public RPCs allow. Base's own
+# RPC grants the full amount and took 18 simultaneous reads; the Tenderly gateway (500M) rate-limits bursts, so it is
+# the fallback.
 networks = [
-    ("base", 8453, "Base", "Mainnet", "https://mainnet.base.org", "https://base.gateway.tenderly.co", "https://basescan.org", False),
+    ("base", 8453, "Base", "Mainnet", "https://mainnet.base.org", ["https://mainnet.base.org", "https://base.gateway.tenderly.co"], "https://basescan.org", False),
 ]
 
 
@@ -47,7 +49,7 @@ for slug, chain_id, name, subtitle, rpc, render_rpc, explorer, testnet in networ
     tokens_per_mint = next((v["tokensPerMint"] for v in versions if v["current"]), 1)
     mint_limit = next((v["mintLimit"] for v in versions if v["current"]), None)
     output["networks"].append(dict(chainId=chain_id, chainHex=hex(chain_id), name=name,
-        subtitle=subtitle, testnet=testnet, rpcUrl=rpc, renderRpcUrl=render_rpc, explorerUrl=explorer,
+        subtitle=subtitle, testnet=testnet, rpcUrl=rpc, renderRpcUrl=render_rpc[0], renderRpcUrls=render_rpc, explorerUrl=explorer,
         collectionAddress=collection, rendererAddress=renderer, deployed=deployed, tokensPerMint=tokens_per_mint, mintLimit=mint_limit,
         collections=versions))
 destination = ROOT / "mint-page" / "dist" / "config.json"

@@ -12,6 +12,7 @@ export function validateConfig(config) {
   for (const n of config.networks) {
     if (![11155111, 8453, 84532].includes(n.chainId) || seen.has(n.chainId) || n.chainHex !== "0x" + n.chainId.toString(16)) throw new Error("Invalid network settings.");
     seen.add(n.chainId);
+    if (n.renderRpcUrls !== undefined && (!Array.isArray(n.renderRpcUrls) || n.renderRpcUrls.some(u => new URL(u).protocol !== "https:"))) throw new Error("Network URLs must use HTTPS.");
     for (const key of ["rpcUrl", "explorerUrl", ...(n.renderRpcUrl === undefined ? [] : ["renderRpcUrl"])]) if (new URL(n[key]).protocol !== "https:") throw new Error("Network URLs must use HTTPS.");
     if (n.deployed && (!isAddress(n.collectionAddress) || !isAddress(n.rendererAddress))) throw new Error("Invalid collection settings.");
     if (!n.deployed && (n.collectionAddress !== null || n.rendererAddress !== null)) throw new Error("Unconfirmed deployment settings.");

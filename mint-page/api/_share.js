@@ -14,14 +14,27 @@ export function tokenId(value) {
   return id <= 6667 ? id : null;
 }
 
+const RPCS = [...new Set([...(network.renderRpcUrls ?? []), network.renderRpcUrl, network.rpcUrl].filter(Boolean))];
+
+// Each render RPC in turn (public RPCs rate-limit), twice; an unminted token fails at once.
 async function call(data, gas = "0x1dcd6500", fetcher = fetch) {
-  const response = await fetcher(network.renderRpcUrl ?? network.rpcUrl, {
-    method: "POST", headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(20000),
-    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: network.collectionAddress, data, gas }, "latest"] })
-  });
-  const body = await response.json();
-  if (body.error || typeof body.result !== "string") throw Object.assign(new Error(body.error?.message ?? "RPC error"), { missing: /nonexistent|7e273289/i.test(JSON.stringify(body.error ?? "")) });
-  return body.result;
+  let last;
+  for (let round = 0; round < 2; ++round) {
+    if (round) await new Promise(resolve => setTimeout(resolve, 600));
+    for (const url of RPCS) {
+      try {
+        const response = await fetcher(url, {
+          method: "POST", headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(20000),
+          body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: network.collectionAddress, data, gas }, "latest"] })
+        });
+        const body = await response.json();
+        if (typeof body.result === "string" && !body.error) return body.result;
+        last = Object.assign(new Error(body.error?.message ?? "RPC error"), { missing: /nonexistent|7e273289/i.test(JSON.stringify(body.error ?? "")) });
+        if (last.missing) throw last;
+      } catch (error) { if (error.missing) throw error; last = error; }
+    }
+  }
+  throw last;
 }
 
 function bytes(hex) {
@@ -101,7 +114,7 @@ export function tokenPage(id, metadata, origin, mintedOut = false) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#070708">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>${escape(title)}</title>
   <meta name="description" content="${escape(description)}">
   <meta property="og:type" content="website">
@@ -116,8 +129,9 @@ export function tokenPage(id, metadata, origin, mintedOut = false) {
   <meta name="twitter:description" content="${escape(description)}">
   <meta name="twitter:image" content="${escape(card)}">
   <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" href="/assets/favicon.gif" type="image/gif">
+  <link rel="icon" href="/t/${id}.gif" type="image/gif">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <script type="module" src="/token-page.js"></script>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap">
   <link rel="stylesheet" href="/style.css">
 </head>
