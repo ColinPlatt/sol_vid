@@ -167,7 +167,7 @@ async function updateSupply() {
 // A confirmed mint opens the share pop-up: the minted GIF, read from the chain, a link to share the token's own page
 // (/t/:id, whose preview card is the token's GIF) and a link to that page. Where the browser can share files (most
 // phones), the share sheet also gets the GIF itself. Nothing is posted without the user.
-const SHARE_TEXT = "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for free at:";
+const SHARE_TEXT = "Just minted ghoulballs: a fully onchain generative GIF. Mint yours for free at:";
 let shareFile = null;
 async function prepareShare(n, tokenId, minted) {
   const url = `${location.origin}/t/${tokenId}`;

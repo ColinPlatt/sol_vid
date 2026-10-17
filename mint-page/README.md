@@ -34,7 +34,7 @@ than a page of mints behind rebuilds its list instead of adding each card.
 
 A confirmed mint opens a pop-up with the minted GIF (read from the contract), **SHARE
 ON X** and **VIEW YOUR GHOULBALL** (the token's page). SHARE ON X opens X's post intent
-with "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF.
+with "Just minted ghoulballs: a fully onchain generative GIF.
 Mint yours for free at:" and the token's own page. Where the browser can share files (most phones),
 the share sheet also gets the minted GIF itself, read from the contract. Nothing is
 posted without the user.

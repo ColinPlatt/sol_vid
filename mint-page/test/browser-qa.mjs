@@ -152,7 +152,7 @@ try {
   assert.deepEqual(await evaluate("[...document.querySelectorAll('.token-card strong')].map(s=>s.textContent)"), ["#1"]);
   assert.deepEqual(await evaluate("[...new Set(window.__qaCalls.filter(c=>c.to).map(c=>c.to))]"), [mockCollection]);
   assert.equal(await evaluate("document.getElementById('network')"), null);
-  assert.equal(await evaluate("document.querySelector('.tagline').textContent"), "Ethereum's first (probably) fully onchain animated GIF");
+  assert.equal(await evaluate("document.querySelector('.tagline').textContent"), "Fully onchain generative GIF");
   assert.equal(await evaluate("document.querySelectorAll('.token-media iframe, .download-row').length"), 0);
   assert.match(await evaluate("document.querySelector('.token-card img').src"), /^data:image\/svg\+xml,.*pixelated/);
   assert.equal(await evaluate("document.querySelector('.token-card strong').textContent"), "#1");
@@ -195,7 +195,7 @@ try {
   await screenshot("/tmp/ghoulballs-share-modal.png");
   const share = new URL(await evaluate("document.getElementById('share-link').href"));
   assert.equal(share.origin + share.pathname, "https://x.com/intent/post");
-  assert.equal(share.searchParams.get("text"), "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for free at:");
+  assert.equal(share.searchParams.get("text"), "Just minted ghoulballs: a fully onchain generative GIF. Mint yours for free at:");
   assert.equal(share.searchParams.get("url"), origin + "/t/1");
   // The minted token's GIF is read from the chain for the share sheet.
   await until("window.__qaCalls.some(c=>c.data==='0x7492d87c'+'1'.padStart(64,'0'))");
@@ -206,7 +206,7 @@ try {
   await until("window.__shared");
   const shared = await evaluate("window.__shared");
   assert.deepEqual([shared.name, shared.type, shared.head, shared.size], ["ghoulballs.gif", "image/gif", "GIF89a", exportedGif.length / 2]);
-  assert.equal(shared.text, "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for free at: " + origin + "/t/1");
+  assert.equal(shared.text, "Just minted ghoulballs: a fully onchain generative GIF. Mint yours for free at: " + origin + "/t/1");
   // Without file sharing, the click just follows the X link to the token page (navigation blocked here).
   await evaluate(`navigator.canShare=()=>false; window.__followed=null; document.getElementById('share-link').addEventListener('click', e=>{window.__followed=!e.defaultPrevented; e.preventDefault();});`);
   await evaluate("document.getElementById('share-link').click()");

@@ -100,7 +100,7 @@ export async function tokenMetadata(id, fetcher) {
 }
 
 const escape = text => String(text).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-export const TAGLINE = "Ethereum's first (probably) fully onchain animated GIF";
+export const TAGLINE = "Fully onchain generative GIF";
 
 export function tokenPage(id, metadata, origin, mintedOut = false) {
   const attributes = Object.fromEntries((metadata.attributes ?? []).map(a => [a.trait_type, a.value]));
