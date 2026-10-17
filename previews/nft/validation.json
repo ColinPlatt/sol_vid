@@ -1,16 +1,16 @@
 [
   {
     "token_id": 1,
-    "gas": 374758519,
-    "uri_bytes": 575861,
+    "gas": 374803755,
+    "uri_bytes": 576237,
     "gif_bytes": 55581,
     "mpg_bytes": 267708,
     "ball_count": 1
   },
   {
     "token_id": 63,
-    "gas": 420458953,
-    "uri_bytes": 598877,
+    "gas": 420505727,
+    "uri_bytes": 599253,
     "gif_bytes": 55581,
     "mpg_bytes": 280311,
     "ball_count": 6

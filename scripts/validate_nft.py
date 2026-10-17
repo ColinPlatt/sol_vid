@@ -3,7 +3,9 @@
 import base64
 import json
 import subprocess
+import xml.etree.ElementTree as ET
 from pathlib import Path
+from urllib.parse import unquote
 from PIL import Image
 from vapor_reference import traits as vapor_traits, frame as vapor_frame, THEMES, MOTIONS
 
@@ -21,6 +23,22 @@ def data_uri(uri, mime):
     prefix = f"data:{mime};base64,"
     assert uri.startswith(prefix)
     return base64.b64decode(uri[len(prefix):], validate=True)
+
+
+SVG_HEAD = ("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'"
+            "%20width='1024'%20height='1024'%3E%3Cimage%20width='64'%20height='64'%20image-rendering='optimizeSpeed'"
+            "%20style='image-rendering:crisp-edges;image-rendering:pixelated'%20href='data:image/gif;base64,")
+SVG_TAIL = "'/%3E%3C/svg%3E"
+
+
+def sharp_gif(uri):
+    """The image is a pixelated SVG wrapper; check it decodes to well-formed SVG and return the GIF inside."""
+    assert uri.startswith(SVG_HEAD) and uri.endswith(SVG_TAIL)
+    svg = ET.fromstring(unquote(uri[len("data:image/svg+xml,"):]))
+    image = svg.find("{http://www.w3.org/2000/svg}image")
+    assert svg.get("viewBox") == "0 0 64 64" and svg.get("width") == svg.get("height") == "1024"
+    assert "image-rendering:pixelated" in image.get("style")
+    return data_uri(image.get("href"), "image/gif")
 
 
 def abi_string(path):
@@ -67,7 +85,7 @@ for label in ["token-1", "stress"]:
         assert attributes[f"Ball {i + 1} Radius"] == word(p)
         assert attributes[f"Ball {i + 1} Colour"] == "0x" + recipe[p + 96:p + 99].hex()
 
-    gif = data_uri(metadata["image"], "image/gif")
+    gif = sharp_gif(metadata["image"])
     mpg = data_uri(metadata["animation_url"], "video/mpeg")
     (ART / f"{label}.gif").write_bytes(gif)
     (ART / f"{label}.mpg").write_bytes(mpg)
@@ -110,4 +128,4 @@ for label in ["token-1", "stress"]:
     results.append(dict(token_id=token_id, gas=measured["gas"], uri_bytes=len(uri), gif_bytes=len(gif), mpg_bytes=len(mpg), ball_count=attributes["Ball Count"]))
     print(f"PASS {label}: {measured['gas']:,} gas, {len(uri):,} URI bytes, {attributes['Ball Count']} balls")
 (ART / "validation.json").write_text(json.dumps(results, indent=2) + "\n")
-print("NFT JSON, seed, traits, GIF, MPEG, standalone URI methods and AVI correspondence verified.")
+print("NFT JSON, seed, traits, pixelated SVG-wrapped GIF, MPEG, standalone URI methods and AVI correspondence verified.")

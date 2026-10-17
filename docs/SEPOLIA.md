@@ -1,9 +1,44 @@
 # ghoulballs — Sepolia deployment preparation
 
-Collection name and symbol are both **`ghoulballs`**. Status: **prepared and tested;
-not broadcast to Sepolia**. `deployments/sepolia.json` intentionally contains no
-addresses or transaction hashes yet. Addresses printed by local rehearsals are
-simulation addresses, not live deployments.
+Collection name and symbol are both **`ghoulballs`**. Status: **deployed**.
+The confirmed addresses and receipts are recorded in `deployments/sepolia.json`.
+
+| Contract | Address | Deployment transaction |
+| --- | --- | --- |
+| Renderer | [0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a](https://sepolia.etherscan.io/address/0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a) | [Receipt](https://sepolia.etherscan.io/tx/0x6a179b483b949a68467f99c623b4146c9587a74b953590f02787eb0185ff8dc7) |
+| Collection v2 (current) | [0xe7b06a27957ad992db764939c1836f92386369f1](https://sepolia.etherscan.io/address/0xe7b06a27957ad992db764939c1836f92386369f1) | [Receipt](https://sepolia.etherscan.io/tx/0xec3a1c9e999859f74bd70c1bbf000f808703810dd6872274db1cbc93ea0f2b06) |
+| Collection v1 (superseded) | [0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a](https://sepolia.etherscan.io/address/0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a) | [Receipt](https://sepolia.etherscan.io/tx/0xdf886f93b5bc533907780983f2cb91c538accb587b8d96864e8c1489f56ece97) |
+
+Successful deployments used 24,165,972 (renderer), 13,941,559 (v1) and 14,620,477 (v2) gas.
+
+**v2** fixes blurry marketplace previews (Manifold upscales the 64px GIF with
+smoothing). Its `image` is a percent-encoded `data:image/svg+xml,` wrapping the same
+base64 GIF at 1024×1024 with `image-rendering: pixelated`, the approach used in
+`ghoul_date`. The renderer was unchanged, so its live bytecode was re-checked
+against the build and reused. v2 was deployed with
+`RENDERER_ADDRESS=0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a forge script
+script/DeploySepoliaCollection.s.sol:DeploySepoliaCollection` (same flags as below).
+v1 is immutable, so it stays live and mintable; the mint page targets v2 and its
+gallery shows both. v2's live runtime bytecode matches the build and estimates the
+same 352,371 mint gas. Text below about the deployment checks applies to v1.
+Both live runtime bytecodes match the compiled artifacts, including the immutable
+renderer address. Name, symbol, cap, initial supply, ERC-721 and metadata
+interfaces were checked. A zero-value mint simulation returns token ID 1 and
+live estimation uses 352,371 gas. **No real mint has been sent.**
+The mint page's public RPC also reads the live collection successfully.
+Simulation addresses elsewhere in local logs are not deployment records.
+
+## Explorer source verification
+
+Source publication was explicitly authorized and both exact standard-JSON
+compiler inputs were submitted to Etherscan. Verification is currently blocked
+by the explorer response: `Fail - Unable to verify. Invalid EVM version entered.`
+This also occurs when the redundant top-level EVM selector is omitted and
+Amsterdam remains correctly set inside the compiler input. Do not report either
+contract as Etherscan verified. Both live runtime bytecodes were independently
+compared with the exact compiled artifacts, including immutable references.
+Retry explorer verification when Amsterdam support is available; the submission
+IDs and current status are retained in the deployment manifest.
 
 ## Contracts and behavior
 
@@ -27,7 +62,7 @@ There is no stored metadata blob or rendering work in the mint transaction.
 Each token exposes:
 
 - `tokenURI(id)`: base64 JSON with name, description, attributes, embedded GIF
-  `image` and embedded MPEG-1 `.mpg` `animation_url`.
+  `image` (v2: inside a pixelated SVG wrapper) and embedded MPEG-1 `.mpg` `animation_url`.
 - `seedOf(id)` and `recipeOf(id)`: inspectable seed and traits.
 - `imageURI(id)` / `gif(id)`: 64×64 GIF, 20 frames at 10fps, a two-second loop.
 - `animationURI(id)` / `mpeg(id)`: 512×512 MPEG, 50 frames at 25fps. It contains
@@ -43,14 +78,14 @@ The artwork recipe is `GHOULBALLS_VAPOR_V2`: four sunset palettes and four
 motion styles (Ricochet, Orbit, Float and Figure Eight). Theme, motion and art
 version are included in metadata; `recipeOf` exposes the full seeded recipe.
 
-The complete metadata read was measured at **374,758,519 gas** for the exported
+The complete metadata read was measured at **374,803,755 gas** for the exported
 first token. A six-ball sample selected for the largest summed squared radii among
-the first 64 tokens used **420,458,953 gas**. These measurements include the
+the first 64 tokens used **420,505,727 gas**. These measurements include the
 STATICCALL and ABI return-data copy, both media files, JSON and all base64 layers.
 They are real 500M-capped calls, not extrapolated codec-only measurements.
 Six-ball samples selected separately for each motion among the first 128 tokens
-used 417,034,109 (Ricochet), 417,335,365 (Orbit), 423,431,032 (Float) and
-417,181,074 (Figure Eight) gas. All remain below the 500M read budget.
+used 417,079,178 (Ricochet), 417,383,415 (Orbit), 423,481,395 (Float) and
+417,232,773 (Figure Eight) gas. The v2 SVG wrapper adds about 45–50K gas. All remain below the 500M read budget.
 
 Token URI lengths are about 576–599KB. These are sample measurements, not an
 exhaustive guarantee over every future token or deployment address. Different
@@ -100,7 +135,7 @@ The size check above covers deployable contracts. The local Foundry script runne
 embeds both creation payloads and is not itself deployed.
 
 Current runtime sizes: `GenerativeVideo` **15,493 bytes**, `SolVideoNFT`
-**8,728 bytes**, each below 24,576. The local deployment rehearsal uses about
+**9,167 bytes**, each below 24,576. The local deployment rehearsal uses about
 **39.0M gas** across two CREATE transactions. The first safe mint measured about
 355.1K call gas including a contract receiver callback; this excludes transaction
 intrinsic gas and is not a fee quote.

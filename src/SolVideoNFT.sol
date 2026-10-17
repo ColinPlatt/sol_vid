@@ -12,6 +12,12 @@ contract SolVideoNFT is ERC721 {
     error InvalidRenderer();
     error SoldOut();
 
+    /// @dev The image is a small SVG around the base64 GIF. It asks for nearest-neighbour scaling at 16x, so viewers
+    /// that upscale the 64px GIF keep hard pixel edges instead of smoothing it. Spaces and angle brackets are
+    /// percent-encoded (RFC 2397), so the GIF is base64-encoded only once and the URI needs no other escaping.
+    string private constant SVG_HEAD =
+        "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%20width='1024'%20height='1024'%3E%3Cimage%20width='64'%20height='64'%20image-rendering='optimizeSpeed'%20style='image-rendering:crisp-edges;image-rendering:pixelated'%20href='data:image/gif;base64,";
+    string private constant SVG_TAIL = "'/%3E%3C/svg%3E";
     uint256 public constant MAX_SUPPLY = 6667;
     string public constant COLLECTION_NAME = "ghoulballs";
     string public constant COLLECTION_SYMBOL = "ghoulballs";
@@ -62,9 +68,9 @@ contract SolVideoNFT is ERC721 {
         return renderer.mpgFromSeed(512, seedOf(tokenId));
     }
 
-    /// @notice GIF image fallback for clients that cannot play MPEG-1.
+    /// @notice Pixel-sharp SVG around the GIF, the image fallback for clients that cannot play MPEG-1.
     function imageURI(uint256 tokenId) external view returns (string memory) {
-        return string.concat("data:image/gif;base64,", Base64.encode(renderer.gifFromSeed(64, 10, seedOf(tokenId))));
+        return string.concat(SVG_HEAD, Base64.encode(renderer.gifFromSeed(64, 10, seedOf(tokenId))), SVG_TAIL);
     }
 
     function animationURI(uint256 tokenId) external view returns (string memory) {
@@ -110,8 +116,10 @@ contract SolVideoNFT is ERC721 {
             tokenId.toString(),
             '","description":"A two-second generative vaporwave loop with neon balls, rendered entirely in Solidity. ',
             '6,667 editions. Free mint; network gas applies. GIF image and MPEG-1 animation are fully onchain.",',
-            '"image":"data:image/gif;base64,',
+            '"image":"',
+            SVG_HEAD,
             Base64.encode(renderer.gifFromSeed(64, 10, seed)),
+            SVG_TAIL,
             '","animation_url":"data:video/mpeg;base64,',
             Base64.encode(renderer.mpgFromSeed(512, seed)),
             '","attributes":',

@@ -1,11 +1,14 @@
 {
-  "status": "retry-pending",
+  "status": "deployed",
   "chain_id": 11155111,
   "collection_name": "ghoulballs",
   "collection_symbol": "ghoulballs",
-  "renderer": null,
-  "collection": null,
-  "transaction_hashes": [],
+  "renderer": "0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a",
+  "collection": "0xe7b06a27957ad992db764939c1836f92386369f1",
+  "transaction_hashes": [
+    "0x6a179b483b949a68467f99c623b4146c9587a74b953590f02787eb0185ff8dc7",
+    "0xec3a1c9e999859f74bd70c1bbf000f808703810dd6872274db1cbc93ea0f2b06"
+  ],
   "compiler": "0.8.37",
   "evm_version": "amsterdam",
   "optimizer_runs": 200,
@@ -26,5 +29,78 @@
       "gas_limit": 4416573,
       "live_estimate": 24319962
     }
-  ]
+  ],
+  "deployer": "0xa59523b0eB18415151307b57D5675480A3DEca38",
+  "source_commit": "d73056967d4f687b5e6832a07cd4c6e72e66d855",
+  "verification_status": "blocked-etherscan-amsterdam-unsupported",
+  "deployment_receipts": [
+    {
+      "contract": "GenerativeVideo",
+      "transaction_hash": "0x6a179b483b949a68467f99c623b4146c9587a74b953590f02787eb0185ff8dc7",
+      "block_number": 11933456,
+      "gas_used": 24165972,
+      "effective_gas_price_wei": "873"
+    },
+    {
+      "contract": "SolVideoNFT",
+      "transaction_hash": "0xdf886f93b5bc533907780983f2cb91c538accb587b8d96864e8c1489f56ece97",
+      "block_number": 11933457,
+      "gas_used": 13941559,
+      "effective_gas_price_wei": "886",
+      "version": 1
+    },
+    {
+      "contract": "SolVideoNFT",
+      "version": 2,
+      "transaction_hash": "0xec3a1c9e999859f74bd70c1bbf000f808703810dd6872274db1cbc93ea0f2b06",
+      "block_number": 11933541,
+      "gas_used": 14620477,
+      "effective_gas_price_wei": "1491"
+    }
+  ],
+  "post_deployment_checks": {
+    "runtime_bytecode_matches": true,
+    "name_and_symbol": "ghoulballs",
+    "max_supply": 6667,
+    "initial_supply": 0,
+    "mint_simulation_token_id": 1,
+    "estimated_mint_gas": 352371
+  },
+  "renderer_verification_submission": "y9gxmvwqmwbb8kjbkvqt5hunpnknjj3yugmq6w4aqmpd49mxxa",
+  "collection_verification_submission": "jvhdkrfu8raz7cu3gsyk6psgcijgkgbpr91xrgkv9cpdqhelj1",
+  "renderer_verification_status": "blocked-etherscan-amsterdam-unsupported",
+  "collection_verification_status": "blocked-etherscan-amsterdam-unsupported",
+  "verification_error": "Fail - Unable to verify. Invalid EVM version entered.",
+  "collection_deployment_script": "script/DeploySepoliaCollection.s.sol:DeploySepoliaCollection",
+  "collections": [
+    {
+      "version": 1,
+      "address": "0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a",
+      "status": "superseded",
+      "image": "data:image/gif",
+      "transaction_hash": "0xdf886f93b5bc533907780983f2cb91c538accb587b8d96864e8c1489f56ece97",
+      "block_number": 11933457,
+      "source_commit": "d73056967d4f687b5e6832a07cd4c6e72e66d855",
+      "note": "Plain GIF image; marketplaces smooth it when upscaling. Remains live and mintable (immutable, no admin)."
+    },
+    {
+      "version": 2,
+      "address": "0xe7b06a27957ad992db764939c1836f92386369f1",
+      "status": "current",
+      "image": "data:image/svg+xml (pixelated GIF wrapper)",
+      "transaction_hash": "0xec3a1c9e999859f74bd70c1bbf000f808703810dd6872274db1cbc93ea0f2b06",
+      "block_number": 11933541,
+      "source_commit": null,
+      "note": "Same renderer; tokenURI image wraps the GIF in an SVG with image-rendering: pixelated. Seeds differ from v1 because the collection address is part of the seed."
+    }
+  ],
+  "post_deployment_checks_v2": {
+    "runtime_bytecode_matches": true,
+    "renderer_reused_bytecode_matches": true,
+    "name_and_symbol": "ghoulballs",
+    "max_supply": 6667,
+    "initial_supply": 0,
+    "estimated_mint_gas": 352371
+  },
+  "collection_v2_verification_status": "not-submitted-etherscan-amsterdam-unsupported"
 }

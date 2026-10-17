@@ -5,10 +5,19 @@ Solidity-rendered vaporwave GIF examples (four themes and four motion styles), w
 zero-value `mint()` submission, transaction links and receipt tracking. Supports
 Sepolia, Base and Base Sepolia. Network gas applies; no per-wallet mint limit.
 
-All networks start disabled because no contracts have been deployed. The page
-never uses simulation addresses and does not fetch expensive video metadata.
-The contract enforces the cap; the page also shows supply and disables sold-out
-minting when a supply read succeeds.
+Sepolia is deployed and enabled (collection v2). Base and Base Sepolia remain
+disabled. The page uses confirmed deployment addresses. The mint view never
+fetches the expensive video metadata; only the gallery does. The contract
+enforces the cap; the page also shows supply and disables sold-out minting when
+a supply read succeeds.
+
+`gallery.html` lists every token from every collection version in the deployment
+manifest, with no indexer. It reads `totalSupply` and `ownerOf` through the normal
+RPC, and each token's full `tokenURI` with a 500M gas cap through `renderRpcUrl`
+(the Tenderly public gateway, since most public RPCs stop at 50M). It shows each
+version's image exactly as the contract returned it. If that read fails, it falls
+back to the cheaper raw `gif(id)` read. Tokens load as they scroll into view, three
+reads at a time.
 
 ```bash
 cd mint-page
@@ -43,5 +52,21 @@ only in the repository root's ignored local `.env`.
 Wallet unit tests cover the transaction payload, network switching, deployment
 checks, cancellation, account changes and receipt verification. Browser QA
 (`node test/browser-qa.mjs`) requires installed Chrome and loopback networking;
-it checks desktop/mobile layout and the undeployed flow with a mocked wallet.
-It sends no real transactions. A live mint remains to be tested after deployment.
+it checks desktop/mobile layout, the undeployed guard, and an enabled Sepolia
+mint through a mocked wallet and receipt. It sends no real transactions. The
+deployed contract was checked with a live zero-value mint simulation and gas
+estimation; no real mint has been sent.
+
+## Vercel
+
+Import `ColinPlatt/sol_vid` with **Root Directory `mint-page`**, framework **Other**,
+no install/build command, and output directory **`dist`**. These static deployment
+settings are tracked in `vercel.json`. The page needs no environment variables.
+`config.json` is served with `Cache-Control: no-store` so deployment addresses
+are refreshed. `.vercelignore` excludes local tooling, tests and environment files.
+
+The requested Vercel owner is `colin@numerate.tech` and the GitHub owner is
+`ColinPlatt`. GitHub was confirmed through the connected account. The Vercel CLI
+was confirmed as colin@numerate.tech (team `platt-advisors-projects`, project
+`mint-page`). Production: https://mint-page-mauve.vercel.app. The project is linked to
+the GitHub repo; its Root Directory must be `mint-page` for git-triggered deploys.

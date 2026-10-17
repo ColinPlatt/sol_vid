@@ -9,6 +9,11 @@ import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 
 const root = fileURLToPath(new URL("../dist/", import.meta.url));
+const publishedConfig = JSON.parse(await readFile(path.join(root, "config.json"), "utf8"));
+const sepolia = publishedConfig.networks.find(n => n.chainId === 11155111);
+const mockCollection = sepolia.collectionAddress ?? "0x" + "b".repeat(40);
+const mockRenderer = sepolia.rendererAddress ?? "0x" + "c".repeat(40);
+const exportedURI = await readFile(new URL("../../previews/nft/token-1.uri.txt", import.meta.url), "utf8");
 const profile = await mkdtemp(path.join(tmpdir(), "ghoulballs-chrome-"));
 const mime = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json", ".svg": "image/svg+xml", ".gif": "image/gif", ".png": "image/png" };
 const server = createServer(async (req, res) => {
@@ -48,7 +53,57 @@ try {
   };
   async function until(expression) { for (let i = 0; i < 80; ++i) { if (await evaluate(expression)) return; await new Promise(r => setTimeout(r, 100)); } throw new Error("Timed out: " + expression); }
   await cdp("Runtime.enable"); await cdp("Page.enable");
-  await cdp("Page.addScriptToEvaluateOnNewDocument", { source: `window.__qaCalls=[];window.ethereum={isMetaMask:true,on(){},removeListener(){},async request(r){window.__qaCalls.push(r);if(r.method==='eth_requestAccounts'||r.method==='eth_accounts')return ['0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'];if(r.method==='eth_chainId')return '0xaa36a7';throw Error('Unexpected wallet action '+r.method)}};` });
+  await cdp("Page.addScriptToEvaluateOnNewDocument", { source: `
+    const sourceConfig = ${JSON.stringify(publishedConfig)};
+    const collection = ${JSON.stringify(mockCollection)}, renderer = ${JSON.stringify(mockRenderer)}, exportedURI = ${JSON.stringify(exportedURI)};
+    const account = '0x'+'a'.repeat(40), hash = '0x'+'d'.repeat(64);
+    const abiString = value => '0x'+(32n).toString(16).padStart(64,'0')+BigInt(value.length).toString(16).padStart(64,'0')+[...new TextEncoder().encode(value)].map(b=>b.toString(16).padStart(2,'0')).join('').padEnd(64,'0');
+    window.__qaCalls=[];
+    const live = new URL(location.href).searchParams.has('mint-qa') || location.pathname.endsWith('gallery.html');
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = async (url, options) => {
+      if (String(url).endsWith('config.json')) {
+        const config=structuredClone(sourceConfig);
+        for (const n of config.networks) {
+          n.deployed=live && n.chainId===11155111;
+          n.collectionAddress=n.deployed?collection:null;
+          n.rendererAddress=n.deployed?renderer:null;
+          n.collections=n.deployed?[{version:1,address:'0x'+'1'.repeat(40),current:false},{version:2,address:collection,current:true}]:[];
+        }
+        return new Response(JSON.stringify(config),{status:200});
+      }
+      if (String(url).startsWith('https:')) {
+        const request=JSON.parse(options.body);
+        const data=request.params?.[0]?.data??'';
+        if(request.method==='eth_call'&&location.pathname.endsWith('gallery.html')){
+          window.__qaCalls.push({rpc:String(url),data,gas:request.params[0].gas});
+          let result='0x'+'0'.repeat(64);
+          if(data==='0x18160ddd') result='0x'+(request.params[0].to===collection?'1':'0').padStart(64,'0');
+          else if(data.startsWith('0x6352211e')) result='0x'+account.slice(2).padStart(64,'0');
+          else if(data.startsWith('0xc87b56dd')) result=abiString(exportedURI);
+          return new Response(JSON.stringify({jsonrpc:'2.0',id:1,result}),{status:200});
+        }
+        if(request.method==='eth_call') return new Response(JSON.stringify({jsonrpc:'2.0',id:1,result:'0x0'}),{status:200});
+        if(request.method==='eth_getTransactionReceipt') return new Response(JSON.stringify({jsonrpc:'2.0',id:1,result:{status:'0x1',logs:[{address:collection,topics:['0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef','0x'+'0'.repeat(64),'0x'+account.slice(2).padStart(64,'0'),'0x'+'1'.padStart(64,'0')]}]}}),{status:200});
+        throw Error('Unexpected remote request '+request.method);
+      }
+      return nativeFetch(url,options);
+    };
+    window.ethereum={isMetaMask:true,on(){},removeListener(){},async request(r){
+      window.__qaCalls.push(r);
+      if(r.method==='eth_requestAccounts'||r.method==='eth_accounts')return [account];
+      if(r.method==='eth_chainId')return '0xaa36a7';
+      if(r.method==='eth_getCode')return '0x60006000';
+      if(r.method==='eth_call'){
+        if(['0x06fdde03','0x95d89b41'].includes(r.params[0].data))return abiString('ghoulballs');
+        if(r.params[0].data==='0x8ada6b0f')return '0x'+renderer.slice(2).padStart(64,'0');
+        return '0x'+'1'.padStart(64,'0');
+      }
+      if(r.method==='eth_estimateGas')return '0x56073';
+      if(r.method==='eth_sendTransaction')return hash;
+      throw Error('Unexpected wallet action '+r.method);
+    }};
+  ` });
   await cdp("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
   await cdp("Page.navigate", { url: origin });
   await until("document.getElementById('availability-text')?.textContent.includes('opens after deployment')");
@@ -79,8 +134,38 @@ try {
   await new Promise(r => setTimeout(r, 100));
   assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"), "Mobile layout overflows");
   await screenshot("/tmp/ghoulballs-mint-mobile.png");
+  await cdp("Page.navigate", { url: origin + "/?mint-qa=1" });
+  await until("document.getElementById('availability-text')?.textContent.includes('Minting is open on Sepolia')");
+  assert.equal(await evaluate("document.getElementById('mint-button').disabled"), false);
+  await evaluate("document.getElementById('connect-wallet').click()");
+  await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
+  await evaluate("document.getElementById('mint-button').click()");
+  await until("document.getElementById('mint-status').textContent.includes('ghoulball #1.')");
+  const sends = await evaluate("window.__qaCalls.filter(c=>c.method==='eth_sendTransaction')");
+  assert.equal(sends.length, 1);
+  assert.equal(sends[0].params[0].value, "0x0");
+  assert.equal(sends[0].params[0].data, "0x1249c58b");
+  assert.equal(sends[0].params[0].to.toLowerCase(), mockCollection.toLowerCase());
+  assert.match(await evaluate("document.getElementById('transaction-link').href"), /sepolia.etherscan.io\/tx\/0x/);
+  await cdp("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
+  await cdp("Page.navigate", { url: origin + "/gallery.html" });
+  await until("document.querySelector('.token-card img')?.complete && document.querySelector('.token-card img').naturalWidth>0");
+  assert.match(await evaluate("document.getElementById('gallery-status-text').textContent"), /1 minted across 2 versions on Sepolia/);
+  assert.equal(await evaluate("document.querySelectorAll('.gallery-version').length"), 2);
+  assert.match(await evaluate("document.querySelector('.token-card img').src"), /^data:image\/svg\+xml,.*pixelated/);
+  assert.match(await evaluate("document.querySelector('.token-card strong').textContent"), /ghoulballs #1/);
+  const renderCall = await evaluate("window.__qaCalls.find(c=>c.data?.startsWith('0xc87b56dd'))");
+  assert.equal(renderCall.rpc, sepolia.renderRpcUrl);
+  assert.equal(renderCall.gas, "0x1dcd6500");
+  assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"), "Gallery layout overflows");
+  await screenshot("/tmp/ghoulballs-gallery-desktop.png");
+  await cdp("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  await new Promise(r => setTimeout(r, 100));
+  assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"), "Mobile gallery overflows");
+  await screenshot("/tmp/ghoulballs-gallery-mobile.png");
+  assert(await evaluate("window.__qaCalls.every(c=>!c.method)"), "Gallery must not touch the wallet");
   assert.deepEqual(exceptions, []);
-  console.log("PASS desktop/mobile layout, animated assets, preview shuffle, mock wallet connection, Base selection, undeployed mint guard, no unexpected transaction or script errors.");
+  console.log("PASS onchain gallery (both versions, render RPC at 500M gas, pixelated SVG image) and desktop/mobile layout, animated assets, preview shuffle, mock wallet connection, Base selection, undeployed mint guard, simulated live mint/receipt, no real transaction or script errors.");
   console.log("Screenshots: /tmp/ghoulballs-mint-desktop.png and /tmp/ghoulballs-mint-mobile.png");
 } finally {
   ws?.close(); chrome?.kill("SIGTERM"); await new Promise(r => server.close(r));

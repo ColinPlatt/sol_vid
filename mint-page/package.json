@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node test/wallet.test.mjs",
-    "check": "node --check dist/app.js && node --check dist/wallet.mjs",
+    "test": "node --test test/wallet.test.mjs test/gallery.test.mjs",
+    "check": "node --check dist/app.js && node --check dist/wallet.mjs && node --check dist/gallery.mjs && node --check dist/gallery.js",
     "preview": "python3 -m http.server 4173 --directory dist"
   }
 }

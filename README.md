@@ -16,7 +16,7 @@ The main example is [a two-second MPEG video](previews/mpg-512-25-0.mpg): 512×5
 
 ![Three MPEG scenes](previews/contact-sheet.png)
 
-## ghoulballs NFT — prepared for Sepolia
+## ghoulballs NFT — live on Sepolia
 
 The ERC-721 collection name and symbol are both **`ghoulballs`**. Anyone can call
 `mint()` or `mintTo(recipient)` for no protocol payment, up to a fixed maximum of **6,667 tokens**.
@@ -25,16 +25,18 @@ Minters pay network gas. Each mint gets the next token ID and a deterministic
 seed derived from the collection address, chain ID and token ID. Minting does
 not run the media encoders.
 
-`tokenURI(id)` creates fully onchain JSON with a 64×64 animated GIF `image`,
+`tokenURI(id)` creates fully onchain JSON with a 64×64 animated GIF `image`
+(wrapped in a small SVG at 1024×1024 with `image-rendering: pixelated`, so
+marketplaces that upscale it keep hard pixel edges instead of smoothing it),
 a 512×512 MPEG-1 `animation_url`, and generative attributes. Raw AVI, GIF and
 MPEG bytes, standalone media URIs, the seed and full recipe are available too.
 The renderer is immutable. The GIF uses 64×64 logical detail; the MPEG uses the
 same logical detail in flat blocks with chroma subsampling.
 
-The complete tokenURI tested at **374,758,519 gas**, including both media files,
+The complete tokenURI tested at **374,803,755 gas**, including both media files,
 JSON, every base64 layer and ABI return copy. A six-ball stress sample took
-**420,458,953 gas**. Separate six-ball samples for each motion peak at
-**423,431,032 gas**. The URI is about **576–599KB**. These fit the 500M read budget,
+**420,505,727 gas**. Separate six-ball samples for each motion peak at
+**423,481,395 gas**. The URI is about **576–599KB**. These fit the 500M read budget,
 but require a sufficiently high-cap RPC; default 50M endpoints and some NFT
 indexers will fail. Client playback of MPEG/data URIs also varies. This remains
 an experimental video NFT; minting and ERC-721 transfers are ordinary small
@@ -46,11 +48,23 @@ Local test token: [GIF](previews/nft/token-1.gif),
 [decoded metadata](previews/nft/token-1.metadata.json).
 These are local test artifacts, not live Sepolia tokens.
 
-**Deployment is prepared, not broadcast.** The script deploys the renderer and
-then the collection, checks Sepolia chain ID 11155111, and verifies wiring and
-initial state. Both fit normal runtime size limits. The local rehearsal uses
-about 39.0M deployment gas. OpenZeppelin v5.4.0 ERC-721 and encoding dependencies
-are pinned and vendored, with a reproducible compiler compatibility unit.
+**Deployed on Sepolia (Glamsterdam).**
+[Collection v2 `0xe7b06a27957ad992db764939c1836f92386369f1`](https://sepolia.etherscan.io/address/0xe7b06a27957ad992db764939c1836f92386369f1) (current, pixelated SVG image) ·
+[Collection v1 `0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a`](https://sepolia.etherscan.io/address/0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a) (superseded plain-GIF image; still live, being immutable) ·
+[Renderer `0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a`](https://sepolia.etherscan.io/address/0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a).
+Both transaction receipts succeeded and the live bytecode matches the tested build.
+Etherscan source verification is currently blocked because its verifier rejects
+the Amsterdam EVM target; see the deployment runbook for the exact status.
+v2 reuses the unchanged v1 renderer (bytecode re-checked) and was deployed with
+`script/DeploySepoliaCollection.s.sol` (14,620,477 gas). Seeds include the
+collection address, so v2 tokens differ from v1 tokens with the same ID.
+The free v2 mint was checked with live gas estimation (352,371 gas).
+
+The default toolchain is Foundry 1.8.5+, Solidity 0.8.37 and the `amsterdam`
+execution target. Base remains on separate Cancun profiles. Sepolia deployments
+used **38,107,531 gas** across the two successful transactions; the earlier
+Cancun-estimated failed attempt is recorded separately in the manifest.
+OpenZeppelin v5.4.0 dependencies are pinned and vendored.
 
 See the [Sepolia deployment runbook](docs/SEPOLIA.md) for dry-run, signer,
 broadcast, source verification and post-deployment steps. The public deployment
@@ -61,12 +75,12 @@ manifest is [deployments/sepolia.json](deployments/sepolia.json).
 [Open the private mint-page preview](https://ghoulballs-mint.stillcarp.chatgpt.site).
 
 The [static mint page](mint-page/README.md) has animated examples, wallet connection,
-network selection and mint transaction tracking. It supports Sepolia, Base and Base
-Sepolia. Minting stays disabled until confirmed deployment addresses are configured.
+network selection and mint transaction tracking. Sepolia minting is enabled; Base
+and Base Sepolia stay disabled until their confirmed deployments are configured.
 The page only needs small contract reads, never the full video metadata.
 
 See the [Base deployment guide](docs/BASE.md) for the additional guarded scripts.
-No contracts have been broadcast to any of these networks.
+Sepolia is deployed; neither Base network has been deployed.
 
 ## Generative vaporwave from one seed
 
@@ -108,7 +122,7 @@ rotation. Per-ball hashes select radii (5–10 logical pixels) and starting phas
 `recipe(seed)` exposes theme/motion indices, palette and ball traits;
 `themeName` and `motionName` resolve the names. NFT metadata includes the art
 version, theme and motion. NFT seed assignment retains `SOL_VIDEO_NFT_V1`.
-No previously deployed collections are changed; no deployment has been broadcast.
+This recipe is deployed on Sepolia; the original scenes remain available.
 
 Scenes **7–10** are the new 1/2/4/6-ball compositions. The original scenes 0–6
 remain available explicitly, including the plain ball experiments below. Existing
