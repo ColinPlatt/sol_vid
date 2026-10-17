@@ -43,14 +43,14 @@ The artwork recipe is `GHOULBALLS_VAPOR_V2`: four sunset palettes and four
 motion styles (Ricochet, Orbit, Float and Figure Eight). Theme, motion and art
 version are included in metadata; `recipeOf` exposes the full seeded recipe.
 
-The complete metadata read was measured at **374,893,971 gas** for the exported
+The complete metadata read was measured at **374,758,519 gas** for the exported
 first token. A six-ball sample selected for the largest summed squared radii among
-the first 64 tokens used **420,587,005 gas**. These measurements include the
+the first 64 tokens used **420,458,953 gas**. These measurements include the
 STATICCALL and ABI return-data copy, both media files, JSON and all base64 layers.
 They are real 500M-capped calls, not extrapolated codec-only measurements.
 Six-ball samples selected separately for each motion among the first 128 tokens
-used 417,164,161 (Ricochet), 417,465,417 (Orbit), 423,561,084 (Float) and
-417,311,126 (Figure Eight) gas. All remain below the 500M read budget.
+used 417,034,109 (Ricochet), 417,335,365 (Orbit), 423,431,032 (Float) and
+417,181,074 (Figure Eight) gas. All remain below the 500M read budget.
 
 Token URI lengths are about 576–599KB. These are sample measurements, not an
 exhaustive guarantee over every future token or deployment address. Different
@@ -67,15 +67,15 @@ not a claim of universal marketplace compatibility.
 
 ## Local verification
 
-Requires Foundry, solc 0.8.30, FFmpeg/FFprobe, Python and Pillow. OpenZeppelin
+Requires Foundry 1.8.5 or newer, solc 0.8.37, FFmpeg/FFprobe, Python and Pillow. OpenZeppelin
 v5.4.0 dependencies and their MIT license are vendored; no network install is
 needed for contract dependencies. See `vendor/openzeppelin/README.md` for the
 reproducible derived compilation unit and the local compiler compatibility
 transformations. Compiler settings are pinned in `foundry.toml`.
 
 ```bash
-# Set only if using a local compiler rather than Foundry's cached 0.8.30:
-export FOUNDRY_SOLC=/usr/bin/solc
+# Set only if using a local compiler rather than Foundry's cached 0.8.37:
+export FOUNDRY_SOLC=/path/to/solc-0.8.37
 
 python3 scripts/check_vendor.py
 forge fmt --check
@@ -99,11 +99,31 @@ pixels/luma against the token's independently returned AVI.
 The size check above covers deployable contracts. The local Foundry script runner
 embeds both creation payloads and is not itself deployed.
 
-Current runtime sizes: `GenerativeVideo` **15,468 bytes**, `SolVideoNFT`
-**8,714 bytes**, each below 24,576. The local deployment rehearsal uses about
-**4.99M gas** across two CREATE transactions. The first safe mint measured about
-75.5K call gas including a contract receiver callback; this excludes transaction
+Current runtime sizes: `GenerativeVideo` **15,493 bytes**, `SolVideoNFT`
+**8,728 bytes**, each below 24,576. The local deployment rehearsal uses about
+**39.0M gas** across two CREATE transactions. The first safe mint measured about
+355.1K call gas including a contract receiver callback; this excludes transaction
 intrinsic gas and is not a fee quote.
+
+## Glamsterdam gas schedule
+
+Sepolia activated Glamsterdam on October 6, 2026. Its execution-layer target is
+`amsterdam`. The default Foundry profile pins Solidity 0.8.37 and that target;
+use Foundry 1.8.5 or newer. `experimental = true` is required by this compiler
+for Amsterdam; the experimental SSA CFG code generator is not enabled.
+The Base profiles keep their separate Cancun compiler targets.
+
+The initial deployment attempt used the old Cancun/Foundry 1.0 gas estimate and
+reverted out of gas. Its hash and estimate are retained in the deployment
+manifest. It created no contract. Do not resume that old transaction sequence:
+re-read the deployer's nonce and simulate under Amsterdam before broadcasting.
+The upgraded simulation estimates approximately 49.5M gas with its safety margin
+for the pair, rather than the old approximately 7M. The local test rehearsal
+uses approximately 39.0M gas; final receipt gas is authoritative.
+
+References: [Ethereum Foundation activation announcement](https://blog.ethereum.org/en/2026/09/17/glamsterdam-testnet-announcement),
+[EIP-8037 state creation costs](https://eips.ethereum.org/EIPS/eip-8037), and
+[Solidity 0.8.37 Amsterdam support](https://www.soliditylang.org/blog/2026/09/10/solidity-0.8.37-release-announcement/).
 
 ## Sepolia dry run and broadcast
 
@@ -141,7 +161,7 @@ raw Foundry `broadcast/` artifacts are ignored. Run
 
 For source verification, verify both contracts with the same compiler settings:
 Use a current Foundry release or explicitly select the Etherscan V2 endpoint
-below; the development workspace has an older Foundry executable.
+below; the same compiler target and experimental setting must be used for verification.
 
 ```bash
 forge verify-contract --chain 11155111 --watch \

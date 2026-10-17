@@ -12,7 +12,7 @@ Source and ongoing development: [ColinPlatt/sol_vid](https://github.com/ColinPla
 
 **Yes: a single Solidity static call can generate a complete MPEG-1 video under 500 million gas.** This project includes working MPEG-1, AVI, and separate animated GIF experiments, with the returned files in `previews/`.
 
-The main example is [a two-second MPEG video](previews/mpg-512-25-0.mpg): 512×512, 25fps, 50 independently encoded frames, **357,601,367 gas**, 267,000 bytes. A [browser-friendly MP4 viewing copy](previews/mpg-512-25-0.preview.mp4) is available. **Only the MP4 viewing copies are encoded offchain**; `.mpg`, `.m1v`, `.avi` and `.gif` are the exact bytes returned by the contracts.
+The main example is [a two-second MPEG video](previews/mpg-512-25-0.mpg): 512×512, 25fps, 50 independently encoded frames, **357,602,125 gas**, 267,000 bytes. A [browser-friendly MP4 viewing copy](previews/mpg-512-25-0.preview.mp4) is available. **Only the MP4 viewing copies are encoded offchain**; `.mpg`, `.m1v`, `.avi` and `.gif` are the exact bytes returned by the contracts.
 
 ![Three MPEG scenes](previews/contact-sheet.png)
 
@@ -31,10 +31,10 @@ MPEG bytes, standalone media URIs, the seed and full recipe are available too.
 The renderer is immutable. The GIF uses 64×64 logical detail; the MPEG uses the
 same logical detail in flat blocks with chroma subsampling.
 
-The complete tokenURI tested at **374,893,971 gas**, including both media files,
+The complete tokenURI tested at **374,758,519 gas**, including both media files,
 JSON, every base64 layer and ABI return copy. A six-ball stress sample took
-**420,587,005 gas**. Separate six-ball samples for each motion peak at
-**423,561,084 gas**. The URI is about **576–599KB**. These fit the 500M read budget,
+**420,458,953 gas**. Separate six-ball samples for each motion peak at
+**423,431,032 gas**. The URI is about **576–599KB**. These fit the 500M read budget,
 but require a sufficiently high-cap RPC; default 50M endpoints and some NFT
 indexers will fail. Client playback of MPEG/data URIs also varies. This remains
 an experimental video NFT; minting and ERC-721 transfers are ordinary small
@@ -49,7 +49,7 @@ These are local test artifacts, not live Sepolia tokens.
 **Deployment is prepared, not broadcast.** The script deploys the renderer and
 then the collection, checks Sepolia chain ID 11155111, and verifies wiring and
 initial state. Both fit normal runtime size limits. The local rehearsal uses
-about 4.99M deployment gas. OpenZeppelin v5.4.0 ERC-721 and encoding dependencies
+about 39.0M deployment gas. OpenZeppelin v5.4.0 ERC-721 and encoding dependencies
 are pinned and vendored, with a reproducible compiler compatibility unit.
 
 See the [Sepolia deployment runbook](docs/SEPOLIA.md) for dry-run, signer,
@@ -117,9 +117,9 @@ The backdrop is generated once and reused within each single video call.
 
 | Six-ball Figure Eight, seed 6 | Gas | File bytes |
 | --- | ---: | ---: |
-| [AVI](previews/avi-64-25-10-seed6.avi) | 35,986,981 | 206,296 |
-| [GIF](previews/gif-64-25-10-seed6.gif) | 83,432,862 | 138,831 |
-| [MPEG](previews/mpg-512-25-10-seed6.mpg) | 294,949,877 | 277,899 |
+| [AVI](previews/avi-64-25-10-seed6.avi) | 35,991,490 | 206,296 |
+| [GIF](previews/gif-64-25-10-seed6.gif) | 83,091,066 | 138,831 |
+| [MPEG](previews/mpg-512-25-10-seed6.mpg) | 294,952,752 | 277,899 |
 
 Nine exported seeds (1, 2, 3, 4, 6, 7, 42, 99 and 2026) cover every motion and ball
 count. Exact gallery traits are in [recipes.json](previews/generative/recipes.json).
@@ -138,12 +138,12 @@ Inspired by `../ghoulBalls`, scenes 3–6 render 1, 2, 4 or 6 opaque coloured ci
 | Six-ball output, seed 42 | Dimensions | Logical detail | Gas | File bytes |
 |---|---|---|---:|---:|
 | [AVI](previews/avi-64-25-6.avi) | 64×64 | 64×64, lossless | 30,929,032 | 206,296 |
-| [GIF](previews/gif-64-25-6.gif) | 64×64 | 64×64, lossless | 78,393,060 | 138,831 |
-| [MPEG `.mpg`](previews/mpg-512-25-6.mpg) | 512×512 | 64×64, chroma approximation | 279,190,653 | 230,195 |
+| [GIF](previews/gif-64-25-6.gif) | 64×64 | 64×64, lossless | 78,395,960 | 138,831 |
+| [MPEG `.mpg`](previews/mpg-512-25-6.mpg) | 512×512 | 64×64, chroma approximation | 279,193,553 | 230,195 |
 | [Larger AVI](previews/avi-128-25-6.avi) | 128×128 | 64×64 enlarged 2×, lossless | 124,010,716 | 820,696 |
-| [Larger GIF](previews/gif-128-25-6.gif) | 128×128 | 64×64 enlarged 2×, lossless | 312,256,054 | 551,931 |
+| [Larger GIF](previews/gif-128-25-6.gif) | 128×128 | 64×64 enlarged 2×, lossless | 312,258,954 | 551,931 |
 
-The six-ball MPEG elementary stream alone takes 255,549,794 gas and 229,041 bytes. All listed files fit the 500M render budget, without base64 or metadata wrapping. The larger lossless files enlarge the same logical scene; they do not add geometric detail.
+The six-ball MPEG elementary stream alone takes 255,552,694 gas and 229,041 bytes. All listed files fit the 500M render budget, without base64 or metadata wrapping. The larger lossless files enlarge the same logical scene; they do not add geometric detail.
 
 Playback: [AVI viewing copy](previews/avi-128-25-6.preview.mp4), [MPEG viewing copy](previews/mpg-512-25-6.preview.mp4), [native animated GIF](previews/gif-128-25-6.gif). MP4 viewing copies are created offchain from independently decoded output. Native AVI, MPEG and GIF files are the exact Solidity return bytes.
 
@@ -180,24 +180,24 @@ This is a small custom MPEG encoder, not a general-purpose replacement for FFmpe
 
 ## Measured results
 
-All successful rows use one actual `STATICCALL` forwarding at most **500,000,000 gas**. Gas includes the call and copying ABI return data into the caller, but excludes deployment, calldata preparation, subsequent ABI decoding, base64 and NFT metadata wrapping. The `.mpg` test also includes its small calldata preparation cost. These are local Foundry measurements with Solidity 0.8.30, optimizer 200 runs, via IR, Cancun EVM. Gas changes with scene complexity and compiler settings.
+All successful rows use one actual `STATICCALL` forwarding at most **500,000,000 gas**. Gas includes the call and copying ABI return data into the caller, but excludes deployment, calldata preparation, subsequent ABI decoding, base64 and NFT metadata wrapping. The `.mpg` test also includes its small calldata preparation cost. These are local Foundry measurements with Solidity 0.8.37, optimizer 200 runs, via IR, Amsterdam EVM. Gas changes with scene complexity and compiler settings.
 
 | Output | Output size | Logical detail | Frames / fps | Gas | File bytes |
 |---|---|---|---|---:|---:|
-| MPEG-1 elementary, road | 128×128 | 16×16 | 50 / 25 | 21,260,842 | 20,074 |
-| MPEG-1 elementary, road | 256×256 | 32×32 | 50 / 25 | 83,195,482 | 71,949 |
-| MPEG-1 elementary, road | 512×512 | 64×64 | 50 / 25 | 329,780,400 | 265,846 |
-| MPEG-1 elementary, orb | 512×512 | 64×64 | 50 / 25 | 304,315,868 | 225,959 |
-| MPEG-1 elementary, interference | 512×512 | 64×64 | 50 / 25 | 286,643,597 | 291,528 |
-| **MPEG-1 system stream, road** | **512×512** | **64×64** | **50 / 25** | **357,601,367** | **267,000** |
-| AVI, road | 64×64 | 64×64 | 20 / 10 | 35,475,348 | 82,696 |
-| AVI, road | 128×128 | 64×64 enlarged 2× | 40 / 20 | 285,225,465 | 656,616 |
-| Animated GIF, road | 64×64 | 64×64 | 20 / 10 | 54,500,263 | 55,581 |
-| Animated GIF, road | 128×128 | 64×64 enlarged 2× | 40 / 20 | 436,474,662 | 441,561 |
+| MPEG-1 elementary, road | 128×128 | 16×16 | 50 / 25 | 21,261,563 | 20,074 |
+| MPEG-1 elementary, road | 256×256 | 32×32 | 50 / 25 | 83,196,210 | 71,949 |
+| MPEG-1 elementary, road | 512×512 | 64×64 | 50 / 25 | 329,781,151 | 265,846 |
+| MPEG-1 elementary, orb | 512×512 | 64×64 | 50 / 25 | 304,316,614 | 225,959 |
+| MPEG-1 elementary, interference | 512×512 | 64×64 | 50 / 25 | 286,644,352 | 291,528 |
+| **MPEG-1 system stream, road** | **512×512** | **64×64** | **50 / 25** | **357,602,125** | **267,000** |
+| AVI, road | 64×64 | 64×64 | 20 / 10 | 35,476,309 | 82,696 |
+| AVI, road | 128×128 | 64×64 enlarged 2× | 40 / 20 | 285,226,496 | 656,616 |
+| Animated GIF, road | 64×64 | 64×64 | 20 / 10 | 54,500,239 | 55,581 |
+| Animated GIF, road | 128×128 | 64×64 enlarged 2× | 40 / 20 | 436,474,638 | 441,561 |
 
 The 1024×1024 MPEG and 256×256 / 25fps road AVI and GIF presets exhaust the budget. These failures bound this implementation; they are not theoretical limits on Solidity or those formats. Comparisons above involve different logical detail and frame counts, so they do not establish a general codec efficiency ranking.
 
-`MpegVideo` runtime is approximately 4.9KB; `SolVideo` is approximately 7.0KB. Both fit the ordinary 24,576-byte EVM runtime code limit without raising it. No contracts have been deployed to a public network.
+Codec contracts and the renderer remain below 24,576 bytes; exact sizes are available from `forge build --sizes --skip test --skip script`.
 
 ## API and examples
 
@@ -229,7 +229,7 @@ MPEG-1 and AVI are useful native video proofs, but playback depends on the clien
 
 ## Reproduce
 
-Requires Foundry (including `cast` for the independent Python reference hash), Solidity 0.8.30, FFmpeg/FFprobe, Python 3 and Pillow. OpenZeppelin v5.4.0 is pinned and vendored; no Solidity dependency download is required. `foundry.toml` pins compiler version 0.8.30. Run `forge build` once to download that compiler if it is not cached, or set `FOUNDRY_SOLC=/path/to/solc` to use an existing 0.8.30 binary.
+Requires Foundry 1.8.5 or newer (including `cast` for the independent Python reference hash), Solidity 0.8.37, FFmpeg/FFprobe, Python 3 and Pillow. OpenZeppelin v5.4.0 is pinned and vendored; no Solidity dependency download is required. `foundry.toml` pins compiler version 0.8.37. Run `forge build` once to download that compiler if it is not cached, or set `FOUNDRY_SOLC=/path/to/solc` to use an existing 0.8.37 binary.
 
 ```bash
 forge fmt --check

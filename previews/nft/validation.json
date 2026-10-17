@@ -1,7 +1,7 @@
 [
   {
     "token_id": 1,
-    "gas": 374893971,
+    "gas": 374758519,
     "uri_bytes": 575861,
     "gif_bytes": 55581,
     "mpg_bytes": 267708,
@@ -9,7 +9,7 @@
   },
   {
     "token_id": 63,
-    "gas": 420587005,
+    "gas": 420458953,
     "uri_bytes": 598877,
     "gif_bytes": 55581,
     "mpg_bytes": 280311,

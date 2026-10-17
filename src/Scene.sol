@@ -7,8 +7,8 @@ abstract contract Scene is Vaporwave {
     error InvalidSettings();
 
     // Default sixteen RGB colours. All formats share a palette; every rendered index is <16.
-    bytes internal constant PALETTE =
-        hex"0b081814102b24183d382052573369845078bd629fff82c6ffe6ab69f5e2" hex"32b9c56576c22c4979402957b7bed8ffffff";
+    bytes internal constant PALETTE = hex"0b081814102b24183d382052573369845078bd629fff82c6ffe6ab69f5e2"
+        hex"32b9c56576c22c4979402957b7bed8ffffff";
 
     /// @dev Scenes 3..6 are the original Ghoul Balls; 7..10 are vaporwave variants.
     function _palette(uint256 scene, uint256 seed) internal pure returns (bytes memory palette) {

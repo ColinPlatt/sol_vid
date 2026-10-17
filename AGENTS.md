@@ -22,7 +22,9 @@ measurements and example media in sync as this experiment develops.
 Before pushing code changes, run `forge fmt --check` and `forge test --offline -vv`.
 When media generation changes, also run `python3 scripts/validate.py` and update
 the README's measurements and examples. The compiler is pinned in `foundry.toml`;
-`FOUNDRY_SOLC=/usr/bin/solc` is the local override in this workspace.
+the default target is Solidity 0.8.37 / Amsterdam with Foundry >=1.8.5.
+Use a matching compiler override, not the old `/usr/bin/solc` (0.8.30).
+Base uses `FOUNDRY_PROFILE=base` or `base_sepolia` with Solidity 0.8.30 / Cancun.
 For NFT metadata changes also run `python3 scripts/validate_nft.py` and measure
 the complete `tokenURI`, including both media files, JSON and base64 layers.
 

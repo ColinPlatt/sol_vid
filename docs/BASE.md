@@ -1,8 +1,7 @@
 # Base deployment preparation
 
 The same `ghoulballs` contracts are prepared for Base and Base Sepolia. Minting
-is free, with a fixed maximum of 6,667 tokens and no per-wallet limit. No contracts
-have been broadcast. See [Sepolia](SEPOLIA.md) for signer setup, contract behavior,
+is free, with a fixed maximum of 6,667 tokens and no per-wallet limit. Base contracts have not been broadcast. See [Sepolia](SEPOLIA.md) for signer setup, contract behavior,
 verification, and metadata limitations.
 
 | Network | Chain ID | Script | Manifest |
@@ -13,19 +12,19 @@ verification, and metadata limitations.
 Each script rejects the wrong chain before starting broadcast. Local rehearsals:
 
 ```bash
-FOUNDRY_SOLC=/usr/bin/solc forge script script/DeployBase.s.sol:DeployBase --chain 8453 --offline
-FOUNDRY_SOLC=/usr/bin/solc forge script script/DeployBase.s.sol:DeployBaseSepolia --chain 84532 --offline
+FOUNDRY_PROFILE=base FOUNDRY_SOLC=/usr/bin/solc forge script script/DeployBase.s.sol:DeployBase --chain 8453 --offline
+FOUNDRY_PROFILE=base_sepolia FOUNDRY_SOLC=/usr/bin/solc forge script script/DeployBase.s.sol:DeployBaseSepolia --chain 84532 --offline
 ```
 
 For a network dry run, load your local `.env` as described in the Sepolia guide:
 
 ```bash
-forge script script/DeployBase.s.sol:DeployBaseSepolia \
+FOUNDRY_PROFILE=base_sepolia forge script script/DeployBase.s.sol:DeployBaseSepolia \
   --rpc-url https://sepolia.base.org --chain 84532 \
   --private-key "$DEPLOYER_PRIVATE_KEY" --sender "$DEPLOYER_ADDRESS" -vvv
 ```
 
-For mainnet use `DeployBase`, chain `8453`, and `https://mainnet.base.org`.
+For mainnet select `FOUNDRY_PROFILE=base`, use `DeployBase`, chain `8453`, and `https://mainnet.base.org`.
 Only adding `--broadcast --slow` sends transactions. Fund the deployer on the
 selected network first. Record successful addresses and transaction hashes in
 that network's manifest and set its status to `deployed`, then run

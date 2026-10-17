@@ -22,8 +22,9 @@ contract SolVideoTest {
         uint256 beforeGas = gasleft();
         (bool ok, bytes memory result) = address(renderer).staticcall{gas: 500_000_000}(input);
         uint256 used = beforeGas - gasleft();
-        string memory name =
-            string.concat(isGif ? "gif" : "avi", "-", vm.toString(size), "-", vm.toString(fps), "-", vm.toString(scene));
+        string memory name = string.concat(
+            isGif ? "gif" : "avi", "-", vm.toString(size), "-", vm.toString(fps), "-", vm.toString(scene)
+        );
         emit log(name);
         emit log_named_uint("gas including STATICCALL and return copy", used);
         if (required) require(ok, "Required preset exceeds budget or reverts");
