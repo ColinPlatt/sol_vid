@@ -8,6 +8,7 @@ interface VmProbe is Vm {
     function readFileBinary(string calldata path) external view returns (bytes memory);
     function expectRevert(bytes calldata data) external;
     function envOr(string calldata name, string calldata defaultValue) external view returns (string memory);
+    function envOr(string calldata name, bool defaultValue) external view returns (bool);
 }
 
 contract MarketplaceProbeTest {
@@ -33,7 +34,9 @@ contract MarketplaceProbeTest {
         require(address(probe).code.length <= 24576, "Probe runtime exceeds Base code limit");
     }
 
+    /// @dev Exports to previews/probe/ only with PROBE_EXPORT=true, so a normal `forge test` leaves the tree clean.
     function testAllMetadataWithin500MAndExport() public {
+        bool exporting = vm.envOr("PROBE_EXPORT", false);
         string memory records = "[";
         for (uint256 id = 1; id <= 15; ++id) {
             uint256 beforeGas = gasleft();
@@ -46,7 +49,7 @@ contract MarketplaceProbeTest {
             if (target != 0) require(used >= target && used < target + 2000000, "Gas ladder not calibrated");
             else require(used < 40000000, "Non-gas control is not cheap");
             emit log_named_uint(probe.caseName(id), used);
-            vm.writeFile(string.concat("previews/probe/token-", vm.toString(id), ".uri.txt"), uri);
+            if (exporting) vm.writeFile(string.concat("previews/probe/token-", vm.toString(id), ".uri.txt"), uri);
             records = string.concat(
                 records,
                 id == 1 ? "" : ",",
@@ -63,6 +66,7 @@ contract MarketplaceProbeTest {
                 "}"
             );
         }
+        if (!exporting) return;
         string memory profile = vm.envOr("FOUNDRY_PROFILE", string("default"));
         bool isBase =
             keccak256(bytes(profile)) == keccak256("base") || keccak256(bytes(profile)) == keccak256("base_sepolia");

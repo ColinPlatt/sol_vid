@@ -1,6 +1,6 @@
 {
   "environment": "local Anvil only, not Base or a marketplace",
-  "checked_at": "2026-10-17T16:43:50.584371+00:00",
+  "checked_at": "2026-10-17T17:03:54.077055+00:00",
   "chain_id": 8453,
   "rpc_host": "127.0.0.1",
   "collection": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
@@ -14,7 +14,7 @@
       "uri_bytes": 1049,
       "has_image": true,
       "has_animation": false,
-      "elapsed_seconds": 0.012
+      "elapsed_seconds": 0.011
     },
     {
       "token_id": 2,
@@ -32,7 +32,7 @@
       "uri_bytes": 1049,
       "has_image": true,
       "has_animation": false,
-      "elapsed_seconds": 0.034
+      "elapsed_seconds": 0.04
     },
     {
       "token_id": 4,
@@ -97,8 +97,8 @@
     {
       "token_id": 12,
       "status": "retrieved",
-      "name": "ghoulballs probe #12 - Inline MP4",
-      "uri_bytes": 5945,
+      "name": "ghoulballs probe #12 - Offchain-encoded MP4 control",
+      "uri_bytes": 5993,
       "has_image": true,
       "has_animation": true,
       "elapsed_seconds": 0.002
@@ -119,7 +119,7 @@
       "uri_bytes": 1473,
       "has_image": true,
       "has_animation": false,
-      "elapsed_seconds": 0.001
+      "elapsed_seconds": 0.002
     },
     {
       "token_id": 15,

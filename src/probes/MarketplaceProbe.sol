@@ -16,7 +16,6 @@ contract MarketplaceProbe is ERC721 {
     string public hostedHTML;
 
     constructor(address recipient, string memory hostedHTML_) ERC721("ghoulballs marketplace probe", "GBPROBE") {
-        if (recipient == address(uint160(0))) revert ERC721InvalidReceiver(recipient);
         bytes memory url = bytes(hostedHTML_);
         if (url.length < 9 || url.length > 512 || bytes8(url) != bytes8("https://")) revert InvalidHostedURL();
         for (uint256 i; i < url.length; ++i) {
@@ -49,7 +48,8 @@ contract MarketplaceProbe is ERC721 {
         if (id == 9) return "HTML JS percent";
         if (id == 10) return "HTML CSS no JS";
         if (id == 11) return "Cheap 600KB HTML";
-        if (id == 12) return "Inline MP4";
+        // An FFmpeg-encoded clip stored as a fixture: an offchain viewing copy, not Solidity-rendered video.
+        if (id == 12) return "Offchain-encoded MP4 control";
         if (id == 13) return "Hosted HTML JS";
         if (id == 14) return "SVG wrapped GIF";
         return "Raw GIF image";
@@ -68,6 +68,7 @@ contract MarketplaceProbe is ERC721 {
 
     function tokenURI(uint256 id) public view override returns (string memory) {
         ownerOf(id);
+        string memory name = caseName(id);
         if (id == 11) return string(ProbeFixtures.large_uri());
         if (id <= 7) _consumeGas(gasTarget(id));
         string memory image = string.concat("data:image/gif;base64,", Base64.encode(ProbeFixtures.gif()));
@@ -93,13 +94,13 @@ contract MarketplaceProbe is ERC721 {
             '{"name":"ghoulballs probe #',
             id.toString(),
             " - ",
-            caseName(id),
+            name,
             '","description":"Marketplace compatibility control. Prerecorded media; not a new onchain codec.","image":"',
             image,
             '"',
             bytes(animation).length == 0 ? "" : string.concat(',"animation_url":"', animation, '"'),
             ',"attributes":[{"trait_type":"Probe","value":"',
-            caseName(id),
+            name,
             '"}]}'
         );
         return string.concat("data:application/json;base64,", Base64.encode(metadata));

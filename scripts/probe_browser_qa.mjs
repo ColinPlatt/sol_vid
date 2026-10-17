@@ -9,7 +9,9 @@ import assert from 'node:assert/strict';
 const root=fileURLToPath(new URL('../',import.meta.url));
 const controls=JSON.parse(await readFile(path.join(root,'previews/probe/controls.json'),'utf8'));
 const profile=await mkdtemp(path.join(tmpdir(),'marketplace-probe-chrome-'));
-const hosted=await readFile(path.join(root,'fixtures/marketplace-probe/html-js.html'));
+// Token 13 points at the deployed page, so serve that file, and require it to be the fixture the data-URI tokens embed.
+const hosted=await readFile(path.join(root,'mint-page/dist/probe/player.html'));
+assert.deepEqual(hosted,await readFile(path.join(root,'fixtures/marketplace-probe/html-js.html')),'mint-page/dist/probe/player.html differs from fixtures/marketplace-probe/html-js.html');
 const server=createServer((req,res)=>{if(req.url==='/player.html'){res.writeHead(200,{'Content-Type':'text/html'});res.end(hosted);}else res.writeHead(404).end();});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 let chrome,ws;
@@ -25,7 +27,8 @@ try{
  const evaluate=async expression=>{const r=await cdp('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
  const delay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
  const until=async expression=>{for(let n=0;n<100;++n){if(await evaluate(expression))return;await delay(50);}throw Error('Timed out: '+expression);};
- const open=async url=>{await cdp('Page.navigate',{url});await delay(120);await until("document.readyState==='complete'");};
+ // Mark the current document first: readyState alone is already 'complete' on the previous page.
+ const open=async url=>{await evaluate('window.__probeStale=true');await cdp('Page.navigate',{url});await until("!window.__probeStale&&document.readyState==='complete'");};
  await cdp('Page.enable');await cdp('Runtime.enable');
  for(const token of [8,9]){
   await open(controls[token].animation_url);

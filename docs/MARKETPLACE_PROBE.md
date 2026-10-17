@@ -20,21 +20,21 @@ gas. Targets are approximate thresholds, not exact provider cap measurements.
 
 | Token | Control | Gas | URI bytes |
 | --- | --- | ---: | ---: |
-| 1 | Gas 10M | 10,104,337 | 1,049 |
-| 2 | Gas 30M | 30,104,370 | 1,049 |
-| 3 | Gas 45M | 45,104,484 | 1,049 |
-| 4 | Gas 60M | 60,104,575 | 1,049 |
-| 5 | Gas 100M | 100,105,083 | 1,053 |
-| 6 | Gas 200M | 200,105,156 | 1,053 |
-| 7 | Gas 400M | 400,105,224 | 1,053 |
-| 8 | HTML JS base64 | 225,494 | 2,281 |
-| 9 | HTML JS percent | 605,449 | 2,353 |
-| 10 | HTML CSS no JS | 185,456 | 1,885 |
-| 11 | Cheap 600KB HTML | 7,992,922 | 801,261 |
-| 12 | Inline MP4 | 597,614 | 5,945 |
-| 13 | Hosted HTML JS | 115,846 | 1,157 |
-| 14 | SVG wrapped GIF | 540,278 | 1,473 |
-| 15 | Raw GIF image | 103,548 | 1,065 |
+| 1 | Gas 10M | 10,103,157 | 1,049 |
+| 2 | Gas 30M | 30,103,173 | 1,049 |
+| 3 | Gas 45M | 45,103,265 | 1,049 |
+| 4 | Gas 60M | 60,103,335 | 1,049 |
+| 5 | Gas 100M | 100,103,727 | 1,053 |
+| 6 | Gas 200M | 200,103,778 | 1,053 |
+| 7 | Gas 400M | 400,103,829 | 1,053 |
+| 8 | HTML JS base64 | 225,224 | 2,281 |
+| 9 | HTML JS percent | 605,155 | 2,353 |
+| 10 | HTML CSS no JS | 185,142 | 1,885 |
+| 11 | Cheap 600KB HTML | 7,993,759 | 801,261 |
+| 12 | Offchain-encoded MP4 control | 600,044 | 5,993 |
+| 13 | Hosted HTML JS | 115,472 | 1,157 |
+| 14 | SVG wrapped GIF | 539,878 | 1,473 |
+| 15 | Raw GIF image | 103,141 | 1,065 |
 
 Tokens 8 and 9 contain byte-identical HTML/JavaScript, changing only base64 versus
 percent encoding. Token 10 uses CSS animation with no scripts. Token 13 points to
@@ -75,11 +75,14 @@ claim about any public RPC or marketplace.
 # Foundry >=1.8.5; matching locally installed compilers can be selected with FOUNDRY_SOLC.
 forge fmt --check
 forge test --offline -vv
+# The probe tests write previews/probe/ only with PROBE_EXPORT=true (a plain run leaves the tree clean):
+PROBE_EXPORT=true forge test --offline --match-contract MarketplaceProbeTest -vv
 python3 scripts/validate_probe.py --profile amsterdam
-FOUNDRY_PROFILE=base forge test --offline --match-contract MarketplaceProbeTest -vv
+FOUNDRY_PROFILE=base PROBE_EXPORT=true forge test --offline --match-contract MarketplaceProbeTest -vv
 python3 scripts/validate_probe.py --profile base
 node scripts/probe_browser_qa.mjs
-# Starts and stops a disposable local Anvil; no public-chain transactions:
+# Starts and stops a disposable local Anvil; no public-chain transactions. Its Foundry broadcast and logs go to a
+# temporary directory, so it never touches broadcast/DeployMarketplaceProbe.s.sol/8453/ from a real deployment:
 FOUNDRY_SOLC=/path/to/solc-0.8.30 python3 scripts/probe_rpc_smoke.py
 ```
 

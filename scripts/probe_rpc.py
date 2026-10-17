@@ -4,6 +4,9 @@ import argparse,base64,json,os,re,time,urllib.error,urllib.parse,urllib.request
 from datetime import datetime,timezone
 from pathlib import Path
 
+RETRYABLE_CODES={-32005,-32029,429}
+RATE_LIMITED=re.compile('rate.?limit|too many requests|exceeded.*(quota|capacity)',re.I)
+
 def decode_metadata(result):
     raw=bytes.fromhex(result.removeprefix('0x'))
     if len(raw)<64:raise ValueError('Truncated ABI return')
@@ -27,16 +30,25 @@ def main():
     if not re.fullmatch('0x[0-9a-fA-F]{40}',args.address) or int(args.address,16)==0:parser.error('Invalid collection address')
     if args.gas<21000 or args.gas>550000000:parser.error('Gas must be between 21000 and 550000000')
     def rpc(method,params):
+        # Rate limits and transient failures are retried so they are not mistaken for gas-budget failures: HTTP 429/5xx,
+        # JSON-RPC rate-limit errors inside an HTTP 200 (e.g. -32005), timeouts and connection errors. Reverts are not.
         body=json.dumps({'jsonrpc':'2.0','id':1,'method':method,'params':params}).encode()
-        for attempt in range(3):
+        for attempt in range(5):
+            last=attempt==4
             try:
                 req=urllib.request.Request(args.rpc_url,data=body,headers={'Content-Type':'application/json'})
                 with urllib.request.urlopen(req,timeout=90) as response:result=json.load(response)
-                if 'error' in result:raise RuntimeError(json.dumps(result['error']))
+                if 'error' in result:
+                    error=result['error']
+                    if not last and (error.get('code') in RETRYABLE_CODES or RATE_LIMITED.search(str(error.get('message','')))):
+                        time.sleep(1+2*attempt);continue
+                    raise RuntimeError(json.dumps(error))
                 return result['result']
             except urllib.error.HTTPError as error:
-                if error.code!=429 or attempt==2:raise
-                time.sleep(1+attempt)
+                if last or not (error.code==429 or error.code>=500):raise
+            except (urllib.error.URLError,TimeoutError,ConnectionError):
+                if last:raise
+            time.sleep(1+2*attempt)
     if int(rpc('eth_chainId',[]),16)!=args.chain_id:raise SystemExit('RPC chain ID mismatch')
     if rpc('eth_getCode',[args.address,'latest']) in ['0x','0x0']:raise SystemExit('No contract at the supplied address')
     records=[]
