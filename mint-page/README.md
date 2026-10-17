@@ -24,6 +24,10 @@ collection's newest token. `/gallery.html` redirects to `/#minted`.
 The page re-reads `totalSupply` every 15 seconds while visible, and on return to the
 tab. When it rises, the counter, the screen, the tab icon and the top of the list
 update with the new tokens; existing cards are not re-read.
+At 6,667 the mint button turns orange, reads MINTED OUT and is disabled. Token pages
+read the supply too and show the same orange MINTED OUT instead of MINT YOURS; they
+cache for 10 minutes until then and for a year afterwards. A tab that falls more
+than a page of mints behind rebuilds its list instead of adding each card.
 
 ## Sharing and token pages
 

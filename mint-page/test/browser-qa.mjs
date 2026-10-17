@@ -228,8 +228,15 @@ try {
   assert.equal(new URL(navigated).pathname, "/t/2");
   await cdp("Page.navigate", { url: origin + "/?mint-qa=1" });
   await until("document.getElementById('availability-text')?.textContent === 'FREE · 1 PER ADDRESS'");
+  // Minted out: the button turns orange, says MINTED OUT and cannot be pressed.
+  await evaluate("window.__supply=6667; document.dispatchEvent(new Event('visibilitychange'))");
+  await until("document.getElementById('mint-button').textContent === 'MINTED OUT'");
+  assert(await evaluate("document.getElementById('mint-button').disabled && document.getElementById('mint-button').classList.contains('minted-out')"));
+  assert.equal(await evaluate("getComputedStyle(document.getElementById('mint-button')).backgroundColor"), "rgb(255, 157, 24)");
+  await until("document.querySelectorAll('.token-card').length === 24");
+  await screenshot("/tmp/ghoulballs-minted-out.png");
   assert.deepEqual(exceptions, []);
-  console.log("PASS undeployed guard, live supply, newest token on screen, current collection's GIFs only, Base only with automatic switch to Base, 1 per address note, share on X after mint, animated favicon, live pickup of new mints, share pop-up, clickable cards (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
+  console.log("PASS undeployed guard, live supply, newest token on screen, current collection's GIFs only, Base only with automatic switch to Base, 1 per address note, share on X after mint, animated favicon, live pickup of new mints, share pop-up, clickable cards, minted out (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
   console.log("Screenshots: /tmp/ghoulballs-mint-desktop.png and /tmp/ghoulballs-mint-mobile.png");
 } finally {
   ws?.close(); chrome?.kill("SIGTERM"); await new Promise(r => server.close(r));

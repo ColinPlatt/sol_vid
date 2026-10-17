@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { execFileSync } from "node:child_process";
 import { inflateSync } from "node:zlib";
-import { tokenId, gifFrame, cardPng, tokenPage, tokenMetadata, tokenGif, network } from "../api/_share.js";
+import { tokenId, gifFrame, cardPng, tokenPage, tokenMetadata, tokenGif, soldOut, network } from "../api/_share.js";
 
 const exported = new URL("../../previews/nft/", import.meta.url);
 const abi = bytes => "0x" + (32n).toString(16).padStart(64, "0") + BigInt(bytes.length).toString(16).padStart(64, "0") + Buffer.from(bytes).toString("hex").padEnd(Math.ceil(bytes.length / 32) * 64, "0");
@@ -48,6 +48,17 @@ test("the token page carries its own preview card and escapes chain text", () =>
   assert.match(html, /script-src 'none'/);
   assert.match(html, /href="\/">MINT YOURS<\/a>/);
   assert.match(html, /<a class="chip-button download-gif" href="\/t\/12\.gif" download="ghoulballs-12\.gif">DOWNLOAD GIF ↓<\/a>/);
+});
+
+test("once all 6,667 exist, the token page says MINTED OUT instead of linking to the mint", async () => {
+  const metadata = { image: "data:image/svg+xml,%3Csvg%3E", attributes: [] };
+  const open = tokenPage(5, metadata, "https://ghoulballs.vercel.app", false), out = tokenPage(5, metadata, "https://ghoulballs.vercel.app", true);
+  assert.match(open, /href="\/">MINT YOURS<\/a>/);
+  assert.doesNotMatch(out, /MINT YOURS/);
+  assert.match(out, /<span class="mint-button mint-link minted-out" aria-disabled="true">MINTED OUT<\/span>/);
+  const supply = n => rpc({ result: "0x" + n.toString(16).padStart(64, "0") });
+  assert.equal(await soldOut(supply(6666)), false);
+  assert.equal(await soldOut(supply(6667)), true);
 });
 
 test("chain reads parse the exported tokenURI and flag unminted tokens", async () => {

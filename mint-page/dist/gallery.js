@@ -133,7 +133,8 @@ export async function showGallery(network) {
 /** New mints of the current collection go on top of the list; the rest of the list is left as it is. */
 export function showNewMints(network, supply) {
   if (!live || live.network !== network || live.run !== generation || supply <= live.known) return;
-  if (!live.grid) { void showGallery(network); return; }
+  // Rebuild instead when there is no list yet, or more new tokens than a page (e.g. a tab left open for a long time).
+  if (!live.grid || supply - live.known > PAGE) { void showGallery(network); return; }
   const per = live.collection.tokensPerMint === 3 ? 3 : 1;
   for (let id = live.known + 1; id <= supply - per + 1; id += per) live.grid.prepend(tokenCard(network, live.collection, id, live.run, live.observer));
   live.known = supply;

@@ -72,6 +72,11 @@ export async function tokenGif(id, fetcher) {
   return bytes(await call("0x7492d87c" + word(id), "0x1dcd6500", fetcher));
 }
 
+/** True once all 6,667 tokens exist. */
+export async function soldOut(fetcher) {
+  return BigInt(await call("0x18160ddd", "0x186a0", fetcher)) >= 6667n;
+}
+
 export async function tokenMetadata(id, fetcher) {
   const uri = bytes(await call("0xc87b56dd" + word(id), "0x1dcd6500", fetcher)).toString("utf8");
   const prefix = "data:application/json;base64,";
@@ -84,7 +89,7 @@ export async function tokenMetadata(id, fetcher) {
 const escape = text => String(text).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 export const TAGLINE = "Ethereum's first (probably) fully onchain animated GIF";
 
-export function tokenPage(id, metadata, origin) {
+export function tokenPage(id, metadata, origin, mintedOut = false) {
   const attributes = Object.fromEntries((metadata.attributes ?? []).map(a => [a.trait_type, a.value]));
   const count = attributes["Ball Count"];
   const traits = [count && `${count} ${count === 1 ? "BALL" : "BALLS"}`, attributes.Theme, attributes.Motion].filter(Boolean);
@@ -125,7 +130,7 @@ export function tokenPage(id, metadata, origin) {
         <p class="tagline">${escape(TAGLINE)}</p>
         <p class="counter">#${id}</p>
         <div class="trait-row token-traits">${traits.map(t => `<span>${escape(String(t).toUpperCase())}</span>`).join("")}</div>
-        <a class="mint-button mint-link" href="/">MINT YOURS</a>
+        ${mintedOut ? '<span class="mint-button mint-link minted-out" aria-disabled="true">MINTED OUT</span>' : '<a class="mint-button mint-link" href="/">MINT YOURS</a>'}
         <p class="availability"><span>FREE · 1 PER ADDRESS</span></p>
         <a class="chip-button download-gif" href="/t/${id}.gif" download="ghoulballs-${id}.gif">DOWNLOAD GIF ↓</a>
       </div>
@@ -139,3 +144,5 @@ export function tokenPage(id, metadata, origin) {
 
 export const originOf = req => `https://${req.headers["x-forwarded-host"] ?? req.headers.host}`;
 export const FOREVER = "public, max-age=3600, s-maxage=31536000, immutable";
+// Token pages show the mint button, which flips to MINTED OUT at 6,667: until then they refresh every 10 minutes.
+export const UNTIL_MINTED_OUT = "public, max-age=60, s-maxage=600, stale-while-revalidate=86400";

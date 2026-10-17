@@ -19,11 +19,11 @@ main{max-width:1100px;margin:0 auto;padding:36px 20px 40px}
 .screen img{display:block;width:100%;height:100%;object-fit:contain}
 .scanlines{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(0,0,0,.16) 3px 4px)}
 .controls{display:flex;flex-direction:column;align-items:stretch;text-align:center}
-.tagline{margin:0 0 14px;color:var(--orange);font-size:14px;letter-spacing:2px;text-transform:uppercase;line-height:1.5}.counter{margin:0 0 18px;color:var(--yellow);font-size:clamp(34px,6vw,52px);font-weight:700;text-shadow:4px 4px 0 #65165e;letter-spacing:1px}
+.tagline{margin:0 0 14px;color:var(--orange);font-size:14px;letter-spacing:2px;text-transform:uppercase;line-height:1.5}.counter{margin:0 0 18px;color:var(--yellow);font-size:clamp(30px,3.4vw,44px);white-space:nowrap;font-weight:700;text-shadow:4px 4px 0 #65165e;letter-spacing:1px}
 .mint-button{min-height:72px;border:4px solid #3c2400;background:var(--yellow);color:#171009;font-size:34px;font-weight:700;letter-spacing:4px;box-shadow:inset -5px -5px #c36a00,inset 5px 5px #fff28b,8px 8px 0 #000}
 .mint-button:hover:not(:disabled){background:#fff05a;transform:translateY(-2px)}
 .mint-button:active:not(:disabled){transform:translate(4px,4px);box-shadow:inset -3px -3px #c36a00,inset 3px 3px #fff28b,4px 4px 0 #000}
-.mint-button:disabled{background:#3a3340;border-color:#1b171f;color:#7d7186;box-shadow:inset -5px -5px #2a2430,inset 5px 5px #4b4352,8px 8px 0 #000}
+.mint-button.minted-out,.mint-button.minted-out:disabled{background:var(--orange);border-color:#3c2400;color:#171009;box-shadow:inset -5px -5px #b05f00,inset 5px 5px #ffc46b,8px 8px 0 #000;cursor:not-allowed;transform:none}.mint-button:disabled:not(.minted-out){background:#3a3340;border-color:#1b171f;color:#7d7186;box-shadow:inset -5px -5px #2a2430,inset 5px 5px #4b4352,8px 8px 0 #000}
 .download-gif{display:block;margin-top:18px;text-align:center;text-decoration:none}.mint-link{display:grid;place-items:center;text-decoration:none}.token-traits{justify-content:center;margin:0 0 22px}.token-traits span{font-size:12px}.availability{margin:16px 0 0;color:var(--green);font-size:13px;letter-spacing:3px}
 .mint-status{margin-top:14px;font-size:14px;letter-spacing:1px;color:var(--green);overflow-wrap:anywhere}
 .mint-status.error{color:var(--red)}

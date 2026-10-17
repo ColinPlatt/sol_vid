@@ -34,7 +34,8 @@ function render() {
   if (n.deployed) link.href = n.explorerUrl + "/address/" + n.collectionAddress;
   button.disabled = busy || state.connecting || !n.deployed || state.soldOut || state.minted;
   const wrongChain = account && state.chainId !== null && state.chainId !== n.chainId;
-  setButton(button, busy ? "MINTING…" : state.soldOut ? "SOLD OUT" : state.minted ? "MINTED" : wrongChain ? `SWITCH TO ${n.name.toUpperCase()}` : "MINT");
+  setButton(button, busy ? "MINTING…" : state.soldOut ? "MINTED OUT" : state.minted ? "MINTED" : wrongChain ? `SWITCH TO ${n.name.toUpperCase()}` : "MINT");
+  button.classList.toggle("minted-out", state.soldOut);
 }
 
 // The screen shows the newest token of the current collection, straight from its tokenURI.
