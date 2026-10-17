@@ -8,12 +8,52 @@ Source and ongoing development: [ColinPlatt/sol_vid](https://github.com/ColinPla
 | `MpegVideo` | MPEG-1 elementary streams and timestamped `.mpg` files |
 | `GenerativeVideo` | All encoders together, with seed-only entry points and inspectable traits |
 | `Scene` | Shared procedural drawing and palette generation |
+| `SolVideoNFT` | Free, uncapped `ghoulballs` ERC-721 with embedded GIF/MPEG metadata |
 
 **Yes: a single Solidity static call can generate a complete MPEG-1 video under 500 million gas.** This project includes working MPEG-1, AVI, and separate animated GIF experiments, with the returned files in `previews/`.
 
 The main example is [a two-second MPEG video](previews/mpg-512-25-0.mpg): 512×512, 25fps, 50 independently encoded frames, **355,931,828 gas**, 267,000 bytes. A [browser-friendly MP4 viewing copy](previews/mpg-512-25-0.preview.mp4) is available. **Only the MP4 viewing copies are encoded offchain**; `.mpg`, `.m1v`, `.avi` and `.gif` are the exact bytes returned by the contracts.
 
 ![Three MPEG scenes](previews/contact-sheet.png)
+
+## ghoulballs NFT — prepared for Sepolia
+
+The ERC-721 collection name and symbol are both **`ghoulballs`**. Anyone can call
+`mint()` or `mintTo(recipient)` for no protocol payment, as often as desired.
+There is no supply cap, wallet mint limit, owner, pause or upgrade function.
+Minters pay network gas. Each mint gets the next token ID and a deterministic
+seed derived from the collection address, chain ID and token ID. Minting does
+not run the media encoders.
+
+`tokenURI(id)` creates fully onchain JSON with a 64×64 animated GIF `image`,
+a 512×512 MPEG-1 `animation_url`, and generative attributes. Raw AVI, GIF and
+MPEG bytes, standalone media URIs, the seed and full recipe are available too.
+The renderer is immutable. The GIF uses 64×64 logical detail; the MPEG uses the
+same logical detail in flat blocks with chroma subsampling.
+
+The complete tokenURI tested at **386,902,264 gas**, including both media files,
+JSON, every base64 layer and ABI return copy. A six-ball stress sample took
+**390,734,393 gas**. The URI is about **513KB**. These fit the 500M read budget,
+but require a sufficiently high-cap RPC; default 50M endpoints and some NFT
+indexers will fail. Client playback of MPEG/data URIs also varies. This remains
+an experimental video NFT; minting and ERC-721 transfers are ordinary small
+transactions.
+
+Local test token: [GIF](previews/nft/token-1.gif),
+[native MPEG](previews/nft/token-1.mpg),
+[MP4 viewing copy](previews/nft/token-1.preview.mp4),
+[decoded metadata](previews/nft/token-1.metadata.json).
+These are local test artifacts, not live Sepolia tokens.
+
+**Deployment is prepared, not broadcast.** The script deploys the renderer and
+then the collection, checks Sepolia chain ID 11155111, and verifies wiring and
+initial state. Both fit normal runtime size limits. The local rehearsal uses
+about 4.23M deployment gas. OpenZeppelin v5.4.0 ERC-721 and encoding dependencies
+are pinned and vendored, with a reproducible compiler compatibility unit.
+
+See the [Sepolia deployment runbook](docs/SEPOLIA.md) for dry-run, signer,
+broadcast, source verification and post-deployment steps. The public deployment
+manifest is [deployments/sepolia.json](deployments/sepolia.json).
 
 ## Generative artwork from one seed
 
@@ -143,6 +183,8 @@ Requires Foundry (including `cast` for the independent Python reference hash), S
 forge fmt --check
 forge test --offline -vv
 python3 scripts/validate.py
+python3 scripts/check_vendor.py
+python3 scripts/validate_nft.py
 ```
 
 The tests export exact static-call output and per-preset JSON measurements to `previews/`. The independent validation script:

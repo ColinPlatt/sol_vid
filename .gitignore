@@ -1,2 +1,8 @@
 out/
 cache/
+broadcast/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc

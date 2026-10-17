@@ -1,0 +1,47 @@
+{
+  "repository": "OpenZeppelin/openzeppelin-contracts",
+  "version": "v5.4.0",
+  "upstream_sha256": {
+    "LICENSE": "13cd784a6c31361f0e0c6aa3b410a1cb9a079868b7314c13e3eb8a75351746b9",
+    "contracts/interfaces/draft-IERC6093.sol": "df936240c9a5d342582cbda70dd773b1c1d0e0dda3042b1c17b902ef0c36827b",
+    "contracts/token/ERC721/ERC721.sol": "330a87f2bf94083df8ddd341735d712866455042aaca58d33ee1799773e1cae1",
+    "contracts/token/ERC721/IERC721.sol": "ff0eb9902bf0ac099205615fac90eacf34fae637571b05aab3ea35dea53d5f17",
+    "contracts/token/ERC721/IERC721Receiver.sol": "eafee3ffdc7cb2fba4bf6bd16fb28f8e5b4679742e81c2ad42a1b1df5c179feb",
+    "contracts/token/ERC721/extensions/IERC721Metadata.sol": "33223782ea652dca413702ce92f9f59d91d758a035065b24bbedb7dc60c63a78",
+    "contracts/token/ERC721/utils/ERC721Utils.sol": "f2041b1685dcf0cf6b968d9b8454e5a46068b1df5ab0e82ba0b269fa2f3099a8",
+    "contracts/utils/Base64.sol": "b24abf66270126ee48e47646b1a2258b429aeb220b6ca828a1ee2163fd4dce87",
+    "contracts/utils/Context.sol": "847fda5460fee70f56f4200f59b82ae622bb03c79c77e67af010e31b7e2cc5b6",
+    "contracts/utils/Panic.sol": "270fc8401c1a13fae6a7a4a2dd6e381b95d658896701e51f0d3e2688acab3dec",
+    "contracts/utils/Strings.sol": "2db7d21151644c57f75ed3ab55e87f3cf7fbf587a65345650fd740e2cfd50be3",
+    "contracts/utils/introspection/ERC165.sol": "61a2b12c96857aaa35f48aeda67a4281637a42494c0b3795be0ae976aa7b3793",
+    "contracts/utils/introspection/IERC165.sol": "9055c2994b37dea1a41b7b7926dcb510f05dbe2540b0aafc5fbee9558fffd0ca",
+    "contracts/utils/math/Math.sol": "92fee281fd46a1b058b190cf21d6b1a528f0433a907850ae1c9bcf36c5c0cd98",
+    "contracts/utils/math/SafeCast.sol": "9769274bf53f26a7c7896c526ea1980dc9bea5bf5c2a5fd04870008c4afc1de9",
+    "contracts/utils/math/SignedMath.sol": "1ed50b1056af886752f0fb48a0165d381e69bb4a4b18b893b066dc144a7e08d7"
+  },
+  "sha256": {
+    "LICENSE": "13cd784a6c31361f0e0c6aa3b410a1cb9a079868b7314c13e3eb8a75351746b9",
+    "contracts/interfaces/draft-IERC6093.sol": "df936240c9a5d342582cbda70dd773b1c1d0e0dda3042b1c17b902ef0c36827b",
+    "contracts/token/ERC721/ERC721.sol": "330a87f2bf94083df8ddd341735d712866455042aaca58d33ee1799773e1cae1",
+    "contracts/token/ERC721/IERC721.sol": "ff0eb9902bf0ac099205615fac90eacf34fae637571b05aab3ea35dea53d5f17",
+    "contracts/token/ERC721/IERC721Receiver.sol": "eafee3ffdc7cb2fba4bf6bd16fb28f8e5b4679742e81c2ad42a1b1df5c179feb",
+    "contracts/token/ERC721/extensions/IERC721Metadata.sol": "33223782ea652dca413702ce92f9f59d91d758a035065b24bbedb7dc60c63a78",
+    "contracts/token/ERC721/utils/ERC721Utils.sol": "f2041b1685dcf0cf6b968d9b8454e5a46068b1df5ab0e82ba0b269fa2f3099a8",
+    "contracts/utils/Base64.sol": "b24abf66270126ee48e47646b1a2258b429aeb220b6ca828a1ee2163fd4dce87",
+    "contracts/utils/Context.sol": "847fda5460fee70f56f4200f59b82ae622bb03c79c77e67af010e31b7e2cc5b6",
+    "contracts/utils/Panic.sol": "270fc8401c1a13fae6a7a4a2dd6e381b95d658896701e51f0d3e2688acab3dec",
+    "contracts/utils/Strings.sol": "2db7d21151644c57f75ed3ab55e87f3cf7fbf587a65345650fd740e2cfd50be3",
+    "contracts/utils/introspection/ERC165.sol": "61a2b12c96857aaa35f48aeda67a4281637a42494c0b3795be0ae976aa7b3793",
+    "contracts/utils/introspection/IERC165.sol": "9055c2994b37dea1a41b7b7926dcb510f05dbe2540b0aafc5fbee9558fffd0ca",
+    "contracts/utils/math/Math.sol": "92fee281fd46a1b058b190cf21d6b1a528f0433a907850ae1c9bcf36c5c0cd98",
+    "contracts/utils/math/SafeCast.sol": "9769274bf53f26a7c7896c526ea1980dc9bea5bf5c2a5fd04870008c4afc1de9",
+    "contracts/utils/math/SignedMath.sol": "1ed50b1056af886752f0fb48a0165d381e69bb4a4b18b893b066dc144a7e08d7"
+  },
+  "derived_file": "Flattened.sol",
+  "derived_sha256": "34557903c39d4a62157cafeaaa9a9fe1b3141d84cdd23e5432f6cb394823e71d",
+  "transforms": [
+    "Flatten dependency order and consolidate MIT/pragma declarations",
+    "Explicit uint160 intermediate in numeric address casts",
+    "Expand constant powers of two and ten into equivalent decimal literals"
+  ]
+}
