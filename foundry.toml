@@ -10,7 +10,7 @@ optimizer = true
 optimizer_runs = 200
 via_ir = true
 gas_limit = 2000000000
-fs_permissions = [{ access = "read-write", path = "./previews" }]
+fs_permissions = [{ access = "read-write", path = "./previews" }, { access = "read", path = "./fixtures/marketplace-probe" }]
 
 # Base has its own upgrade schedule; do not inherit Sepolia Amsterdam bytecode.
 [profile.base]

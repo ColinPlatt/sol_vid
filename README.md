@@ -275,3 +275,9 @@ The procedural palette rendering and single-allocation media writers are inspire
 - [Microsoft AVI RIFF reference](https://learn.microsoft.com/en-us/windows/win32/directshow/avi-riff-file-reference): AVI headers, stream layout and index structure.
 - [GIF89a specification](https://giflib.sourceforge.net/gifstandard/GIF89a.html): palette, frame control and LZW coding. This experiment clears the dictionary every fourteen literals to keep five-bit codes, trading compression for bounded work.
 - [Geth command-line options](https://geth.ethereum.org/docs/fundamentals/command-line-options): RPC gas cap configuration.
+
+## Marketplace compatibility experiment
+
+The isolated [marketplace probe](docs/MARKETPLACE_PROBE.md) provides 15 controls for
+RPC read budgets, HTML encodings and scripts, payload size, native MP4 and SVG/GIF
+handling. It is built and tested locally; no probe is deployed to a public network.
