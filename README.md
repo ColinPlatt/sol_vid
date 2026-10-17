@@ -8,7 +8,8 @@ Source and ongoing development: [ColinPlatt/sol_vid](https://github.com/ColinPla
 | `MpegVideo` | MPEG-1 elementary streams and timestamped `.mpg` files |
 | `GenerativeVideo` | All encoders together, with seed-only entry points and inspectable traits |
 | `Scene` | Shared procedural drawing and palette generation |
-| `SolVideoNFT` | Free, 6,667-edition `ghoulballs` ERC-721 with embedded GIF/MPEG metadata |
+| `SolVideoNFT` | Free `ghoulballs` ERC-721: each mint is a GIF, AVI and MPEG-1 token set, with onchain decoders |
+| `Players` | Generated onchain HTML players (AVI and MPEG-1 decoders) from `players/*.js` |
 
 **Yes: a single Solidity static call can generate a complete MPEG-1 video under 500 million gas.** This project includes working MPEG-1, AVI, and separate animated GIF experiments, with the returned files in `previews/`.
 
@@ -19,37 +20,42 @@ The main example is [a two-second MPEG video](previews/mpg-512-25-0.mpg): 512×5
 ## ghoulballs NFT — live on Sepolia
 
 The ERC-721 collection name and symbol are both **`ghoulballs`**. Anyone can call
-`mint()` or `mintTo(recipient)` for no protocol payment, up to a fixed maximum of **6,667 tokens**.
-There is no per-wallet mint limit, owner, pause or upgrade function.
-Minters pay network gas. Each mint gets the next token ID and a deterministic
-seed derived from the collection address, chain ID and token ID. Minting does
-not run the media encoders.
+`mint()` or `mintTo(recipient)` once per address, for no protocol payment.
+**Each mint is a set of three tokens** with consecutive IDs and one shared seed:
+a GIF token, an AVI token and an MPEG-1 token. At most **6,667 mints (20,001 tokens)**.
+There is no owner, pause or upgrade function. The one-mint limit is keyed to the
+caller, so it stops repeat mints from one wallet, not one person using many wallets.
+Seeds derive from the collection address, chain ID and set number
+(`GHOULBALLS_SET_V1`). Minting does not run the media encoders.
 
-`tokenURI(id)` creates fully onchain JSON with a 64×64 animated GIF `image`
-(wrapped in a small SVG at 1024×1024 with `image-rendering: pixelated`, so
-marketplaces that upscale it keep hard pixel edges instead of smoothing it),
-a 512×512 MPEG-1 `animation_url`, and generative attributes. Raw AVI, GIF and
-MPEG bytes, standalone media URIs, the seed and full recipe are available too.
-The renderer is immutable. The GIF uses 64×64 logical detail; the MPEG uses the
-same logical detail in flat blocks with chroma subsampling.
+Every token's `image` is the 64×64 animated GIF, wrapped in a small SVG at
+1024×1024 with `image-rendering: pixelated` so upscaled previews keep hard pixels.
+The AVI and MPEG tokens' `animation_url` is a self-contained onchain web page
+(`data:text/html,…`): the exact `.avi` or `.mpg` file returned by the renderer,
+base64-encoded, plus a small JavaScript decoder for it, also stored in the contract
+(`players/`, built into `src/Players.sol`). The AVI decoder reads the RIFF chunks and
+8-bit palette; the MPEG-1 decoder handles this encoder's subset (I pictures, DC-only
+blocks, 4:2:0) and paints the frames to a pixelated canvas at the file's own 25fps.
+Both decoders reproduce FFmpeg's decode exactly (AVI RGB, MPEG Y/Cb/Cr at every pixel).
+Raw bytes (`gif`, `avi`, `mpeg`), standalone URIs, the seed and full recipe are available too.
 
-The complete tokenURI tested at **374,803,755 gas**, including both media files,
-JSON, every base64 layer and ABI return copy. A six-ball stress sample took
-**420,505,727 gas**. Separate six-ball samples for each motion peak at
-**423,481,395 gas**. The URI is about **576–599KB**. These fit the 500M read budget,
-but require a sufficiently high-cap RPC; default 50M endpoints and some NFT
-indexers will fail. Client playback of MPEG/data URIs also varies. This remains
-an experimental video NFT; minting and ERC-721 transfers are ordinary small
-transactions.
+Full `tokenURI` reads, measured as real 500M-capped calls including every base64
+layer and the ABI return copy: first set **GIF 35.0M, AVI 99.9M, MPEG 382.1M gas**.
+Large six-ball MPEG tokens for each motion peak at **436.3M**; the exported stress set
+reads at 48.4M / 146.7M / 427.6M. URIs are about 100KB (GIF), 472KB (AVI) and
+579–605KB (MPEG). They need a sufficiently high-cap RPC; default 50M endpoints serve
+only the GIF token. Marketplaces must run scripts in HTML `animation_url` to play the
+AVI and MPEG tokens; elsewhere the GIF image shows.
 
-Local test token: [GIF](previews/nft/token-1.gif),
-[native MPEG](previews/nft/token-1.mpg),
-[MP4 viewing copy](previews/nft/token-1.preview.mp4),
-[decoded metadata](previews/nft/token-1.metadata.json).
+Local test set: [GIF](previews/nft/set-1.gif), [AVI](previews/nft/set-1.avi),
+[AVI player](previews/nft/set-1-avi.player.html), [MPEG](previews/nft/set-1.mpg),
+[MPEG player](previews/nft/set-1-mpeg.player.html),
+[decoded metadata](previews/nft/set-1-mpeg.metadata.json).
 These are local test artifacts, not live Sepolia tokens.
 
 **Deployed on Sepolia (Glamsterdam).**
-[Collection v2 `0xe7b06a27957ad992db764939c1836f92386369f1`](https://sepolia.etherscan.io/address/0xe7b06a27957ad992db764939c1836f92386369f1) (current, pixelated SVG image) ·
+[Collection v3 `0x48cd7822a357b473bab2b0bc90a0926c1e1897ab`](https://sepolia.etherscan.io/address/0x48cd7822a357b473bab2b0bc90a0926c1e1897ab) (current: GIF/AVI/MPEG sets with onchain players) ·
+[Collection v2 `0xe7b06a27957ad992db764939c1836f92386369f1`](https://sepolia.etherscan.io/address/0xe7b06a27957ad992db764939c1836f92386369f1) (superseded, pixelated SVG image) ·
 [Collection v1 `0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a`](https://sepolia.etherscan.io/address/0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a) (superseded plain-GIF image; still live, being immutable) ·
 [Renderer `0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a`](https://sepolia.etherscan.io/address/0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a).
 Both transaction receipts succeeded and the live bytecode matches the tested build.
@@ -116,13 +122,16 @@ bytes memory mpg = art.mpgFromSeed(512, 6);
 GenerativeVideo.Recipe memory traits = art.recipe(6);
 ```
 
-The art recipe is explicitly versioned **`GHOULBALLS_VAPOR_V2`**. Its hash selects
-ball count from the low two bits; later bits select theme, motion and colour
-rotation. Per-ball hashes select radii (5–10 logical pixels) and starting phases.
+The art recipe is explicitly versioned **`GHOULBALLS_VAPOR_V3`**. Its hash selects
+ball count from the low two bits; later bits select theme and motion.
+Per-ball hashes select radii (5–10 logical pixels), starting phases and each ball's
+own colour: integer HSV with any hue (0–359°), saturation 120–229 and value 220–255.
+(V2 rotated one fixed six-colour neon list, so only six ball colours existed;
+Sepolia collections v1–v3 use the V2 renderer.)
 `recipe(seed)` exposes theme/motion indices, palette and ball traits;
 `themeName` and `motionName` resolve the names. NFT metadata includes the art
-version, theme and motion. NFT seed assignment retains `SOL_VIDEO_NFT_V1`.
-This recipe is deployed on Sepolia; the original scenes remain available.
+version, theme and motion. NFT seeds use `GHOULBALLS_SET_V1` per set.
+The original scenes remain available.
 
 Scenes **7–10** are the new 1/2/4/6-ball compositions. The original scenes 0–6
 remain available explicitly, including the plain ball experiments below. Existing

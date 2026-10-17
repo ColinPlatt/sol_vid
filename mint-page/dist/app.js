@@ -1,8 +1,9 @@
 import { validateConfig, shortAddress, rpc, submitMint, mintedToken, friendlyError, isAddress } from "./wallet.mjs";
 import { showGallery, tokenImage } from "./gallery.js";
+import { hasMintedCall } from "./gallery.mjs";
 
 const $ = id => document.getElementById(id);
-const state = { config: null, network: null, provider: null, account: null, chainId: null, busy: false, connecting: false, soldOut: false };
+const state = { config: null, network: null, provider: null, account: null, chainId: null, busy: false, connecting: false, soldOut: false, minted: false };
 const wallets = new Map();
 let subscription = null;
 let supplyRequest = 0;
@@ -31,8 +32,8 @@ function render() {
   const link = $("contract-link");
   link.hidden = !n.deployed;
   if (n.deployed) link.href = n.explorerUrl + "/address/" + n.collectionAddress;
-  button.disabled = busy || state.connecting || !n.deployed || state.soldOut;
-  setButton(button, busy ? "MINTING…" : state.soldOut ? "SOLD OUT" : "MINT");
+  button.disabled = busy || state.connecting || !n.deployed || state.soldOut || state.minted;
+  setButton(button, busy ? "MINTING…" : state.soldOut ? "SOLD OUT" : state.minted ? "MINTED" : "MINT");
 }
 
 // The screen shows the newest token of the current collection, straight from its tokenURI.
@@ -73,12 +74,13 @@ async function connect(provider) {
     const chainId = Number(BigInt(await provider.request({ method: "eth_chainId" })));
     clearSubscription();
     state.provider = provider; state.account = accounts[0]; state.chainId = chainId;
-    const accountsChanged = values => { state.account = isAddress(values?.[0]) ? values[0] : null; render(); };
+    const accountsChanged = values => { state.account = isAddress(values?.[0]) ? values[0] : null; render(); void checkMinted(); };
     const chainChanged = chain => { try { state.chainId = Number(BigInt(chain)); } catch { state.chainId = null; } render(); };
     const disconnected = () => { state.account = null; render(); };
     provider.on?.("accountsChanged", accountsChanged); provider.on?.("chainChanged", chainChanged); provider.on?.("disconnect", disconnected);
     subscription = { provider, accounts: accountsChanged, chain: chainChanged, disconnect: disconnected };
     status("");
+    void checkMinted();
   } catch (error) { status(friendlyError(error), "error"); }
   finally { state.connecting = false; render(); }
 }
@@ -105,8 +107,20 @@ $("wallet-dialog").addEventListener("click", event => { if (event.target === $("
 $("connect-wallet").addEventListener("click", () => {
   if (state.busy || state.connecting) return;
   if (!state.account) chooseWallet();
-  else { clearSubscription(); state.provider = null; state.account = null; state.chainId = null; status(""); render(); }
+  else { clearSubscription(); state.provider = null; state.account = null; state.chainId = null; state.minted = false; status(""); render(); }
 });
+
+// One mint per wallet: show MINTED once the connected wallet has used it.
+let mintedRequest = 0;
+async function checkMinted() {
+  const n = state.network, account = state.account, request = ++mintedRequest;
+  state.minted = false; render();
+  if (!n?.deployed || !isAddress(account) || !(n.tokensPerMint > 1)) return;
+  try {
+    const result = await rpc(n, "eth_call", [{ to: n.collectionAddress, data: hasMintedCall(account), gas: "0x186a0" }, "latest"]);
+    if (request === mintedRequest) { state.minted = BigInt(result) !== 0n; render(); }
+  } catch { /* The contract still enforces the limit. */ }
+}
 
 async function updateSupply() {
   const n = state.network; const request = ++supplyRequest;
@@ -115,10 +129,12 @@ async function updateSupply() {
   try {
     const result = await rpc(n, "eth_call", [{ to: n.collectionAddress, data: "0x18160ddd", gas: "0x186a0" }, "latest"]);
     if (request === supplyRequest && /^0x[0-9a-f]+$/i.test(result)) {
-      state.soldOut = BigInt(result) >= 6667n;
-      $("minted-count").textContent = `${new Intl.NumberFormat().format(BigInt(result))} / 6,667`;
+      // Each mint is a set of tokensPerMint tokens; count sets, and show the newest set's first (GIF) token.
+      const per = BigInt(n.tokensPerMint ?? 1), mints = BigInt(result) / per;
+      state.soldOut = mints >= 6667n;
+      $("minted-count").textContent = `${new Intl.NumberFormat().format(mints)} / 6,667`;
       render();
-      void showLatest(n, Number(BigInt(result)));
+      if (mints) void showLatest(n, Number((mints - 1n) * per + 1n));
     }
   } catch { /* Supply is optional and never blocks minting. */ }
 }
@@ -141,8 +157,9 @@ async function waitForMint(snapshot) {
     if (receipt) {
       savePending(null);
       const tokenId = mintedToken(receipt, n, snapshot.account);
-      status(`MINTED #${tokenId}`, "success");
+      status(`MINTED #${Math.ceil(Number(tokenId) / (n.tokensPerMint ?? 1))}`, "success");
       await updateSupply();
+      void checkMinted();
       void showGallery(state.network);
       return;
     }
@@ -170,7 +187,7 @@ $("network").addEventListener("change", () => {
   if (state.busy) return;
   state.network = state.config.networks.find(n => n.chainId === Number($("network").value));
   state.soldOut = false;
-  status(""); $("transaction-link").hidden = true; $("hero-image").src = "assets/seed-42.gif"; render(); void updateSupply(); void showGallery(state.network);
+  status(""); $("transaction-link").hidden = true; $("hero-image").src = "assets/seed-42.gif"; render(); void updateSupply(); void checkMinted(); void showGallery(state.network);
 });
 
 async function init() {

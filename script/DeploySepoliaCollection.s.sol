@@ -22,10 +22,16 @@ contract DeploySepoliaCollection {
         require(address(renderer).code.length > 0, "Missing renderer");
         vm.startBroadcast();
         collection = new SolVideoNFT(renderer);
+        // Always mint the first set to the deployer straight away, so the collection is live with tokens.
+        collection.mint();
         vm.stopBroadcast();
         require(address(collection.renderer()) == address(renderer), "Renderer mismatch");
-        require(collection.MAX_SUPPLY() == 6667, "Unexpected supply cap");
-        require(collection.totalSupply() == 0, "Unexpected initial supply");
+        require(collection.MAX_MINTS() == 6667 && collection.MAX_SUPPLY() == 20_001, "Unexpected supply cap");
+        require(collection.totalSupply() == 3 && collection.totalMinted() == 1, "Deployer set not minted");
+        require(
+            collection.hasMinted(collection.ownerOf(1)) && collection.ownerOf(3) == collection.ownerOf(1),
+            "Deployer set owner"
+        );
         require(keccak256(bytes(collection.name())) == keccak256("ghoulballs"), "Unexpected name");
         require(keccak256(bytes(collection.symbol())) == keccak256("ghoulballs"), "Unexpected symbol");
         require(

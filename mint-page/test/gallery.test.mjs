@@ -2,17 +2,19 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { validateConfig } from "../dist/wallet.mjs";
-import { tokenURICall, ownerOfCall, gifCall, galleryCollections, decodeBytes, parseTokenURI, decodeAddress, bytesToBase64 } from "../dist/gallery.mjs";
+import { tokenURICall, ownerOfCall, gifCall, aviCall, mpegCall, galleryCollections, decodeBytes, parseTokenURI, decodeAddress, bytesToBase64 } from "../dist/gallery.mjs";
 
 const v1 = "0x" + "1".repeat(40), v2 = "0x" + "2".repeat(40), renderer = "0x" + "c".repeat(40);
 const network = { chainId: 11155111, chainHex: "0xaa36a7", name: "Sepolia", rpcUrl: "https://rpc.example", renderRpcUrl: "https://render.example", explorerUrl: "https://explorer.example",
   deployed: true, collectionAddress: v2, rendererAddress: renderer, collections: [{ version: 1, address: v1, current: false }, { version: 2, address: v2, current: true }] };
 const abiBytes = bytes => "0x" + (32n).toString(16).padStart(64, "0") + BigInt(bytes.length).toString(16).padStart(64, "0") + Buffer.from(bytes).toString("hex").padEnd(Math.ceil(bytes.length / 32) * 64, "0");
 
-test("call data uses the collection's tokenURI, ownerOf and gif selectors", () => {
+test("call data uses the collection's tokenURI, ownerOf, gif, avi and mpeg selectors", () => {
   assert.equal(tokenURICall(1), "0xc87b56dd" + "1".padStart(64, "0"));
   assert.equal(ownerOfCall(6667), "0x6352211e" + (6667).toString(16).padStart(64, "0"));
   assert.equal(gifCall(2), "0x7492d87c" + "2".padStart(64, "0"));
+  assert.equal(aviCall(3), "0x4d079259" + "3".padStart(64, "0"));
+  assert.equal(mpegCall(4), "0x531c61b7" + "4".padStart(64, "0"));
 });
 
 test("every deployed collection version is listed, newest first", () => {
@@ -36,13 +38,16 @@ test("large ABI returns decode exactly and reject truncation", () => {
   assert.equal(decodeAddress("0x" + "a".repeat(64)), "0x" + "a".repeat(40));
 });
 
-test("the exported tokenURI parses with its pixelated SVG image and MPEG kept as returned", async () => {
-  const uri = await readFile(new URL("../../previews/nft/token-1.uri.txt", import.meta.url), "utf8");
-  const token = parseTokenURI(uri);
-  assert.equal(token.name, "ghoulballs #1");
-  assert.match(token.image, /^data:image\/svg\+xml,.*image-rendering:pixelated.*href='data:image\/gif;base64,R0lGOD/);
-  assert.match(token.animation, /^data:video\/mpeg;base64,/);
-  assert.equal(token.attributes["Art Version"], "GHOULBALLS_VAPOR_V2");
+test("an exported set parses: shared pixelated SVG image, HTML players on the AVI and MPEG tokens", async () => {
+  const read = f => readFile(new URL(`../../previews/nft/set-1-${f}.uri.txt`, import.meta.url), "utf8");
+  const [gif, avi, mpeg] = (await Promise.all(["gif", "avi", "mpeg"].map(read))).map(parseTokenURI);
+  assert.deepEqual([gif.name, avi.name, mpeg.name], ["ghoulballs #1 GIF", "ghoulballs #1 AVI", "ghoulballs #1 MPEG-1"]);
+  assert.match(gif.image, /^data:image\/svg\+xml,.*image-rendering:pixelated.*href='data:image\/gif;base64,R0lGOD/);
+  assert(avi.image === gif.image && mpeg.image === gif.image);
+  assert.equal(gif.animation, null);
+  for (const token of [avi, mpeg]) assert.match(token.animation, /^data:text\/html,%3C!doctype%20html%3E.*const%20B=%22[A-Za-z0-9+/=]+%22/);
+  assert.equal(mpeg.attributes.Format, "MPEG-1");
+  assert.equal(avi.attributes.Set, 1);
 });
 
 test("version 1's plain GIF metadata also parses; unexpected media is rejected", () => {

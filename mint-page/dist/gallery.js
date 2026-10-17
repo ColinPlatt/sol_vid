@@ -1,5 +1,5 @@
 import { shortAddress, rpc } from "./wallet.mjs";
-import { TOTAL_SUPPLY, RENDER_GAS, tokenURICall, ownerOfCall, gifCall, galleryCollections, decodeBytes, parseTokenURI, decodeAddress, bytesToBase64 } from "./gallery.mjs";
+import { TOTAL_SUPPLY, RENDER_GAS, tokenURICall, ownerOfCall, gifCall, aviCall, mpegCall, galleryCollections, decodeBytes, parseTokenURI, decodeAddress, bytesToBase64 } from "./gallery.mjs";
 
 const $ = id => document.getElementById(id);
 const PAGE = 24;
@@ -7,7 +7,6 @@ const CONCURRENCY = 3;
 const queue = [];
 let active = 0;
 let generation = 0;
-const format = value => new Intl.NumberFormat().format(value);
 
 function el(tag, className, text) {
   const node = document.createElement(tag);
@@ -56,19 +55,71 @@ async function loadToken(network, collection, id, card, run) {
     caption.append(a);
   }
   if (token.status === "rejected") { media.replaceChildren(el("span", "token-error", "UNREADABLE")); return; }
-  const { image, attributes, animation } = token.value;
+  const { image, attributes } = token.value;
   const img = el("img");
-  img.src = image; img.alt = `ghoulballs #${id}`; img.width = 256; img.height = 256;
+  img.src = image; img.alt = token.value.name; img.width = 256; img.height = 256;
   media.replaceChildren(img);
   const traits = el("div", "trait-row");
   const count = attributes["Ball Count"];
   for (const value of [count && `${count} ${count === 1 ? "BALL" : "BALLS"}`, attributes.Theme, attributes.Motion]) if (value) traits.append(el("span", "", String(value).toUpperCase()));
   if (traits.childElementCount) caption.append(traits);
-  if (animation) {
-    const link = el("a", "", "MPG ↓");
-    link.href = animation; link.download = `ghoulballs-v${collection.version}-${id}.mpg`;
-    caption.append(link);
+  caption.append(collection.tokensPerMint === 3 ? players(network, collection.address, id, media, img) : downloads(network, collection.address, id));
+}
+
+// A set's three tokens: the GIF, and the AVI and MPEG tokens' own onchain players (their animation_url pages).
+function players(network, address, first, media, gifImage) {
+  const row = el("div", "download-row");
+  const buttons = ["GIF", "AVI", "MPG"].map((label, offset) => {
+    const button = el("button", "", label);
+    button.type = "button";
+    button.setAttribute("aria-pressed", String(offset === 0));
+    button.addEventListener("click", async () => {
+      for (const b of buttons) b.setAttribute("aria-pressed", String(b === button));
+      if (!offset) { media.replaceChildren(gifImage); return; }
+      media.replaceChildren(el("span", "token-loading", "●"));
+      try {
+        const token = await tokenImage(network, address, first + offset);
+        if (button.getAttribute("aria-pressed") !== "true") return;
+        if (!token.animation) throw new Error("No player");
+        const frame = el("iframe");
+        frame.title = token.name;
+        frame.setAttribute("sandbox", "allow-scripts");
+        frame.addEventListener("load", () => frame.contentWindow.postMessage(token.animation, "*"), { once: true });
+        frame.src = "player.html";
+        frame.dataset.animation = token.animation.slice(0, 64);
+        media.replaceChildren(frame);
+      } catch { if (button.getAttribute("aria-pressed") === "true") media.replaceChildren(el("span", "token-error", "UNREADABLE")); }
+    });
+    row.append(button);
+    return button;
+  });
+  return row;
+}
+
+// Raw media straight from the contract, read only when asked for.
+const FORMATS = [["GIF", gifCall, "image/gif", "gif"], ["AVI", aviCall, "video/x-msvideo", "avi"], ["MPG", mpegCall, "video/mpeg", "mpg"]];
+function downloads(network, address, id) {
+  const row = el("div", "download-row");
+  const renderNetwork = { ...network, rpcUrl: network.renderRpcUrl ?? network.rpcUrl };
+  for (const [label, call, type, extension] of FORMATS) {
+    const button = el("button", "", label + " ↓");
+    button.type = "button";
+    button.addEventListener("click", async () => {
+      button.disabled = true; button.textContent = label + " …";
+      try {
+        const bytes = decodeBytes(await rpc(renderNetwork, "eth_call", [{ to: address, data: call(id), gas: RENDER_GAS }, "latest"], (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(60000) })));
+        const a = el("a");
+        a.href = URL.createObjectURL(new Blob([bytes], { type }));
+        a.download = `ghoulballs-${address.slice(2, 8)}-${id}.${extension}`;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+        button.textContent = label + " ↓";
+      } catch { button.textContent = label + " ×"; }
+      finally { button.disabled = false; }
+    });
+    row.append(button);
   }
+  return row;
 }
 
 function tokenCard(network, collection, id, run, observer) {
@@ -76,44 +127,14 @@ function tokenCard(network, collection, id, run, observer) {
   const media = el("div", "token-media");
   media.append(el("span", "token-loading", "●"));
   const caption = el("figcaption");
-  caption.append(el("strong", "", `#${id}`));
+  caption.append(el("strong", "", `#${collection.tokensPerMint === 3 ? (id + 2) / 3 : id}`));
   card.append(media, caption);
   card.load = () => schedule(() => loadToken(network, collection, id, card, run));
   observer.observe(card);
   return card;
 }
 
-async function renderVersion(network, collection, run, observer, container) {
-  const section = el("section", "gallery-version");
-  const head = el("div", "version-head");
-  const link = el("a", "", shortAddress(collection.address) + " ↗");
-  link.href = `${network.explorerUrl}/address/${collection.address}`; link.target = "_blank"; link.rel = "noopener noreferrer";
-  const count = el("span", "version-count", "…");
-  head.append(el("h2", "", `V${collection.version}`), count, link);
-  const grid = el("div", "token-grid");
-  section.append(head, grid);
-  container.append(section);
-  const supply = Number(BigInt(await rpc(network, "eth_call", [{ to: collection.address, data: TOTAL_SUPPLY, gas: "0x186a0" }, "latest"])));
-  if (run !== generation) return 0;
-  count.textContent = format(supply);
-  if (!supply) { grid.replaceWith(el("p", "gallery-empty", "NONE YET")); return 0; }
-  // Newest first.
-  let next = supply;
-  const more = el("button", "chip-button gallery-more", "MORE");
-  more.type = "button";
-  const showMore = () => {
-    const end = Math.max(0, next - PAGE);
-    for (let id = next; id > end; --id) grid.append(tokenCard(network, collection, id, run, observer));
-    next = end;
-    more.hidden = next === 0;
-  };
-  more.addEventListener("click", showMore);
-  section.append(more);
-  showMore();
-  return supply;
-}
-
-// Every token from every collection version on the network, read from chain.
+// Every token from every collection deployed on the network, read from chain: one list, newest first.
 export async function showGallery(network) {
   const run = ++generation;
   queue.length = 0;
@@ -122,10 +143,30 @@ export async function showGallery(network) {
   $("gallery-status-text").textContent = "";
   const collections = galleryCollections(network);
   if (!collections.length) return;
+  const supplies = await Promise.allSettled(collections.map(c => rpc(network, "eth_call", [{ to: c.address, data: TOTAL_SUPPLY, gas: "0x186a0" }, "latest"])));
+  if (run !== generation) return;
+  const tokens = [];
+  collections.forEach((collection, i) => {
+    if (supplies[i].status !== "fulfilled") return;
+    // A set collection lists one card per set, keyed by its first (GIF) token.
+    const per = collection.tokensPerMint === 3 ? 3 : 1;
+    for (let id = Number(BigInt(supplies[i].value)) - per + 1; id > 0; id -= per) tokens.push([collection, id]);
+  });
+  if (supplies.some(r => r.status === "rejected")) $("gallery-status-text").textContent = "SOME READS FAILED";
+  if (!tokens.length) return;
   const observer = new IntersectionObserver(entries => {
     for (const entry of entries) if (entry.isIntersecting) { observer.unobserve(entry.target); entry.target.load(); }
   }, { rootMargin: "400px" });
-  const results = await Promise.allSettled(collections.map(c => renderVersion(network, c, run, observer, container)));
-  if (run !== generation) return;
-  $("gallery-status-text").textContent = results.some(r => r.status === "rejected") ? "SOME READS FAILED" : "";
+  const grid = el("div", "token-grid");
+  const more = el("button", "chip-button gallery-more", "MORE");
+  more.type = "button";
+  let shown = 0;
+  const showMore = () => {
+    for (const [collection, id] of tokens.slice(shown, shown + PAGE)) grid.append(tokenCard(network, collection, id, run, observer));
+    shown = Math.min(tokens.length, shown + PAGE);
+    more.hidden = shown >= tokens.length;
+  };
+  more.addEventListener("click", showMore);
+  container.append(grid, more);
+  showMore();
 }

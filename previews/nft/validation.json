@@ -1,18 +1,30 @@
 [
   {
-    "token_id": 1,
-    "gas": 374803755,
-    "uri_bytes": 576237,
+    "set": 1,
+    "first_token_id": 1,
+    "ball_count": 4,
     "gif_bytes": 55581,
-    "mpg_bytes": 267708,
-    "ball_count": 1
+    "avi_bytes": 206296,
+    "mpg_bytes": 279396,
+    "gif_gas": 40900982,
+    "gif_uri_bytes": 100577,
+    "avi_gas": 120377003,
+    "avi_uri_bytes": 471837,
+    "mpeg_gas": 408448030,
+    "mpeg_uri_bytes": 605913
   },
   {
-    "token_id": 63,
-    "gas": 420505727,
-    "uri_bytes": 599253,
+    "set": 94,
+    "first_token_id": 280,
+    "ball_count": 6,
     "gif_bytes": 55581,
-    "mpg_bytes": 280311,
-    "ball_count": 6
+    "avi_bytes": 206296,
+    "mpg_bytes": 281218,
+    "gif_gas": 46430622,
+    "gif_uri_bytes": 100837,
+    "avi_gas": 139673413,
+    "avi_uri_bytes": 472097,
+    "mpeg_gas": 424078414,
+    "mpeg_uri_bytes": 609413
   }
 ]

@@ -4,10 +4,10 @@
   "collection_name": "ghoulballs",
   "collection_symbol": "ghoulballs",
   "renderer": "0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a",
-  "collection": "0xe7b06a27957ad992db764939c1836f92386369f1",
+  "collection": "0x48cd7822a357b473bab2b0bc90a0926c1e1897ab",
   "transaction_hashes": [
     "0x6a179b483b949a68467f99c623b4146c9587a74b953590f02787eb0185ff8dc7",
-    "0xec3a1c9e999859f74bd70c1bbf000f808703810dd6872274db1cbc93ea0f2b06"
+    "0x09cdd0148367078ed61600af75118a90672f384f0f67243b89faf4c77d7bcaeb"
   ],
   "compiler": "0.8.37",
   "evm_version": "amsterdam",
@@ -56,6 +56,14 @@
       "block_number": 11933541,
       "gas_used": 14620477,
       "effective_gas_price_wei": "1491"
+    },
+    {
+      "contract": "SolVideoNFT",
+      "version": 3,
+      "transaction_hash": "0x09cdd0148367078ed61600af75118a90672f384f0f67243b89faf4c77d7bcaeb",
+      "block_number": 11933926,
+      "gas_used": 33788545,
+      "effective_gas_price_wei": "5266"
     }
   ],
   "post_deployment_checks": {
@@ -81,17 +89,31 @@
       "transaction_hash": "0xdf886f93b5bc533907780983f2cb91c538accb587b8d96864e8c1489f56ece97",
       "block_number": 11933457,
       "source_commit": "d73056967d4f687b5e6832a07cd4c6e72e66d855",
-      "note": "Plain GIF image; marketplaces smooth it when upscaling. Remains live and mintable (immutable, no admin)."
+      "note": "Plain GIF image; marketplaces smooth it when upscaling. Remains live and mintable (immutable, no admin).",
+      "tokens_per_mint": 1
     },
     {
       "version": 2,
       "address": "0xe7b06a27957ad992db764939c1836f92386369f1",
-      "status": "current",
+      "status": "superseded",
       "image": "data:image/svg+xml (pixelated GIF wrapper)",
       "transaction_hash": "0xec3a1c9e999859f74bd70c1bbf000f808703810dd6872274db1cbc93ea0f2b06",
       "block_number": 11933541,
       "source_commit": null,
-      "note": "Same renderer; tokenURI image wraps the GIF in an SVG with image-rendering: pixelated. Seeds differ from v1 because the collection address is part of the seed."
+      "note": "Pixelated SVG GIF image, one token per mint. Remains live and mintable (immutable, no admin).",
+      "tokens_per_mint": 1
+    },
+    {
+      "version": 3,
+      "address": "0x48cd7822a357b473bab2b0bc90a0926c1e1897ab",
+      "status": "current",
+      "tokens_per_mint": 3,
+      "image": "data:image/svg+xml (pixelated GIF wrapper)",
+      "animation": "data:text/html onchain AVI / MPEG-1 players",
+      "transaction_hash": "0x09cdd0148367078ed61600af75118a90672f384f0f67243b89faf4c77d7bcaeb",
+      "block_number": 11933926,
+      "source_commit": null,
+      "note": "Each mint is a GIF, AVI and MPEG-1 token set sharing a GHOULBALLS_SET_V1 seed; 6,667 mints (20,001 tokens), one mint per caller address. Deployed before the deploy scripts minted a first set."
     }
   ],
   "post_deployment_checks_v2": {
@@ -102,5 +124,19 @@
     "initial_supply": 0,
     "estimated_mint_gas": 352371
   },
-  "collection_v2_verification_status": "not-submitted-etherscan-amsterdam-unsupported"
+  "collection_v2_verification_status": "not-submitted-etherscan-amsterdam-unsupported",
+  "post_deployment_checks_v3": {
+    "runtime_bytecode_matches": true,
+    "renderer": "0x3845c8f4ae6cbdb26988b78d8f7169cfd2d94b8a",
+    "name_and_symbol": "ghoulballs",
+    "max_mints": 6667,
+    "max_supply": 20001,
+    "initial_supply": 0,
+    "estimated_mint_gas": 691886,
+    "fork_mint_gas_used": 685280,
+    "fork_second_mint_reverts": "AlreadyMinted()",
+    "fork_token_uris": "tokens 1-3 decoded; AVI/MPEG players match FFmpeg"
+  },
+  "collection_v3_verification_status": "not-submitted-etherscan-amsterdam-unsupported",
+  "supply_cap_unit": "mints (current collection: 3 tokens per mint)"
 }

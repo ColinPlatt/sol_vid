@@ -1,0 +1,14 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:">
+<title>player</title>
+<!-- Runs a token's onchain HTML player. The gallery loads this in a sandboxed (opaque-origin) iframe and posts the
+     token's data:text/html animation_url; a data: iframe would inherit the gallery's no-inline-script policy. -->
+<script>
+addEventListener("message", event => {
+  if (event.source !== parent || typeof event.data !== "string" || !event.data.startsWith("data:text/html,")) return;
+  document.open();
+  document.write(decodeURIComponent(event.data.slice(15)));
+  document.close();
+}, { once: true });
+</script>

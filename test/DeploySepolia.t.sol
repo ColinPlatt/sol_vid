@@ -26,6 +26,6 @@ contract DeploySepoliaTest {
         (GenerativeVideo renderer, SolVideoNFT collection) = new DeploySepolia().run();
         require(address(collection.renderer()) == address(renderer), "Deployment wiring failed");
         require(address(renderer).code.length <= 24576 && address(collection).code.length <= 24576, "Runtime too large");
-        require(collection.totalSupply() == 0, "Deployment minted tokens");
+        require(collection.totalSupply() == 3 && collection.formatOf(3) == 2, "Deployment did not mint the first set");
     }
 }
