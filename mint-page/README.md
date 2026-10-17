@@ -1,7 +1,7 @@
 # ghoulballs mint page
 
 A dependency-free static page for the 6,667-edition free ERC-721. Includes real
-Solidity-rendered GIF examples, wallet discovery, connection, network switching,
+Solidity-rendered vaporwave GIF examples (four themes and four motion styles), wallet discovery, connection, network switching,
 zero-value `mint()` submission, transaction links and receipt tracking. Supports
 Sepolia, Base and Base Sepolia. Network gas applies; no per-wallet mint limit.
 
@@ -17,6 +17,10 @@ npm run check
 npm run preview
 # Open http://localhost:4173
 ```
+
+Refresh exact GIF assets and derived static posters after contract exports with
+`python3 scripts/sync_mint_art.py` from the repository root. Static posters are
+offchain snapshots; the animated GIFs are unchanged Solidity return bytes.
 
 No dependencies or build are required. Deploy `dist/` on a static host. The
 tracked `.openai/hosting.json` identifies the private Sites preview; preserve its

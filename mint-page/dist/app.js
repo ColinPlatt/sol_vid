@@ -6,7 +6,7 @@ const wallets = new Map();
 let subscription = null;
 let supplyRequest = 0;
 const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-const examples = [{ seed: 42, count: 6 }, { seed: 1, count: 1 }, { seed: 4, count: 2 }, { seed: 7, count: 4 }, { seed: 3, count: 6 }, { seed: 2026, count: 6 }];
+const examples = [{ seed: 42, count: 2, motion: "Ricochet" }, { seed: 2, count: 1, motion: "Orbit" }, { seed: 6, count: 6, motion: "Figure Eight" }, { seed: 2026, count: 4, motion: "Float" }, { seed: 4, count: 6, motion: "Orbit" }, { seed: 99, count: 1, motion: "Float" }];
 let example = 0;
 
 function setButton(button, text, arrow = false) {
@@ -46,8 +46,8 @@ function render() {
 function drawExample() {
   const selected = examples[example];
   $("hero-image").src = `assets/seed-${selected.seed}.${motion.matches ? "png" : "gif"}`;
-  $("hero-image").alt = `${selected.count} colourful pixel ${selected.count === 1 ? "circle" : "circles"} on a black background, example seed ${selected.seed}`;
-  $("seed-label").textContent = `Example seed ${selected.seed} · ${selected.count} ${selected.count === 1 ? "ball" : "balls"}`;
+  $("hero-image").alt = `${selected.count} shaded neon ${selected.count === 1 ? "ball" : "balls"} in a vaporwave sunset, ${selected.motion} motion, example seed ${selected.seed}`;
+  $("seed-label").textContent = `Seed ${selected.seed} · ${selected.count} ${selected.count === 1 ? "ball" : "balls"} · ${selected.motion}`;
   for (const img of document.querySelectorAll("img[data-motion]")) img.src = motion.matches ? img.dataset.motion.replace(/\.gif$/, ".png") : img.dataset.motion;
 }
 motion.addEventListener("change", drawExample);

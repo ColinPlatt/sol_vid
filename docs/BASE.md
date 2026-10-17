@@ -35,7 +35,7 @@ Base's [network configuration](https://docs.base.org/get-started/connect-to-base
 uses ETH for gas. The deployment and mint transactions fit well below its current
 [16,777,216 gas transaction maximum](https://docs.base.org/specifications/transactions/throughput-and-limits).
 The 500M rendering budget concerns a read-only `eth_call`; it is not a transaction
-budget. Full video metadata needs roughly 391M gas in measured samples and an RPC
+budget. Full video metadata needs up to roughly 424M gas in measured samples and an RPC
 provider that explicitly permits that gas, response size and timeout. The public
 Base RPC's high-gas read capability has not been verified. The mint page uses only
 small reads and does not request `tokenURI`.

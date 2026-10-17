@@ -5,6 +5,7 @@ import json
 import subprocess
 from pathlib import Path
 from PIL import Image
+from vapor_reference import traits as vapor_traits, frame as vapor_frame, THEMES, MOTIONS
 
 ROOT = Path(__file__).resolve().parents[1]
 ART = ROOT / "previews" / "nft"
@@ -39,6 +40,10 @@ for label in ["token-1", "stress"]:
     metadata = json.loads(data_uri(uri, "application/json"))
     assert metadata["name"] == f"ghoulballs #{token_id}"
     attributes = {a["trait_type"]: a["value"] for a in metadata["attributes"]}
+    reference = vapor_traits(seed)
+    assert attributes["Art Version"] == "GHOULBALLS_VAPOR_V2"
+    assert attributes["Theme"] == THEMES[reference["theme"]]
+    assert attributes["Motion"] == MOTIONS[reference["motion"]]
     assert attributes["Seed"] == str(seed)
     assert attributes["Ball Count"] in [1, 2, 4, 6]
     assert attributes["Duration Seconds"] == 2 and attributes["Video FPS"] == 25
@@ -73,6 +78,8 @@ for label in ["token-1", "stress"]:
 
     avi = run("ffmpeg", "-v", "error", "-i", str(ART / f"{label}.avi"), "-vsync", "0", "-f", "rawvideo", "-pix_fmt", "rgb24", "-")
     assert len(avi) == 50 * 64 * 64 * 3
+    for f in range(50):
+        assert avi[f * 64 * 64 * 3:(f + 1) * 64 * 64 * 3] == vapor_frame(f, 25, seed)[0], f"V2 reference mismatch: {label}, frame {f}"
     with Image.open(ART / f"{label}.gif") as im:
         assert im.size == (64, 64) and im.n_frames == 20 and im.info["loop"] == 0
         duration = 0

@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-abstract contract Scene {
+import {Vaporwave} from "./Vaporwave.sol";
+
+abstract contract Scene is Vaporwave {
     error InvalidSettings();
 
     // Default sixteen RGB colours. All formats share a palette; every rendered index is <16.
     bytes internal constant PALETTE =
         hex"0b081814102b24183d382052573369845078bd629fff82c6ffe6ab69f5e2" hex"32b9c56576c22c4979402957b7bed8ffffff";
 
-    /// @dev Scenes 3..6 are Ghoul Balls with 1, 2, 4 and 6 circles respectively.
+    /// @dev Scenes 3..6 are the original Ghoul Balls; 7..10 are vaporwave variants.
     function _palette(uint256 scene, uint256 seed) internal pure returns (bytes memory palette) {
+        if (scene >= 7) return _vaporPalette(seed);
         if (scene < 3) return PALETTE;
         palette = new bytes(48); // index zero is opaque black
         for (uint256 i; i < 6; ++i) {
@@ -21,11 +24,32 @@ abstract contract Scene {
     }
 
     /// @dev All animation is integer math on a logical 64x64 canvas.
-    /// Scenes 0..2: road, orb, interference. Scenes 3..6: 1, 2, 4 or 6 Ghoul Balls.
+    /// Scenes 0..2: road, orb, interference; 3..6: plain balls; 7..10: vaporwave balls.
     function _draw(bytes memory pixels, uint256 size, uint256 f, uint256 frames, uint256 scene, uint256 seed)
         internal
         pure
     {
+        _draw(pixels, size, f, frames, scene, seed, _background(size, scene, seed));
+    }
+
+    /// @dev A backdrop is generated once per video and reused across frames.
+    function _background(uint256 size, uint256 scene, uint256 seed) internal pure returns (bytes memory) {
+        return scene >= 7 ? _vaporBackdrop(size, seed) : new bytes(0);
+    }
+
+    function _draw(
+        bytes memory pixels,
+        uint256 size,
+        uint256 f,
+        uint256 frames,
+        uint256 scene,
+        uint256 seed,
+        bytes memory background
+    ) internal pure {
+        if (scene >= 7) {
+            _drawVapor(pixels, size, f, frames, scene, seed, background);
+            return;
+        }
         if (scene >= 3) {
             _drawBalls(pixels, size, f, frames, scene, seed);
             return;

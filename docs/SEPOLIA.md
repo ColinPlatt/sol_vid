@@ -39,13 +39,20 @@ supported. Enumerable and burn extensions are not exposed.
 
 ## Playback and RPC requirements
 
-The complete metadata read was measured at **386,993,398 gas** for the exported
+The artwork recipe is `GHOULBALLS_VAPOR_V2`: four sunset palettes and four
+motion styles (Ricochet, Orbit, Float and Figure Eight). Theme, motion and art
+version are included in metadata; `recipeOf` exposes the full seeded recipe.
+
+The complete metadata read was measured at **374,893,971 gas** for the exported
 first token. A six-ball sample selected for the largest summed squared radii among
-the first 64 tokens used **390,814,969 gas**. These measurements include the
+the first 64 tokens used **420,587,005 gas**. These measurements include the
 STATICCALL and ABI return-data copy, both media files, JSON and all base64 layers.
 They are real 500M-capped calls, not extrapolated codec-only measurements.
+Six-ball samples selected separately for each motion among the first 128 tokens
+used 417,164,161 (Ricochet), 417,465,417 (Orbit), 423,561,084 (Float) and
+417,311,126 (Figure Eight) gas. All remain below the 500M read budget.
 
-Token URI lengths are about 513KB. These are sample measurements, not an
+Token URI lengths are about 576–599KB. These are sample measurements, not an
 exhaustive guarantee over every future token or deployment address. Different
 deployment addresses create different seeds. Rendering requires an RPC that
 allows a sufficiently high `eth_call` gas cap, response size and timeout. Geth's
@@ -75,7 +82,7 @@ forge fmt --check
 forge test --offline -vv
 python3 scripts/validate.py
 python3 scripts/validate_nft.py
-forge build --offline --sizes
+forge build --offline --sizes --skip test --skip script
 
 # Local EVM rehearsal. No RPC and no transactions sent to Sepolia:
 forge script script/DeploySepolia.s.sol:DeploySepolia --chain 11155111 --offline
@@ -89,9 +96,12 @@ independent NFT validator parses JSON and all data URIs; verifies the public see
 derivation and attributes; decodes GIF/MPEG; checks timestamps; and compares
 pixels/luma against the token's independently returned AVI.
 
-Current runtime sizes: `GenerativeVideo` **12,256 bytes**, `SolVideoNFT`
-**8,202 bytes**, each below 24,576. The local deployment rehearsal uses about
-**4.27M gas** across two CREATE transactions. The first safe mint measured about
+The size check above covers deployable contracts. The local Foundry script runner
+embeds both creation payloads and is not itself deployed.
+
+Current runtime sizes: `GenerativeVideo` **15,468 bytes**, `SolVideoNFT`
+**8,714 bytes**, each below 24,576. The local deployment rehearsal uses about
+**4.99M gas** across two CREATE transactions. The first safe mint measured about
 75.5K call gas including a contract receiver callback; this excludes transaction
 intrinsic gas and is not a fee quote.
 

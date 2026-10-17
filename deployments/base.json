@@ -14,5 +14,6 @@
   "mint_price_wei": "0",
   "supply_cap": 6667,
   "admin": null,
-  "render_gas_budget": 500000000
+  "render_gas_budget": 500000000,
+  "art_version": "GHOULBALLS_VAPOR_V2"
 }

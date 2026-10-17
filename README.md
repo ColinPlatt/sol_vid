@@ -12,7 +12,7 @@ Source and ongoing development: [ColinPlatt/sol_vid](https://github.com/ColinPla
 
 **Yes: a single Solidity static call can generate a complete MPEG-1 video under 500 million gas.** This project includes working MPEG-1, AVI, and separate animated GIF experiments, with the returned files in `previews/`.
 
-The main example is [a two-second MPEG video](previews/mpg-512-25-0.mpg): 512×512, 25fps, 50 independently encoded frames, **355,931,828 gas**, 267,000 bytes. A [browser-friendly MP4 viewing copy](previews/mpg-512-25-0.preview.mp4) is available. **Only the MP4 viewing copies are encoded offchain**; `.mpg`, `.m1v`, `.avi` and `.gif` are the exact bytes returned by the contracts.
+The main example is [a two-second MPEG video](previews/mpg-512-25-0.mpg): 512×512, 25fps, 50 independently encoded frames, **357,601,367 gas**, 267,000 bytes. A [browser-friendly MP4 viewing copy](previews/mpg-512-25-0.preview.mp4) is available. **Only the MP4 viewing copies are encoded offchain**; `.mpg`, `.m1v`, `.avi` and `.gif` are the exact bytes returned by the contracts.
 
 ![Three MPEG scenes](previews/contact-sheet.png)
 
@@ -31,9 +31,10 @@ MPEG bytes, standalone media URIs, the seed and full recipe are available too.
 The renderer is immutable. The GIF uses 64×64 logical detail; the MPEG uses the
 same logical detail in flat blocks with chroma subsampling.
 
-The complete tokenURI tested at **386,993,398 gas**, including both media files,
+The complete tokenURI tested at **374,893,971 gas**, including both media files,
 JSON, every base64 layer and ABI return copy. A six-ball stress sample took
-**390,814,969 gas**. The URI is about **513KB**. These fit the 500M read budget,
+**420,587,005 gas**. Separate six-ball samples for each motion peak at
+**423,561,084 gas**. The URI is about **576–599KB**. These fit the 500M read budget,
 but require a sufficiently high-cap RPC; default 50M endpoints and some NFT
 indexers will fail. Client playback of MPEG/data URIs also varies. This remains
 an experimental video NFT; minting and ERC-721 transfers are ordinary small
@@ -48,7 +49,7 @@ These are local test artifacts, not live Sepolia tokens.
 **Deployment is prepared, not broadcast.** The script deploys the renderer and
 then the collection, checks Sepolia chain ID 11155111, and verifies wiring and
 initial state. Both fit normal runtime size limits. The local rehearsal uses
-about 4.27M deployment gas. OpenZeppelin v5.4.0 ERC-721 and encoding dependencies
+about 4.99M deployment gas. OpenZeppelin v5.4.0 ERC-721 and encoding dependencies
 are pinned and vendored, with a reproducible compiler compatibility unit.
 
 See the [Sepolia deployment runbook](docs/SEPOLIA.md) for dry-run, signer,
@@ -67,27 +68,66 @@ The page only needs small contract reads, never the full video metadata.
 See the [Base deployment guide](docs/BASE.md) for the additional guarded scripts.
 No contracts have been broadcast to any of these networks.
 
-## Generative artwork from one seed
+## Generative vaporwave from one seed
 
-`GenerativeVideo` combines all the encoders with a seed-only interface. The seed chooses 1, 2, 4 or 6 balls, plus their colours, radii and initial X/Y phases. No manual scene selection is required. Every output is a two-second loop; the selected artwork is independent of the codec.
+The current artwork combines shaded neon balls with the original vaporwave look:
+striped sunsets, sparse stars, mountain silhouettes and a scrolling perspective
+grid. Each seed chooses **1, 2, 4 or 6 balls**, a palette, ball colours and radii,
+and one of four seamless two-second motion styles.
 
-[Watch the animated seed gallery](previews/generative/seed-gallery.preview.gif) or inspect the [static gallery](previews/generative/seed-gallery.png). The gallery is an offchain montage of eight exact Solidity-generated GIFs, not itself a contract return value. Individual files with `-seed…` in their names are the native contract outputs. The examples include all four ball counts.
+| Motion | Behavior |
+| --- | --- |
+| Ricochet | Independent reflected paths across the canvas |
+| Orbit | Smooth elliptical paths with individual starting phases |
+| Float | Horizontal bouncing with gentle vertical bobbing |
+| Figure Eight | Interwoven paths with two vertical cycles per loop |
+
+The four palettes are Midnight, Lagoon, Ultraviolet and Sunset. All formats share
+the same scene and motion; GIF/AVI are lossless, while MPEG retains its block and
+chroma approximations. Curved paths use a deterministic integer parabolic sine
+approximation. They need no floating point, external assets or stored frames.
+
+![Vaporwave seed gallery](previews/generative/seed-gallery.png)
+
+[Watch the animated gallery](previews/generative/seed-gallery.preview.gif).
+This gallery is an offchain montage of exact Solidity-generated GIFs, rather
+than a contract return value. Each individual seed GIF, AVI or MPEG is generated
+by one capped static call.
 
 ```solidity
 GenerativeVideo art = new GenerativeVideo();
-bytes memory gif = art.gifFromSeed(64, 25, 42);
-bytes memory avi = art.aviFromSeed(64, 25, 42);
-bytes memory mpg = art.mpgFromSeed(512, 42);
-GenerativeVideo.Recipe memory traits = art.recipe(42);
+bytes memory gif = art.gifFromSeed(64, 25, 6);
+bytes memory avi = art.aviFromSeed(64, 25, 6);
+bytes memory mpg = art.mpgFromSeed(512, 6);
+GenerativeVideo.Recipe memory traits = art.recipe(6);
 ```
 
-`recipe(seed)` exposes the seed, selected scene, ball count, full indexed palette and each visible ball's colour, radius and starting phases. These are sufficient to reproduce the artwork and useful as NFT attributes. Colours and geometry vary across seeds; the renderer does not depend on the caller, timestamp or mutable storage. It produces exactly repeatable bytes for the same inputs and deployed implementation.
+The art recipe is explicitly versioned **`GHOULBALLS_VAPOR_V2`**. Its hash selects
+ball count from the low two bits; later bits select theme, motion and colour
+rotation. Per-ball hashes select radii (5–10 logical pixels) and starting phases.
+`recipe(seed)` exposes theme/motion indices, palette and ball traits;
+`themeName` and `motionName` resolve the names. NFT metadata includes the art
+version, theme and motion. NFT seed assignment retains `SOL_VIDEO_NFT_V1`.
+No previously deployed collections are changed; no deployment has been broadcast.
 
-The selector uses `keccak256(abi.encode("SOL_VIDEO_BALLS_V1", seed)) % 4` to choose between ball counts, with equal-sized hash buckets. That domain string versions the selection rule. Ball traits retain the existing per-ball seed derivation, so the explicit scene API remains available for curated choices. This API accepts a seed; selecting or assigning seeds at mint time is outside this rendering experiment.
+Scenes **7–10** are the new 1/2/4/6-ball compositions. The original scenes 0–6
+remain available explicitly, including the plain ball experiments below. Existing
+V1 seed exports are retained as historical examples; the gallery and NFT now use V2.
+The backdrop is generated once and reused within each single video call.
 
-Eight sampled seeds (1, 2, 3, 4, 7, 42, 99 and 2026) are exported in AVI, GIF, elementary MPEG and timestamped MPEG. Every export uses a real 500M static call. Their exact traits are saved in [recipes.json](previews/generative/recipes.json), reconstructed and checked independently against the ABI recipe output. MPEG retains the block and chroma approximations described below.
+| Six-ball Figure Eight, seed 6 | Gas | File bytes |
+| --- | ---: | ---: |
+| [AVI](previews/avi-64-25-10-seed6.avi) | 35,986,981 | 206,296 |
+| [GIF](previews/gif-64-25-10-seed6.gif) | 83,432,862 | 138,831 |
+| [MPEG](previews/mpg-512-25-10-seed6.mpg) | 294,949,877 | 277,899 |
 
-The added tests check repeatable output, equivalence with explicitly selecting the derived scene, and recipe bounds over 256 fuzzed seeds. The Python validator checks scene selection, traits, every lossless decoded pixel and every MPEG luma sample independently. Passing a sample set is not an exhaustive gas guarantee for every seed and resolution.
+Nine exported seeds (1, 2, 3, 4, 6, 7, 42, 99 and 2026) cover every motion and ball
+count. Exact gallery traits are in [recipes.json](previews/generative/recipes.json).
+Tests check reproducibility, recipe bounds, loop endpoints and the 500M call
+budget. The independent Python renderer reconstructs every decoded V2 AVI/GIF
+pixel and MPEG luma sample; NFT validation also checks against that reference.
+Six-ball metadata is measured separately for all four motion styles. These sample
+measurements are not an exhaustive gas guarantee for every possible seed.
 
 ## Ghoul Balls: AVI, MPEG and GIF
 
@@ -97,13 +137,13 @@ Inspired by `../ghoulBalls`, scenes 3–6 render 1, 2, 4 or 6 opaque coloured ci
 
 | Six-ball output, seed 42 | Dimensions | Logical detail | Gas | File bytes |
 |---|---|---|---:|---:|
-| [AVI](previews/avi-64-25-6.avi) | 64×64 | 64×64, lossless | 30,917,140 | 206,296 |
-| [GIF](previews/gif-64-25-6.gif) | 64×64 | 64×64, lossless | 78,456,920 | 138,831 |
-| [MPEG `.mpg`](previews/mpg-512-25-6.mpg) | 512×512 | 64×64, chroma approximation | 280,329,710 | 230,195 |
-| [Larger AVI](previews/avi-128-25-6.avi) | 128×128 | 64×64 enlarged 2×, lossless | 123,989,072 | 820,696 |
-| [Larger GIF](previews/gif-128-25-6.gif) | 128×128 | 64×64 enlarged 2×, lossless | 312,519,511 | 551,931 |
+| [AVI](previews/avi-64-25-6.avi) | 64×64 | 64×64, lossless | 30,929,032 | 206,296 |
+| [GIF](previews/gif-64-25-6.gif) | 64×64 | 64×64, lossless | 78,393,060 | 138,831 |
+| [MPEG `.mpg`](previews/mpg-512-25-6.mpg) | 512×512 | 64×64, chroma approximation | 279,190,653 | 230,195 |
+| [Larger AVI](previews/avi-128-25-6.avi) | 128×128 | 64×64 enlarged 2×, lossless | 124,010,716 | 820,696 |
+| [Larger GIF](previews/gif-128-25-6.gif) | 128×128 | 64×64 enlarged 2×, lossless | 312,256,054 | 551,931 |
 
-The six-ball MPEG elementary stream alone takes 256,688,937 gas and 229,041 bytes. All listed files fit the 500M render budget, without base64 or metadata wrapping. The larger lossless files enlarge the same logical scene; they do not add geometric detail.
+The six-ball MPEG elementary stream alone takes 255,549,794 gas and 229,041 bytes. All listed files fit the 500M render budget, without base64 or metadata wrapping. The larger lossless files enlarge the same logical scene; they do not add geometric detail.
 
 Playback: [AVI viewing copy](previews/avi-128-25-6.preview.mp4), [MPEG viewing copy](previews/mpg-512-25-6.preview.mp4), [native animated GIF](previews/gif-128-25-6.gif). MP4 viewing copies are created offchain from independently decoded output. Native AVI, MPEG and GIF files are the exact Solidity return bytes.
 
@@ -144,16 +184,16 @@ All successful rows use one actual `STATICCALL` forwarding at most **500,000,000
 
 | Output | Output size | Logical detail | Frames / fps | Gas | File bytes |
 |---|---|---|---|---:|---:|
-| MPEG-1 elementary, road | 128×128 | 16×16 | 50 / 25 | 21,149,377 | 20,074 |
-| MPEG-1 elementary, road | 256×256 | 32×32 | 50 / 25 | 82,769,541 | 71,949 |
-| MPEG-1 elementary, road | 512×512 | 64×64 | 50 / 25 | 328,110,960 | 265,846 |
-| MPEG-1 elementary, orb | 512×512 | 64×64 | 50 / 25 | 300,318,942 | 225,959 |
-| MPEG-1 elementary, interference | 512×512 | 64×64 | 50 / 25 | 284,359,748 | 291,528 |
-| **MPEG-1 system stream, road** | **512×512** | **64×64** | **50 / 25** | **355,931,828** | **267,000** |
-| AVI, road | 64×64 | 64×64 | 20 / 10 | 35,470,596 | 82,696 |
-| AVI, road | 128×128 | 64×64 enlarged 2× | 40 / 20 | 285,208,151 | 656,616 |
-| Animated GIF, road | 64×64 | 64×64 | 20 / 10 | 54,525,684 | 55,581 |
-| Animated GIF, road | 128×128 | 64×64 enlarged 2× | 40 / 20 | 436,685,387 | 441,561 |
+| MPEG-1 elementary, road | 128×128 | 16×16 | 50 / 25 | 21,260,842 | 20,074 |
+| MPEG-1 elementary, road | 256×256 | 32×32 | 50 / 25 | 83,195,482 | 71,949 |
+| MPEG-1 elementary, road | 512×512 | 64×64 | 50 / 25 | 329,780,400 | 265,846 |
+| MPEG-1 elementary, orb | 512×512 | 64×64 | 50 / 25 | 304,315,868 | 225,959 |
+| MPEG-1 elementary, interference | 512×512 | 64×64 | 50 / 25 | 286,643,597 | 291,528 |
+| **MPEG-1 system stream, road** | **512×512** | **64×64** | **50 / 25** | **357,601,367** | **267,000** |
+| AVI, road | 64×64 | 64×64 | 20 / 10 | 35,475,348 | 82,696 |
+| AVI, road | 128×128 | 64×64 enlarged 2× | 40 / 20 | 285,225,465 | 656,616 |
+| Animated GIF, road | 64×64 | 64×64 | 20 / 10 | 54,500,263 | 55,581 |
+| Animated GIF, road | 128×128 | 64×64 enlarged 2× | 40 / 20 | 436,474,662 | 441,561 |
 
 The 1024×1024 MPEG and 256×256 / 25fps road AVI and GIF presets exhaust the budget. These failures bound this implementation; they are not theoretical limits on Solidity or those formats. Comparisons above involve different logical detail and frame counts, so they do not establish a general codec efficiency ranking.
 
@@ -189,7 +229,7 @@ MPEG-1 and AVI are useful native video proofs, but playback depends on the clien
 
 ## Reproduce
 
-Requires Foundry (including `cast` for the independent Python reference hash), Solidity 0.8.30, FFmpeg/FFprobe, Python 3 and Pillow. No Solidity dependencies. `foundry.toml` pins compiler version 0.8.30. Run `forge build` once to download that compiler if it is not cached, or set `FOUNDRY_SOLC=/path/to/solc` to use an existing 0.8.30 binary.
+Requires Foundry (including `cast` for the independent Python reference hash), Solidity 0.8.30, FFmpeg/FFprobe, Python 3 and Pillow. OpenZeppelin v5.4.0 is pinned and vendored; no Solidity dependency download is required. `foundry.toml` pins compiler version 0.8.30. Run `forge build` once to download that compiler if it is not cached, or set `FOUNDRY_SOLC=/path/to/solc` to use an existing 0.8.30 binary.
 
 ```bash
 forge fmt --check

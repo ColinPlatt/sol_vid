@@ -31,3 +31,7 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   there after wallet changes. Browser QA uses a mocked wallet and sends no real transactions.
 - Rebuild page deployment settings with `python3 scripts/sync_mint_config.py`
   after updating confirmed deployment manifests. Never put signing keys in page files.
+
+- Current seed-only artwork is `GHOULBALLS_VAPOR_V2` (scenes 7–10). Preserve
+  the original scenes 0–6. Update `scripts/vapor_reference.py` independently when
+  the V2 recipe changes; refresh mint-page media using `scripts/sync_mint_art.py`.

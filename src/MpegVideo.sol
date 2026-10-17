@@ -20,7 +20,7 @@ contract MpegVideo is Scene {
 
     /// @notice Two seconds at 25fps. Each 8x8 output block is one solid-colour sample.
     function mpeg(uint256 size, uint256 scene, uint256 seed) public pure returns (bytes memory out) {
-        if ((size != 128 && size != 256 && size != 512 && size != 1024) || scene > 6) revert InvalidSettings();
+        if ((size != 128 && size != 256 && size != 512 && size != 1024) || scene > 10) revert InvalidSettings();
         // Settings bound all arithmetic and output offsets below 2**32.
         unchecked {
             uint256 cols = size / 16;
@@ -39,8 +39,9 @@ contract MpegVideo is Scene {
 
             Colours memory colours = _colours(scene, seed);
             bytes memory pixels = new bytes(cells * cells);
+            bytes memory background = _background(cells, scene, seed);
             for (uint256 f; f < 50; ++f) {
-                _draw(pixels, cells, f, 50, scene, seed);
+                _draw(pixels, cells, f, 50, scene, seed, background);
                 _put(b, 0x00000100, 32);
                 _put(b, f, 10);
                 _put(b, 1, 3);

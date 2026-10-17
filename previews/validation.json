@@ -1,7 +1,7 @@
 [
   {
     "success": true,
-    "gas": 285208151,
+    "gas": 285225465,
     "bytes": 656616,
     "name": "avi-128-20-0",
     "codec": "rawvideo",
@@ -11,7 +11,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 123989072,
+    "gas": 124010716,
     "bytes": 820696,
     "name": "avi-128-25-6",
     "codec": "rawvideo",
@@ -25,7 +25,7 @@
   },
   {
     "success": true,
-    "gas": 35470596,
+    "gas": 35475348,
     "bytes": 82696,
     "name": "avi-64-10-0",
     "codec": "rawvideo",
@@ -34,7 +34,7 @@
   },
   {
     "success": true,
-    "gas": 29439480,
+    "gas": 29444232,
     "bytes": 82696,
     "name": "avi-64-10-1",
     "codec": "rawvideo",
@@ -43,11 +43,33 @@
   },
   {
     "success": true,
-    "gas": 14258400,
+    "gas": 14263152,
     "bytes": 82696,
     "name": "avi-64-10-2",
     "codec": "rawvideo",
     "decoded_frames": 20,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 4,
+    "gas": 34495074,
+    "bytes": 206296,
+    "name": "avi-64-25-10-seed4",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 6,
+    "gas": 35986981,
+    "bytes": 206296,
+    "name": "avi-64-25-10-seed6",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
     "duration_seconds": 2
   },
   {
@@ -75,7 +97,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 7599410,
+    "gas": 7611302,
     "bytes": 206296,
     "name": "avi-64-25-3",
     "codec": "rawvideo",
@@ -96,7 +118,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 12575806,
+    "gas": 12587698,
     "bytes": 206296,
     "name": "avi-64-25-4",
     "codec": "rawvideo",
@@ -117,7 +139,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 22185798,
+    "gas": 22197690,
     "bytes": 206296,
     "name": "avi-64-25-5",
     "codec": "rawvideo",
@@ -171,7 +193,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 30917140,
+    "gas": 30929032,
     "bytes": 206296,
     "name": "avi-64-25-6",
     "codec": "rawvideo",
@@ -180,7 +202,84 @@
   },
   {
     "success": true,
-    "gas": 436685387,
+    "generative": true,
+    "seed": 2,
+    "gas": 6096472,
+    "bytes": 206296,
+    "name": "avi-64-25-7-seed2",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 3,
+    "gas": 10708139,
+    "bytes": 206296,
+    "name": "avi-64-25-7-seed3",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 99,
+    "gas": 10715189,
+    "bytes": 206296,
+    "name": "avi-64-25-7-seed99",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 1,
+    "gas": 14999158,
+    "bytes": 206296,
+    "name": "avi-64-25-8-seed1",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 42,
+    "gas": 17883426,
+    "bytes": 206296,
+    "name": "avi-64-25-8-seed42",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2026,
+    "gas": 20335702,
+    "bytes": 206296,
+    "name": "avi-64-25-9-seed2026",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 7,
+    "gas": 32799552,
+    "bytes": 206296,
+    "name": "avi-64-25-9-seed7",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 436474662,
     "bytes": 441561,
     "name": "gif-128-20-0",
     "codec": "gif",
@@ -190,7 +289,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 312519511,
+    "gas": 312256054,
     "bytes": 551931,
     "name": "gif-128-25-6",
     "codec": "gif",
@@ -204,7 +303,7 @@
   },
   {
     "success": true,
-    "gas": 54525684,
+    "gas": 54500263,
     "bytes": 55581,
     "name": "gif-64-10-0",
     "codec": "gif",
@@ -213,7 +312,7 @@
   },
   {
     "success": true,
-    "gas": 48494568,
+    "gas": 48469147,
     "bytes": 55581,
     "name": "gif-64-10-1",
     "codec": "gif",
@@ -222,11 +321,33 @@
   },
   {
     "success": true,
-    "gas": 33313488,
+    "gas": 33288067,
     "bytes": 55581,
     "name": "gif-64-10-2",
     "codec": "gif",
     "decoded_frames": 20,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 4,
+    "gas": 81940955,
+    "bytes": 138831,
+    "name": "gif-64-25-10-seed4",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 6,
+    "gas": 83432862,
+    "bytes": 138831,
+    "name": "gif-64-25-10-seed6",
+    "codec": "gif",
+    "decoded_frames": 50,
     "duration_seconds": 2
   },
   {
@@ -254,7 +375,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 55139190,
+    "gas": 55075330,
     "bytes": 138831,
     "name": "gif-64-25-3",
     "codec": "gif",
@@ -275,7 +396,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 60115586,
+    "gas": 60051726,
     "bytes": 138831,
     "name": "gif-64-25-4",
     "codec": "gif",
@@ -296,7 +417,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 69725578,
+    "gas": 69661718,
     "bytes": 138831,
     "name": "gif-64-25-5",
     "codec": "gif",
@@ -350,9 +471,86 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 78456920,
+    "gas": 78393060,
     "bytes": 138831,
     "name": "gif-64-25-6",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2,
+    "gas": 53543636,
+    "bytes": 138831,
+    "name": "gif-64-25-7-seed2",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 3,
+    "gas": 58155303,
+    "bytes": 138831,
+    "name": "gif-64-25-7-seed3",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 99,
+    "gas": 58162353,
+    "bytes": 138831,
+    "name": "gif-64-25-7-seed99",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 1,
+    "gas": 62446066,
+    "bytes": 138831,
+    "name": "gif-64-25-8-seed1",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 42,
+    "gas": 65330334,
+    "bytes": 138831,
+    "name": "gif-64-25-8-seed42",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2026,
+    "gas": 67782097,
+    "bytes": 138831,
+    "name": "gif-64-25-9-seed2026",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 7,
+    "gas": 80245947,
+    "bytes": 138831,
+    "name": "gif-64-25-9-seed7",
     "codec": "gif",
     "decoded_frames": 50,
     "duration_seconds": 2
@@ -364,7 +562,7 @@
   },
   {
     "success": true,
-    "gas": 21149377,
+    "gas": 21260842,
     "bytes": 20074,
     "name": "mpeg-128-25-0",
     "codec": "mpeg1video",
@@ -373,7 +571,7 @@
   },
   {
     "success": true,
-    "gas": 82769541,
+    "gas": 83195482,
     "bytes": 71949,
     "name": "mpeg-256-25-0",
     "codec": "mpeg1video",
@@ -382,7 +580,7 @@
   },
   {
     "success": true,
-    "gas": 328110960,
+    "gas": 329780400,
     "bytes": 265846,
     "name": "mpeg-512-25-0",
     "codec": "mpeg1video",
@@ -391,7 +589,7 @@
   },
   {
     "success": true,
-    "gas": 300318942,
+    "gas": 304315868,
     "bytes": 225959,
     "name": "mpeg-512-25-1",
     "codec": "mpeg1video",
@@ -400,7 +598,29 @@
   },
   {
     "success": true,
-    "gas": 284359748,
+    "generative": true,
+    "seed": 4,
+    "gas": 265491977,
+    "bytes": 276278,
+    "name": "mpeg-512-25-10-seed4",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 6,
+    "gas": 266443769,
+    "bytes": 276745,
+    "name": "mpeg-512-25-10-seed6",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 286643597,
     "bytes": 291528,
     "name": "mpeg-512-25-2",
     "codec": "mpeg1video",
@@ -432,7 +652,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 228087614,
+    "gas": 227861465,
     "bytes": 211204,
     "name": "mpeg-512-25-3",
     "codec": "mpeg1video",
@@ -453,7 +673,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 234710394,
+    "gas": 234288748,
     "bytes": 216959,
     "name": "mpeg-512-25-4",
     "codec": "mpeg1video",
@@ -474,7 +694,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 246711029,
+    "gas": 245913485,
     "bytes": 224842,
     "name": "mpeg-512-25-5",
     "codec": "mpeg1video",
@@ -528,7 +748,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 256688937,
+    "gas": 255549794,
     "bytes": 229041,
     "name": "mpeg-512-25-6",
     "codec": "mpeg1video",
@@ -537,9 +757,108 @@
   },
   {
     "success": true,
-    "gas": 355931828,
+    "generative": true,
+    "seed": 2,
+    "gas": 243859502,
+    "bytes": 264568,
+    "name": "mpeg-512-25-7-seed2",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 3,
+    "gas": 247270305,
+    "bytes": 266446,
+    "name": "mpeg-512-25-7-seed3",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 99,
+    "gas": 247008125,
+    "bytes": 265092,
+    "name": "mpeg-512-25-7-seed99",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 1,
+    "gas": 250843819,
+    "bytes": 269801,
+    "name": "mpeg-512-25-8-seed1",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 42,
+    "gas": 252289358,
+    "bytes": 267696,
+    "name": "mpeg-512-25-8-seed42",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2026,
+    "gas": 256253786,
+    "bytes": 274940,
+    "name": "mpeg-512-25-9-seed2026",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 7,
+    "gas": 262866347,
+    "bytes": 271513,
+    "name": "mpeg-512-25-9-seed7",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 357601367,
     "bytes": 267000,
     "name": "mpg-512-25-0",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 4,
+    "gas": 293950435,
+    "bytes": 277432,
+    "name": "mpg-512-25-10-seed4",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 6,
+    "gas": 294949877,
+    "bytes": 277899,
+    "name": "mpg-512-25-10-seed6",
     "codec": "mpeg1video",
     "decoded_frames": 50,
     "duration_seconds": 2
@@ -569,7 +888,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 249918631,
+    "gas": 249692561,
     "bytes": 212358,
     "name": "mpg-512-25-3",
     "codec": "mpeg1video",
@@ -590,7 +909,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 257125386,
+    "gas": 256703820,
     "bytes": 218113,
     "name": "mpg-512-25-4",
     "codec": "mpeg1video",
@@ -611,7 +930,7 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 269925583,
+    "gas": 269128123,
     "bytes": 225996,
     "name": "mpg-512-25-5",
     "codec": "mpeg1video",
@@ -665,9 +984,86 @@
   {
     "success": true,
     "seed": 42,
-    "gas": 280329710,
+    "gas": 279190653,
     "bytes": 230195,
     "name": "mpg-512-25-6",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2,
+    "gas": 271125811,
+    "bytes": 265722,
+    "name": "mpg-512-25-7-seed2",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 3,
+    "gas": 274727918,
+    "bytes": 267600,
+    "name": "mpg-512-25-7-seed3",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 99,
+    "gas": 274327662,
+    "bytes": 266246,
+    "name": "mpg-512-25-7-seed99",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 1,
+    "gas": 278643054,
+    "bytes": 270955,
+    "name": "mpg-512-25-8-seed1",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 42,
+    "gas": 279873957,
+    "bytes": 268850,
+    "name": "mpg-512-25-8-seed42",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2026,
+    "gas": 284576092,
+    "bytes": 276094,
+    "name": "mpg-512-25-9-seed2026",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 7,
+    "gas": 290839698,
+    "bytes": 272667,
+    "name": "mpg-512-25-9-seed7",
     "codec": "mpeg1video",
     "decoded_frames": 50,
     "duration_seconds": 2

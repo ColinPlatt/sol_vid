@@ -72,6 +72,8 @@ try {
     const result = await cdp("Page.captureScreenshot", { format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: size.width, height: size.height, scale: 1 } });
     await writeFile(file, Buffer.from(result.data, "base64"));
   }
+  assert(await evaluate("[...document.images].every(i=>i.complete && i.naturalWidth>0)"), "Artwork image failed to load");
+  assert.match(await evaluate("document.getElementById('seed-label').textContent"), /2 balls.*Ricochet/);
   await screenshot("/tmp/ghoulballs-mint-desktop.png");
   await cdp("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
   await new Promise(r => setTimeout(r, 100));

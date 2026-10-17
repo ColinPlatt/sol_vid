@@ -1,249 +1,237 @@
 [
   {
     "seed": 1,
-    "scene": 3,
-    "ball_count": 1,
+    "scene": 8,
+    "ball_count": 2,
+    "theme": "Midnight",
+    "motion": "Ricochet",
+    "art_version": "GHOULBALLS_VAPOR_V2",
     "balls": [
       {
         "radius": 9,
         "x_phase": 65,
         "y_phase": 51,
-        "colour": "#bd5e65"
+        "colour": "#9b8aff"
+      },
+      {
+        "radius": 7,
+        "x_phase": 0,
+        "y_phase": 88,
+        "colour": "#ffc491"
       }
     ]
   },
   {
     "seed": 2,
-    "scene": 3,
+    "scene": 7,
     "ball_count": 1,
+    "theme": "Ultraviolet",
+    "motion": "Orbit",
+    "art_version": "GHOULBALLS_VAPOR_V2",
     "balls": [
       {
-        "radius": 11,
-        "x_phase": 68,
-        "y_phase": 54,
-        "colour": "#a9e570"
+        "radius": 5,
+        "x_phase": 80,
+        "y_phase": 6,
+        "colour": "#65f5e8"
       }
     ]
   },
   {
-    "seed": 3,
-    "scene": 6,
+    "seed": 6,
+    "scene": 10,
     "ball_count": 6,
+    "theme": "Midnight",
+    "motion": "Figure Eight",
+    "art_version": "GHOULBALLS_VAPOR_V2",
     "balls": [
       {
         "radius": 9,
-        "x_phase": 20,
-        "y_phase": 67,
-        "colour": "#83bd5c"
+        "x_phase": 69,
+        "y_phase": 18,
+        "colour": "#ff78cf"
       },
       {
-        "radius": 12,
-        "x_phase": 11,
-        "y_phase": 53,
-        "colour": "#8b865f"
+        "radius": 6,
+        "x_phase": 67,
+        "y_phase": 89,
+        "colour": "#9b8aff"
       },
       {
-        "radius": 12,
-        "x_phase": 74,
-        "y_phase": 28,
-        "colour": "#c3e1cf"
-      },
-      {
-        "radius": 12,
-        "x_phase": 34,
-        "y_phase": 46,
-        "colour": "#6f95e4"
+        "radius": 5,
+        "x_phase": 54,
+        "y_phase": 92,
+        "colour": "#ffc491"
       },
       {
         "radius": 10,
-        "x_phase": 34,
-        "y_phase": 23,
-        "colour": "#60aad6"
+        "x_phase": 17,
+        "y_phase": 85,
+        "colour": "#62b9ff"
       },
       {
         "radius": 10,
-        "x_phase": 25,
-        "y_phase": 0,
-        "colour": "#40eb78"
+        "x_phase": 8,
+        "y_phase": 80,
+        "colour": "#e4a5ff"
+      },
+      {
+        "radius": 5,
+        "x_phase": 64,
+        "y_phase": 44,
+        "colour": "#65f5e8"
       }
     ]
   },
   {
     "seed": 4,
-    "scene": 4,
-    "ball_count": 2,
+    "scene": 10,
+    "ball_count": 6,
+    "theme": "Sunset",
+    "motion": "Orbit",
+    "art_version": "GHOULBALLS_VAPOR_V2",
     "balls": [
       {
-        "radius": 12,
-        "x_phase": 74,
-        "y_phase": 12,
-        "colour": "#65fd99"
+        "radius": 9,
+        "x_phase": 20,
+        "y_phase": 24,
+        "colour": "#e4a5ff"
       },
       {
-        "radius": 13,
-        "x_phase": 70,
-        "y_phase": 14,
-        "colour": "#837696"
+        "radius": 8,
+        "x_phase": 30,
+        "y_phase": 12,
+        "colour": "#65f5e8"
+      },
+      {
+        "radius": 6,
+        "x_phase": 66,
+        "y_phase": 84,
+        "colour": "#ff78cf"
+      },
+      {
+        "radius": 8,
+        "x_phase": 6,
+        "y_phase": 75,
+        "colour": "#9b8aff"
+      },
+      {
+        "radius": 9,
+        "x_phase": 48,
+        "y_phase": 37,
+        "colour": "#ffc491"
+      },
+      {
+        "radius": 5,
+        "x_phase": 8,
+        "y_phase": 82,
+        "colour": "#62b9ff"
       }
     ]
   },
   {
     "seed": 7,
-    "scene": 5,
+    "scene": 9,
     "ball_count": 4,
+    "theme": "Sunset",
+    "motion": "Ricochet",
+    "art_version": "GHOULBALLS_VAPOR_V2",
     "balls": [
       {
-        "radius": 9,
-        "x_phase": 46,
-        "y_phase": 79,
-        "colour": "#ebede6"
-      },
-      {
-        "radius": 12,
-        "x_phase": 4,
-        "y_phase": 77,
-        "colour": "#7e6391"
-      },
-      {
-        "radius": 14,
-        "x_phase": 28,
+        "radius": 10,
+        "x_phase": 62,
         "y_phase": 23,
-        "colour": "#658ae9"
+        "colour": "#ffc491"
       },
       {
-        "radius": 15,
-        "x_phase": 36,
-        "y_phase": 52,
-        "colour": "#525b61"
+        "radius": 6,
+        "x_phase": 34,
+        "y_phase": 101,
+        "colour": "#62b9ff"
+      },
+      {
+        "radius": 10,
+        "x_phase": 52,
+        "y_phase": 31,
+        "colour": "#e4a5ff"
+      },
+      {
+        "radius": 10,
+        "x_phase": 14,
+        "y_phase": 20,
+        "colour": "#65f5e8"
       }
     ]
   },
   {
     "seed": 42,
-    "scene": 6,
-    "ball_count": 6,
+    "scene": 8,
+    "ball_count": 2,
+    "theme": "Ultraviolet",
+    "motion": "Ricochet",
+    "art_version": "GHOULBALLS_VAPOR_V2",
     "balls": [
       {
-        "radius": 13,
-        "x_phase": 42,
-        "y_phase": 66,
-        "colour": "#f350f9"
+        "radius": 10,
+        "x_phase": 46,
+        "y_phase": 20,
+        "colour": "#ff78cf"
       },
       {
-        "radius": 12,
-        "x_phase": 13,
-        "y_phase": 61,
-        "colour": "#c08f41"
-      },
-      {
-        "radius": 14,
-        "x_phase": 31,
-        "y_phase": 42,
-        "colour": "#77a160"
-      },
-      {
-        "radius": 9,
-        "x_phase": 45,
-        "y_phase": 58,
-        "colour": "#d041f5"
-      },
-      {
-        "radius": 9,
-        "x_phase": 49,
-        "y_phase": 27,
-        "colour": "#dc5acb"
-      },
-      {
-        "radius": 13,
-        "x_phase": 14,
-        "y_phase": 46,
-        "colour": "#5d79c3"
+        "radius": 8,
+        "x_phase": 37,
+        "y_phase": 81,
+        "colour": "#9b8aff"
       }
     ]
   },
   {
     "seed": 99,
-    "scene": 6,
-    "ball_count": 6,
+    "scene": 7,
+    "ball_count": 1,
+    "theme": "Sunset",
+    "motion": "Float",
+    "art_version": "GHOULBALLS_VAPOR_V2",
     "balls": [
       {
-        "radius": 13,
-        "x_phase": 14,
-        "y_phase": 29,
-        "colour": "#697192"
-      },
-      {
-        "radius": 15,
-        "x_phase": 58,
-        "y_phase": 63,
-        "colour": "#4e8953"
-      },
-      {
-        "radius": 10,
-        "x_phase": 70,
-        "y_phase": 20,
-        "colour": "#8567eb"
-      },
-      {
         "radius": 9,
-        "x_phase": 73,
-        "y_phase": 68,
-        "colour": "#e5d9b8"
-      },
-      {
-        "radius": 9,
-        "x_phase": 1,
-        "y_phase": 19,
-        "colour": "#45d8a5"
-      },
-      {
-        "radius": 13,
-        "x_phase": 54,
-        "y_phase": 68,
-        "colour": "#72b041"
+        "x_phase": 56,
+        "y_phase": 89,
+        "colour": "#9b8aff"
       }
     ]
   },
   {
     "seed": 2026,
-    "scene": 6,
-    "ball_count": 6,
+    "scene": 9,
+    "ball_count": 4,
+    "theme": "Lagoon",
+    "motion": "Float",
+    "art_version": "GHOULBALLS_VAPOR_V2",
     "balls": [
       {
+        "radius": 5,
+        "x_phase": 102,
+        "y_phase": 48,
+        "colour": "#e4a5ff"
+      },
+      {
         "radius": 10,
-        "x_phase": 72,
-        "y_phase": 44,
-        "colour": "#7a8280"
+        "x_phase": 60,
+        "y_phase": 50,
+        "colour": "#65f5e8"
       },
       {
-        "radius": 13,
-        "x_phase": 26,
-        "y_phase": 2,
-        "colour": "#77d27c"
+        "radius": 6,
+        "x_phase": 51,
+        "y_phase": 64,
+        "colour": "#ff78cf"
       },
       {
-        "radius": 15,
-        "x_phase": 3,
-        "y_phase": 10,
-        "colour": "#ae5660"
-      },
-      {
-        "radius": 13,
-        "x_phase": 47,
-        "y_phase": 46,
-        "colour": "#9da189"
-      },
-      {
-        "radius": 14,
-        "x_phase": 22,
-        "y_phase": 7,
-        "colour": "#577396"
-      },
-      {
-        "radius": 14,
-        "x_phase": 58,
-        "y_phase": 59,
-        "colour": "#ae8892"
+        "radius": 5,
+        "x_phase": 45,
+        "y_phase": 6,
+        "colour": "#9b8aff"
       }
     ]
   }

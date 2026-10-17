@@ -208,6 +208,31 @@ contract SolVideoNFTTest is IERC721Receiver {
         vm.writeFileBinary("previews/nft/token-1.avi", nft.avi(1));
     }
 
+    function testSixBallMetadataBudgetForEveryMotion() public {
+        uint256[] memory selected = new uint256[](4);
+        uint256[] memory areas = new uint256[](4);
+        for (uint256 id = 1; id <= 128; ++id) {
+            nft.mintTo(ALICE);
+            GenerativeVideo.Recipe memory r = nft.recipeOf(id);
+            if (r.ballCount != 6) continue;
+            uint256 area;
+            for (uint256 i; i < 6; ++i) {
+                area += r.balls[i].radius * r.balls[i].radius;
+            }
+            if (area > areas[r.motion]) {
+                areas[r.motion] = area;
+                selected[r.motion] = id;
+            }
+        }
+        for (uint256 style; style < 4; ++style) {
+            require(selected[style] != 0, "Missing six-ball motion sample");
+            uint256 beforeGas = gasleft();
+            (bool ok,) = address(nft).staticcall{gas: 500_000_000}(abi.encodeCall(nft.tokenURI, (selected[style])));
+            require(ok, "Motion metadata exceeds 500M");
+            emit log_named_uint(renderer.motionName(style), beforeGas - gasleft());
+        }
+    }
+
     function testLargeSixBallMetadataWithin500M() public {
         uint256 largest;
         uint256 selected;

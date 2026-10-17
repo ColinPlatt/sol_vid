@@ -86,6 +86,10 @@ contract GenerativeVideoTest {
         _sample(4);
     }
 
+    function testSeed6() public {
+        _sample(6);
+    }
+
     function testSeed7() public {
         _sample(7);
     }
@@ -115,14 +119,15 @@ contract GenerativeVideoTest {
     function testFuzzRecipeBounds(uint256 seed) public {
         GenerativeVideo renderer = new GenerativeVideo();
         GenerativeVideo.Recipe memory r = renderer.recipe(seed);
-        require(r.scene >= 3 && r.scene <= 6, "Invalid scene");
+        require(r.scene >= 7 && r.scene <= 10, "Invalid scene");
         require(r.ballCount == 1 || r.ballCount == 2 || r.ballCount == 4 || r.ballCount == 6, "Invalid count");
         require(r.seed == seed && r.balls.length == r.ballCount && r.palette.length == 48, "Invalid recipe");
+        require(r.theme < 4 && r.motion < 4, "Invalid style");
         for (uint256 i; i < r.ballCount; ++i) {
             GenerativeVideo.Ball memory b = r.balls[i];
-            require(b.radius >= 9 && b.radius <= 15, "Invalid radius");
+            require(b.radius >= 5 && b.radius <= 10, "Invalid radius");
             require(b.xPhase < 2 * (63 - 2 * b.radius) && b.yPhase < 2 * (63 - 2 * b.radius), "Invalid phase");
-            uint256 p = 3 * (i + 1);
+            uint256 p = 3 * (8 + i);
             require(
                 b.colour[0] == r.palette[p] && b.colour[1] == r.palette[p + 1] && b.colour[2] == r.palette[p + 2],
                 "Trait colour differs"

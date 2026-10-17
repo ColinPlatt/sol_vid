@@ -10,7 +10,7 @@ contract SolVideo is Scene {
     function _check(uint256 size, uint256 fps, uint256 scene) private pure {
         if (
             (size != 32 && size != 64 && size != 128 && size != 256) || (fps != 10 && fps != 20 && fps != 25)
-                || scene > 6
+                || scene > 10
         ) revert InvalidSettings();
     }
 
@@ -29,10 +29,11 @@ contract SolVideo is Scene {
         _copy(out, 13, _palette(scene, seed));
         _copy(out, 61, hex"21ff0b4e45545343415045322e300301000000");
         bytes memory pixels = new bytes(n);
+        bytes memory background = _background(size, scene, seed);
         bytes memory packedPixels = new bytes(packedSize);
         uint256 p = 80;
         for (uint256 f; f < frames; ++f) {
-            _draw(pixels, size, f, frames, scene, seed);
+            _draw(pixels, size, f, frames, scene, seed, background);
             _lzw(pixels, packedPixels);
             _copy(out, p, hex"21f90404000000002c00000000000000000004");
             _le(out, p + 4, 100 / fps, 2);
@@ -109,9 +110,10 @@ contract SolVideo is Scene {
         _le(out, 280, 4 + movieSize, 4);
         _copy(out, 284, bytes("movi"));
         bytes memory pixels = new bytes(n);
+        bytes memory background = _background(size, scene, seed);
         uint256 p = 288;
         for (uint256 f; f < frames; ++f) {
-            _draw(pixels, size, f, frames, scene, seed);
+            _draw(pixels, size, f, frames, scene, seed, background);
             _copy(out, p, bytes("00db"));
             _le(out, p + 4, n, 4);
             p += 8;
