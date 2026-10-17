@@ -7,7 +7,17 @@
   <meta name="description" content="ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Free mint, 1 per address, on Base.">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <title>ghoulballs</title>
-  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <meta property="og:title" content="ghoulballs">
+  <meta property="og:description" content="Ethereum's first (probably) fully onchain animated GIF. Free mint, 1 per address, on Base.">
+  <meta property="og:url" content="https://ghoulballs.vercel.app/">
+  <meta property="og:image" content="https://ghoulballs.vercel.app/assets/seed-42.png">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ghoulballs">
+  <meta name="twitter:description" content="Ethereum's first (probably) fully onchain animated GIF. Free mint, 1 per address, on Base.">
+  <meta name="twitter:image" content="https://ghoulballs.vercel.app/assets/seed-42.png">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/assets/favicon.gif" type="image/gif">
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&display=swap">
@@ -29,6 +39,7 @@
         <button id="mint-button" class="mint-button" type="button" disabled>MINT</button>
         <p id="availability" class="availability"><span id="availability-text">FREE</span></p>
         <div id="mint-status" class="mint-status" role="status" aria-live="polite" hidden></div>
+        <a id="share-link" class="chip-button share-button" target="_blank" rel="noopener noreferrer" hidden>SHARE ON X ↗</a>
         <a id="transaction-link" class="tx-link" target="_blank" rel="noopener noreferrer" hidden>TX ↗</a>
       </div>
     </section>

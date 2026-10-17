@@ -1,6 +1,7 @@
 import { validateConfig, shortAddress, rpc, submitMint, mintedToken, friendlyError, isAddress, ensureChain } from "./wallet.mjs";
 import { showGallery, tokenImage } from "./gallery.js";
-import { hasMintedCall } from "./gallery.mjs";
+import { hasMintedCall, gifCall, decodeBytes, RENDER_GAS } from "./gallery.mjs";
+import { animateFavicon, gifFromImage } from "./favicon.js";
 
 const $ = id => document.getElementById(id);
 const state = { config: null, network: null, provider: null, account: null, chainId: null, busy: false, connecting: false, soldOut: false, minted: false };
@@ -43,7 +44,10 @@ async function showLatest(n, supply) {
   if (!n?.deployed || !supply) return;
   try {
     const token = await tokenImage(n, n.collectionAddress, supply);
-    if (request === heroRequest && state.network === n) { $("hero-image").src = token.image; $("hero-image").alt = token.name; }
+    if (request === heroRequest && state.network === n) {
+      $("hero-image").src = token.image; $("hero-image").alt = token.name;
+      animateFavicon(await gifFromImage(token.image));
+    }
   } catch { /* Keep the placeholder. */ }
 }
 
@@ -153,6 +157,31 @@ async function updateSupply() {
   } catch { /* Supply is optional and never blocks minting. */ }
 }
 
+// After a confirmed mint, share the token's own page (/t/:id), whose preview card is the token's GIF. Where the browser
+// can share files (most phones), the share sheet also gets the GIF itself, read from the chain. Nothing is posted
+// without the user.
+const SHARE_TEXT = "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for free at:";
+let shareFile = null;
+async function prepareShare(n, tokenId) {
+  const url = `${location.origin}/t/${tokenId}`;
+  $("share-link").href = "https://x.com/intent/post?" + new URLSearchParams({ text: SHARE_TEXT, url });
+  $("share-link").hidden = false;
+  shareFile = null;
+  try {
+    // Fetched now: the share sheet must open directly from the click, with no network wait in between.
+    const result = await rpc({ ...n, rpcUrl: n.renderRpcUrl ?? n.rpcUrl }, "eth_call", [{ to: n.collectionAddress, data: gifCall(tokenId), gas: RENDER_GAS }, "latest"]);
+    shareFile = new File([decodeBytes(result)], "ghoulballs.gif", { type: "image/gif" });
+  } catch { /* The link still shares the page. */ }
+}
+$("share-link").addEventListener("click", event => {
+  if (!shareFile) return;
+  const data = { files: [shareFile], text: `${SHARE_TEXT} ${new URL($("share-link").href).searchParams.get("url")}` };
+  if (navigator.canShare?.(data)) {
+    event.preventDefault();
+    navigator.share(data).catch(() => {});
+  }
+});
+
 function transactionLink(n, hash) {
   $("transaction-link").href = n.explorerUrl + "/tx/" + hash;
   $("transaction-link").hidden = false;
@@ -171,7 +200,9 @@ async function waitForMint(snapshot) {
     if (receipt) {
       savePending(null);
       const tokenId = mintedToken(receipt, n, snapshot.account);
-      status(`MINTED #${Math.ceil(Number(tokenId) / (n.tokensPerMint ?? 1))}`, "success");
+      const minted = Math.ceil(Number(tokenId) / (n.tokensPerMint ?? 1));
+      status(`MINTED #${minted}`, "success");
+      void prepareShare(n, tokenId);
       await updateSupply();
       void checkMinted();
       void showGallery(state.network);
@@ -186,7 +217,7 @@ $("mint-button").addEventListener("click", async () => {
   if (state.busy || state.connecting || state.soldOut || !state.network?.deployed) return;
   if (!state.account) { chooseWallet(); return; }
   const n = state.network, account = state.account, provider = state.provider;
-  state.busy = true; $("transaction-link").hidden = true; render();
+  state.busy = true; $("transaction-link").hidden = true; $("share-link").hidden = true; render();
   const messages = { network: `SWITCH TO ${n.name.toUpperCase()}`, checking: "CHECKING…", wallet: "CONFIRM IN WALLET" };
   try {
     const hash = await submitMint(provider, n, account, stage => status(messages[stage]));
@@ -197,6 +228,10 @@ $("mint-button").addEventListener("click", async () => {
   finally { state.busy = false; render(); }
 });
 
+
+// The tab icon animates the deployed collection's GIFs: token #1's (favicon.gif, read from the contract) until the
+// newest token is read from the chain.
+gifFromImage("assets/favicon.gif").then(animateFavicon).catch(() => {});
 
 async function init() {
   try {

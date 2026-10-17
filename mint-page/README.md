@@ -22,6 +22,30 @@ If that read fails, it falls back to the cheaper raw `gif(id)` read. Tokens load
 as they scroll into view, three reads at a time. Every card shows the token's GIF. The screen shows the current
 collection's newest token. `/gallery.html` redirects to `/#minted`.
 
+## Sharing and token pages
+
+After a confirmed mint, **SHARE ON X** opens X's post intent with "Just minted
+ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for
+free at:" and the token's own page. Where the browser can share files (most phones),
+the share sheet also gets the minted GIF itself, read from the contract. Nothing is
+posted without the user.
+
+Each token has a server-rendered page, `/t/:id` (`api/token.js`), because link
+crawlers do not run JavaScript. It carries Open Graph / X card tags whose image is
+`/t/:id.png` (`api/card.js`): a 1200x630 PNG of the token's first GIF frame at 8x,
+decoded from the contract's `gif(id)`. X shows card images as stills. Both read Base
+through `renderRpcUrl`, are cached at the edge for a year (tokens never change), and
+return uncached 404s for unminted or malformed IDs. Gallery cards link to their page.
+
+## Icons
+
+`/favicon.ico`, `assets/favicon.gif` and `assets/apple-touch-icon.png` are Base token
+#1's exact `gif(id)` bytes (and its first frame), so the icon matches the deployed
+artwork; Firefox animates the GIF natively. As in numerate_www's live favicon,
+`favicon.js` also swaps PNG frames into a `<link>` at 10fps (Chrome, Edge, Firefox),
+starting with token #1 and then following the newest token. Safari keeps the static
+icon. `gif.mjs` is the GIF decoder shared by the page and the server.
+
 ```bash
 cd mint-page
 npm test

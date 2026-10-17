@@ -70,7 +70,11 @@ function tokenCard(network, collection, id, run, observer) {
   const media = el("div", "token-media");
   media.append(el("span", "token-loading", "●"));
   const caption = el("figcaption");
-  caption.append(el("strong", "", `#${collection.tokensPerMint === 3 ? (id + 2) / 3 : id}`));
+  const label = el("a", "", `#${collection.tokensPerMint === 3 ? (id + 2) / 3 : id}`);
+  label.href = `/t/${id}`;
+  const strong = el("strong");
+  strong.append(label);
+  caption.append(strong);
   card.append(media, caption);
   card.load = () => schedule(() => loadToken(network, collection, id, card, run));
   observer.observe(card);

@@ -21,5 +21,15 @@
       "destination": "/#minted",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/t/:id(\\d+).png",
+      "destination": "/api/card?id=:id"
+    },
+    {
+      "source": "/t/:id(\\d+)",
+      "destination": "/api/token?id=:id"
+    }
   ]
 }

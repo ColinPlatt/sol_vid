@@ -15,6 +15,7 @@ assert.deepEqual(publishedConfig.networks.map(n => n.chainId), [8453], "The page
 const mockCollection = base.collectionAddress ?? "0x" + "b".repeat(40);
 const mockRenderer = base.rendererAddress ?? "0x" + "c".repeat(40);
 const exportedURI = await readFile(new URL("../../previews/nft/token-1.uri.txt", import.meta.url), "utf8");
+const exportedGif = (await readFile(new URL("../../previews/nft/token-1.gif", import.meta.url))).toString("hex");
 const profile = await mkdtemp(path.join(tmpdir(), "ghoulballs-chrome-"));
 const mime = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json", ".svg": "image/svg+xml", ".gif": "image/gif", ".png": "image/png" };
 const server = createServer(async (req, res) => {
@@ -56,7 +57,7 @@ try {
   await cdp("Runtime.enable"); await cdp("Page.enable");
   await cdp("Page.addScriptToEvaluateOnNewDocument", { source: `
     const sourceConfig = ${JSON.stringify(publishedConfig)};
-    const collection = ${JSON.stringify(mockCollection)}, renderer = ${JSON.stringify(mockRenderer)}, exportedURI = ${JSON.stringify(exportedURI)};
+    const collection = ${JSON.stringify(mockCollection)}, renderer = ${JSON.stringify(mockRenderer)}, exportedURI = ${JSON.stringify(exportedURI)}, exportedGif = ${JSON.stringify(exportedGif)};
     const account = '0x'+'a'.repeat(40), hash = '0x'+'d'.repeat(64);
     const abiString = value => '0x'+(32n).toString(16).padStart(64,'0')+BigInt(value.length).toString(16).padStart(64,'0')+[...new TextEncoder().encode(value)].map(b=>b.toString(16).padStart(2,'0')).join('').padEnd(64,'0');
     window.__qaCalls=[]; let minted=false, chain='0xaa36a7'; // the wallet starts on another network
@@ -85,6 +86,7 @@ try {
           else if(data.startsWith('0x38e21cce')) result='0x'+(minted?'1':'0').padStart(64,'0');
           else if(data.startsWith('0x6352211e')) result='0x'+account.slice(2).padStart(64,'0');
           else if(data.startsWith('0xc87b56dd')) result=abiString(exportedURI);
+          else if(data.startsWith('0x7492d87c')) result='0x'+(32n).toString(16).padStart(64,'0')+BigInt(exportedGif.length/2).toString(16).padStart(64,'0')+exportedGif.padEnd(Math.ceil(exportedGif.length/64)*64,'0');
           return new Response(JSON.stringify({jsonrpc:'2.0',id:1,result}),{status:200});
         }
         if(request.method==='eth_call') return new Response(JSON.stringify({jsonrpc:'2.0',id:1,result:'0x0'}),{status:200});
@@ -121,6 +123,11 @@ try {
   await until("document.getElementById('availability-text')?.textContent === 'NOT LIVE'");
   assert(await evaluate("document.getElementById('mint-button').disabled"));
   assert.equal(await evaluate("document.getElementById('network')"), null, "No network picker");
+  // The tab icon animates the deployed token #1 GIF: a PNG <link> whose frame changes at 10fps.
+  await until("document.querySelector('link[rel=icon][type=\"image/png\"]')?.href.startsWith('data:image/png')");
+  const iconFrames = await evaluate("new Promise(r=>{const l=document.querySelector('link[rel=icon][type=\"image/png\"]'),s=new Set();const t=setInterval(()=>{s.add(l.href);if(s.size>3){clearInterval(t);r(s.size)}},40);setTimeout(()=>{clearInterval(t);r(s.size)},2000)})");
+  assert(iconFrames > 3, "Favicon is not animating");
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('link[rel=icon][href], link[rel=apple-touch-icon]')].map(l=>l.getAttribute('href')).filter(h=>!h.startsWith('data:'))"), ["/favicon.ico", "/assets/favicon.gif", "/assets/apple-touch-icon.png"]);
   assert.equal(await evaluate("document.querySelectorAll('.token-card').length"), 0);
   await evaluate("document.getElementById('connect-wallet').click()");
   await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
@@ -161,6 +168,27 @@ try {
   await until("document.getElementById('mint-button').textContent === 'MINT'");
   await evaluate("document.getElementById('mint-button').click()");
   await until("document.getElementById('mint-status').textContent === 'MINTED #1'");
+  const share = new URL(await evaluate("document.getElementById('share-link').href"));
+  assert(await evaluate("!document.getElementById('share-link').hidden"), "Share button hidden after mint");
+  assert.equal(share.origin + share.pathname, "https://x.com/intent/post");
+  assert.equal(share.searchParams.get("text"), "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for free at:");
+  assert.equal(share.searchParams.get("url"), origin + "/t/1");
+  // The minted token's GIF is read from the chain for the share sheet.
+  await until("window.__qaCalls.some(c=>c.data==='0x7492d87c'+'1'.padStart(64,'0'))");
+  // With file sharing available, the click opens the share sheet with the GIF and text instead of the link.
+  await evaluate(`window.__shared=null; navigator.canShare=d=>!!d.files; navigator.share=async d=>{window.__shared={name:d.files[0].name,type:d.files[0].type,size:d.files[0].size,head:[...new Uint8Array(await d.files[0].slice(0,6).arrayBuffer())].map(b=>String.fromCharCode(b)).join(''),text:d.text};}`);
+  await new Promise(r => setTimeout(r, 300));
+  await evaluate("document.getElementById('share-link').click()");
+  await until("window.__shared");
+  const shared = await evaluate("window.__shared");
+  assert.deepEqual([shared.name, shared.type, shared.head, shared.size], ["ghoulballs.gif", "image/gif", "GIF89a", exportedGif.length / 2]);
+  assert.equal(shared.text, "Just minted ghoulballs: Ethereum's first (probably) fully onchain animated GIF. Mint yours for free at: " + origin + "/t/1");
+  // Without file sharing, the click just follows the X link to the token page (navigation blocked here).
+  await evaluate(`navigator.canShare=()=>false; window.__followed=null; document.getElementById('share-link').addEventListener('click', e=>{window.__followed=!e.defaultPrevented; e.preventDefault();});`);
+  await evaluate("document.getElementById('share-link').click()");
+  assert.equal(await evaluate("window.__followed"), true);
+  // Gallery cards link to each token's page.
+  assert.equal(await evaluate("document.querySelector('.token-card strong a').getAttribute('href')"), "/t/1");
   await until("document.getElementById('mint-button').textContent === 'MINTED' && document.getElementById('mint-button').disabled");
   const sends = await evaluate("window.__qaCalls.filter(c=>c.method==='eth_sendTransaction')");
   assert.equal(sends.length, 1);
@@ -169,7 +197,7 @@ try {
   assert.equal(sends[0].params[0].to.toLowerCase(), mockCollection.toLowerCase());
   assert.match(await evaluate("document.getElementById('transaction-link').href"), /basescan.org\/tx\/0x/);
   assert.deepEqual(exceptions, []);
-  console.log("PASS undeployed guard, live supply, newest token on screen, current collection's GIFs only, Base only with automatic switch to Base, 1 per address note (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
+  console.log("PASS undeployed guard, live supply, newest token on screen, current collection's GIFs only, Base only with automatic switch to Base, 1 per address note, share on X after mint, animated favicon (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
   console.log("Screenshots: /tmp/ghoulballs-mint-desktop.png and /tmp/ghoulballs-mint-mobile.png");
 } finally {
   ws?.close(); chrome?.kill("SIGTERM"); await new Promise(r => server.close(r));

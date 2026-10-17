@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test test/wallet.test.mjs test/gallery.test.mjs",
-    "check": "node --check dist/app.js && node --check dist/wallet.mjs && node --check dist/gallery.mjs && node --check dist/gallery.js",
+    "test": "node --test test/wallet.test.mjs test/gallery.test.mjs test/share.test.mjs",
+    "check": "node --check dist/app.js && node --check dist/wallet.mjs && node --check dist/gallery.mjs && node --check dist/gallery.js && node --check dist/gif.mjs && node --check dist/favicon.js && node --check api/_share.js && node --check api/token.js && node --check api/card.js",
     "preview": "python3 -m http.server 4173 --directory dist"
   }
 }
