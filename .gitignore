@@ -7,3 +7,6 @@ broadcast/
 __pycache__/
 *.pyc
 .vercel
+
+# Private research notes (not committed)
+docs/research/

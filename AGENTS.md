@@ -16,6 +16,9 @@ measurements and example media in sync as this experiment develops.
   at most 6,667 tokens, one mint per caller address. The AVI/MPEG HTML-player
   version is parked on the `avi-mpeg-players` branch; do not merge it into `main`
   without an explicit request.
+- Private research notes live in `docs/research/` (gitignored, never commit them).
+  `docs/research/marketplace-video.md` covers getting the AVI/MPEG versions onto
+  marketplaces: measurements, hypotheses, probe experiments and codec options.
 - Deployment scripts mint the first set to the deployer immediately after deploying
   the collection, in the same broadcast; keep that in new deployment scripts.
 - `deployments/sepolia.json` records deployment status. Keep simulation addresses

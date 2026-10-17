@@ -16,7 +16,11 @@ The main example is [a two-second MPEG video](previews/mpg-512-25-0.mpg): 512×5
 
 ![Three MPEG scenes](previews/contact-sheet.png)
 
-## ghoulballs NFT — live on Sepolia
+## ghoulballs NFT — live on Base
+
+**Mint: [ghoulballs.vercel.app](https://ghoulballs.vercel.app)** ·
+[collection on Basescan](https://basescan.org/address/0xf3654d0ce6cf518f4efbbe490f4a26483fb0969c#code) (verified) ·
+[Base deployment](docs/BASE.md) · [manifest](deployments/base.json).
 
 The ERC-721 collection name and symbol are both **`ghoulballs`**. Anyone can call
 `mint()` or `mintTo(recipient)` once per address, for no protocol payment, up to a
@@ -68,17 +72,14 @@ See the [Sepolia deployment runbook](docs/SEPOLIA.md) for dry-run, signer,
 broadcast, source verification and post-deployment steps. The public deployment
 manifest is [deployments/sepolia.json](deployments/sepolia.json).
 
-## Mint page and Base preparation
+## Mint page
 
-[Open the private mint-page preview](https://ghoulballs-mint.stillcarp.chatgpt.site).
-
-The [static mint page](mint-page/README.md) has animated examples, wallet connection,
-network selection and mint transaction tracking. Sepolia minting is enabled; Base
-and Base Sepolia stay disabled until their confirmed deployments are configured.
-The page only needs small contract reads, never the full video metadata.
-
-See the [Base deployment guide](docs/BASE.md) for the additional guarded scripts.
-Sepolia is deployed; neither Base network has been deployed.
+**[ghoulballs.vercel.app](https://ghoulballs.vercel.app)** (source: [mint-page/](mint-page/README.md)).
+Base only: wallet connection that brings the wallet to Base, a free mint (one per
+address), a share pop-up after minting, and every minted token read straight from
+the chain. Each token has its own page, `/t/<id>`, with a preview card
+(`/t/<id>.png`) and the raw GIF (`/t/<id>.gif`). Sepolia collections stay in
+[deployments/sepolia.json](deployments/sepolia.json) but are not shown.
 
 ## Generative vaporwave from one seed
 
