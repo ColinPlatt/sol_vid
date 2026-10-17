@@ -7,9 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 # The render RPC serves the gallery's full tokenURI reads, which need a ~500M eth_call gas cap (most public RPCs stop at 50M).
 networks = [
-    ("sepolia", 11155111, "Sepolia", "Ethereum testnet", "https://ethereum-sepolia-rpc.publicnode.com", "https://sepolia.gateway.tenderly.co", "https://sepolia.etherscan.io", True),
     ("base", 8453, "Base", "Mainnet", "https://mainnet.base.org", "https://base.gateway.tenderly.co", "https://basescan.org", False),
-    ("base-sepolia", 84532, "Base Sepolia", "Base testnet", "https://sepolia.base.org", "https://base-sepolia.gateway.tenderly.co", "https://sepolia.basescan.org", True),
 ]
 
 
@@ -19,7 +17,8 @@ def address(value):
     return value
 
 
-output = {"collectionName": "ghoulballs", "defaultChainId": 11155111, "networks": []}
+# The page is Base only; Sepolia and Base Sepolia stay in their manifests.
+output = {"collectionName": "ghoulballs", "defaultChainId": 8453, "networks": []}
 for slug, chain_id, name, subtitle, rpc, render_rpc, explorer, testnet in networks:
     manifest = json.loads((ROOT / "deployments" / f"{slug}.json").read_text())
     assert manifest["chain_id"] == chain_id
@@ -33,7 +32,7 @@ for slug, chain_id, name, subtitle, rpc, render_rpc, explorer, testnet in networ
         hashes = manifest["transaction_hashes"]
         if len(hashes) < 2 or any(not re.fullmatch(r"0x[0-9a-fA-F]{64}", h) for h in hashes):
             raise ValueError(f"{slug}: successful deployment transaction hashes are required")
-        # Every collection version ever deployed, for the onchain gallery; the current one is the mint target.
+        # The page mints from and shows only the current collection; older versions stay in the manifest.
         versions = manifest.get("collections") or [dict(version=1, address=collection, status="current")]
         versions = [dict(version=v["version"], address=address(v["address"]), current=v["status"] == "current",
                          tokensPerMint=v.get("tokens_per_mint", 1), mintLimit=v.get("mint_limit")) for v in versions]
@@ -41,6 +40,7 @@ for slug, chain_id, name, subtitle, rpc, render_rpc, explorer, testnet in networ
             raise ValueError(f"{slug}: tokens_per_mint must be 1 or 3")
         if [v["address"].lower() for v in versions if v["current"]] != [collection.lower()]:
             raise ValueError(f"{slug}: exactly one current collection must match the manifest collection")
+        versions = [v for v in versions if v["current"]]
     else:
         collection = renderer = None
         versions = []

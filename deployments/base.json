@@ -1,11 +1,14 @@
 {
-  "status": "prepared-not-broadcast",
+  "status": "deployed",
   "chain_id": 8453,
   "collection_name": "ghoulballs",
   "collection_symbol": "ghoulballs",
-  "renderer": null,
-  "collection": null,
-  "transaction_hashes": [],
+  "renderer": "0x5902e513c974f5d644dde577b46626a4bf7ceb30",
+  "collection": "0xf3654d0ce6cf518f4efbbe490f4a26483fb0969c",
+  "transaction_hashes": [
+    "0x9574eaf0202a94fec64687704ad2c0be6539210742289418845c98ec1342c490",
+    "0xa8d7c792929810b9980f4ad3d698d88cd0fd89e21acad8ae44113c982d4e573f"
+  ],
   "compiler": "0.8.30",
   "evm_version": "cancun",
   "optimizer_runs": 200,
@@ -15,5 +18,68 @@
   "supply_cap": 6667,
   "admin": null,
   "render_gas_budget": 500000000,
-  "art_version": "GHOULBALLS_VAPOR_V2"
+  "art_version": "GHOULBALLS_VAPOR_V3",
+  "deployer": "0xBb789F9508DFBDd31De814E7A13ee1B549703D68",
+  "signer": "foundry keystore ghoulballs_base (new key; not the exposed Sepolia deployer)",
+  "mint_limit": 1,
+  "first_token_minted_to_deployer_on_deploy": true,
+  "eth_call_gas_granted": {
+    "mainnet.base.org": ">=550000000",
+    "base.gateway.tenderly.co": 500000000,
+    "base-rpc.publicnode.com": 50000000
+  },
+  "collections": [
+    {
+      "version": 1,
+      "address": "0xf3654d0ce6cf518f4efbbe490f4a26483fb0969c",
+      "status": "current",
+      "tokens_per_mint": 1,
+      "mint_limit": 1,
+      "renderer": "0x5902e513c974f5d644dde577b46626a4bf7ceb30",
+      "art_version": "GHOULBALLS_VAPOR_V3",
+      "transaction_hash": "0xa8d7c792929810b9980f4ad3d698d88cd0fd89e21acad8ae44113c982d4e573f",
+      "block_number": 52724924,
+      "first_mint_transaction_hash": "0x31292224bf61779642b80c6ec24af6d448e69343fffafb3c21fb1fc9bb5e27ac"
+    }
+  ],
+  "deployment_receipts": [
+    {
+      "contract": "GenerativeVideo",
+      "transaction_hash": "0x9574eaf0202a94fec64687704ad2c0be6539210742289418845c98ec1342c490",
+      "block_number": 52724923,
+      "gas_used": 3466367,
+      "effective_gas_price_wei": "5324835",
+      "l1_fee_wei": "44158064160"
+    },
+    {
+      "contract": "SolVideoNFT",
+      "transaction_hash": "0xa8d7c792929810b9980f4ad3d698d88cd0fd89e21acad8ae44113c982d4e573f",
+      "block_number": 52724924,
+      "gas_used": 1893132,
+      "effective_gas_price_wei": "5324835",
+      "l1_fee_wei": "26270023659"
+    },
+    {
+      "contract": "SolVideoNFT.mint",
+      "transaction_hash": "0x31292224bf61779642b80c6ec24af6d448e69343fffafb3c21fb1fc9bb5e27ac",
+      "block_number": 52724925,
+      "gas_used": 112744,
+      "effective_gas_price_wei": "5324835",
+      "l1_fee_wei": "481956004"
+    }
+  ],
+  "post_deployment_checks": {
+    "renderer_runtime_bytecode_matches": true,
+    "collection_runtime_bytecode_matches": true,
+    "name_and_symbol": "ghoulballs",
+    "max_supply": 6667,
+    "total_supply": 1,
+    "token_1_owner": "0xBb789F9508DFBDd31De814E7A13ee1B549703D68",
+    "deployer_has_minted": true,
+    "token_1_tokenuri_bytes": 100204,
+    "token_1_tokenuri_read_via": "mainnet.base.org",
+    "token_1_gif_frames_match_v3_reference": true,
+    "total_cost_eth": "0.0000292"
+  },
+  "verification_status": "verified-basescan"
 }

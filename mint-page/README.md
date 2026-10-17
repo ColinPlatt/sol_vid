@@ -3,21 +3,23 @@
 A dependency-free static page for the 6,667-edition free ERC-721. Includes real
 Solidity-rendered vaporwave GIF examples (four themes and four motion styles), wallet discovery, connection, network switching,
 zero-value `mint()` submission, transaction links and receipt tracking. Supports
-Sepolia, Base and Base Sepolia. Network gas applies; no per-wallet mint limit.
+Base only. Network gas applies; one mint per address (shown as "FREE · 1 PER ADDRESS").
 
-Sepolia is deployed and enabled; the current collection allows one mint per wallet (`mintLimit` in the config), and the button shows MINTED once used. Base and Base Sepolia remain
-disabled. The page uses confirmed deployment addresses. The contract
-enforces the cap; the page also shows supply and disables sold-out minting when
-a supply read succeeds.
+The page offers only Base (no network picker). When a wallet connects on another
+chain, the page asks it to switch to Base, adding Base if the wallet lacks it, and
+asks again if the wallet later moves away. If that is declined, the button reads
+SWITCH TO BASE and minting switches first. Sepolia and Base Sepolia deployments
+stay in their manifests but are not shown. The page uses confirmed deployment
+addresses. The contract enforces the cap and the one-mint limit; the page also shows
+supply, disables sold-out minting, and shows MINTED once the connected wallet has minted.
 
-Below the mint panel, the page lists every token from every collection version in
-the deployment manifest, newest first, with no indexer. It reads `totalSupply` and
+Below the mint panel, the page lists every token of the current collection, newest
+first, with no indexer (older Sepolia versions stay in the manifest only). It reads `totalSupply` and
 `ownerOf` through the normal RPC, and each token's full `tokenURI` with a 500M gas
 cap through `renderRpcUrl` (the Tenderly public gateway, since most public RPCs
 stop at 50M). It shows each version's image exactly as the contract returned it.
 If that read fails, it falls back to the cheaper raw `gif(id)` read. Tokens load
-as they scroll into view, three reads at a time. Every card shows the token's GIF;
-a set collection (v3) shows one card per set, its GIF token. The screen shows the current
+as they scroll into view, three reads at a time. Every card shows the token's GIF. The screen shows the current
 collection's newest token. `/gallery.html` redirects to `/#minted`.
 
 ```bash

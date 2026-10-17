@@ -1,4 +1,4 @@
-import { validateConfig, shortAddress, rpc, submitMint, mintedToken, friendlyError, isAddress } from "./wallet.mjs";
+import { validateConfig, shortAddress, rpc, submitMint, mintedToken, friendlyError, isAddress, ensureChain } from "./wallet.mjs";
 import { showGallery, tokenImage } from "./gallery.js";
 import { hasMintedCall } from "./gallery.mjs";
 
@@ -21,19 +21,19 @@ function status(text, kind = "") {
 
 function render() {
   const { network: n, account, busy, config } = state;
-  $("network").disabled = busy || state.connecting || !config;
   $("connect-wallet").disabled = busy || state.connecting;
   setButton($("connect-wallet"), state.connecting ? "…" : account ? shortAddress(account) : "Connect");
   $("connect-wallet").title = account ? "Disconnect wallet" : "Connect wallet";
   $("connect-wallet").setAttribute("aria-label", account ? "Disconnect wallet " + account : "Connect wallet");
   const button = $("mint-button");
   if (!n) { button.disabled = true; setButton(button, "MINT"); return; }
-  $("availability-text").textContent = n.deployed ? "FREE" : "NOT LIVE";
+  $("availability-text").textContent = !n.deployed ? "NOT LIVE" : n.mintLimit === 1 ? "FREE · 1 PER ADDRESS" : "FREE";
   const link = $("contract-link");
   link.hidden = !n.deployed;
   if (n.deployed) link.href = n.explorerUrl + "/address/" + n.collectionAddress;
   button.disabled = busy || state.connecting || !n.deployed || state.soldOut || state.minted;
-  setButton(button, busy ? "MINTING…" : state.soldOut ? "SOLD OUT" : state.minted ? "MINTED" : "MINT");
+  const wrongChain = account && state.chainId !== null && state.chainId !== n.chainId;
+  setButton(button, busy ? "MINTING…" : state.soldOut ? "SOLD OUT" : state.minted ? "MINTED" : wrongChain ? `SWITCH TO ${n.name.toUpperCase()}` : "MINT");
 }
 
 // The screen shows the newest token of the current collection, straight from its tokenURI.
@@ -75,12 +75,13 @@ async function connect(provider) {
     clearSubscription();
     state.provider = provider; state.account = accounts[0]; state.chainId = chainId;
     const accountsChanged = values => { state.account = isAddress(values?.[0]) ? values[0] : null; render(); void checkMinted(); };
-    const chainChanged = chain => { try { state.chainId = Number(BigInt(chain)); } catch { state.chainId = null; } render(); };
+    const chainChanged = chain => { try { state.chainId = Number(BigInt(chain)); } catch { state.chainId = null; } render(); void bringToNetwork(); };
     const disconnected = () => { state.account = null; render(); };
     provider.on?.("accountsChanged", accountsChanged); provider.on?.("chainChanged", chainChanged); provider.on?.("disconnect", disconnected);
     subscription = { provider, accounts: accountsChanged, chain: chainChanged, disconnect: disconnected };
     status("");
     void checkMinted();
+    void bringToNetwork();
   } catch (error) { status(friendlyError(error), "error"); }
   finally { state.connecting = false; render(); }
 }
@@ -109,6 +110,19 @@ $("connect-wallet").addEventListener("click", () => {
   if (!state.account) chooseWallet();
   else { clearSubscription(); state.provider = null; state.account = null; state.chainId = null; state.minted = false; status(""); render(); }
 });
+
+// A connected wallet on another chain is asked once per change to switch (or add) the page's network.
+let switching = false;
+async function bringToNetwork() {
+  const n = state.network, provider = state.provider;
+  if (switching || state.busy || !provider || !state.account || !n?.deployed || state.chainId === n.chainId) return;
+  switching = true;
+  try {
+    await ensureChain(provider, n);
+    state.chainId = n.chainId; status("");
+  } catch (error) { status(friendlyError(error), "error"); }
+  finally { switching = false; render(); }
+}
 
 // One mint per wallet: show MINTED once the connected wallet has used it.
 let mintedRequest = 0;
@@ -183,12 +197,6 @@ $("mint-button").addEventListener("click", async () => {
   finally { state.busy = false; render(); }
 });
 
-$("network").addEventListener("change", () => {
-  if (state.busy) return;
-  state.network = state.config.networks.find(n => n.chainId === Number($("network").value));
-  state.soldOut = false;
-  status(""); $("transaction-link").hidden = true; $("hero-image").src = "assets/seed-42.gif"; render(); void updateSupply(); void checkMinted(); void showGallery(state.network);
-});
 
 async function init() {
   try {
@@ -196,14 +204,13 @@ async function init() {
     if (!response.ok) throw new Error("Mint settings are unavailable. Please try again later.");
     state.config = validateConfig(await response.json());
     state.network = state.config.networks.find(n => n.chainId === state.config.defaultChainId);
-    $("network").replaceChildren(...state.config.networks.map(n => { const option = document.createElement("option"); option.value = String(n.chainId); option.textContent = n.name; return option; }));
-    $("network").value = String(state.network.chainId); render(); void updateSupply(); void showGallery(state.network);
+    render(); void updateSupply(); void showGallery(state.network);
     let pending;
     try { pending = JSON.parse(sessionStorage.getItem("ghoulballs.pending") ?? "null"); } catch {}
     if (pending) {
       const n = state.config.networks.find(n => n.chainId === pending.chainId);
       if (n?.deployed && n.collectionAddress.toLowerCase() === pending.collection?.toLowerCase() && isAddress(pending.account) && /^0x[0-9a-f]{64}$/i.test(pending.hash)) {
-        state.network = n; $("network").value = String(n.chainId); state.busy = true; render();
+        state.network = n; state.busy = true; render();
         try { await waitForMint(pending); } catch (error) { status(friendlyError(error), "error"); }
         finally { state.busy = false; render(); }
       } else savePending(null);

@@ -10,9 +10,10 @@ import assert from "node:assert/strict";
 
 const root = fileURLToPath(new URL("../dist/", import.meta.url));
 const publishedConfig = JSON.parse(await readFile(path.join(root, "config.json"), "utf8"));
-const sepolia = publishedConfig.networks.find(n => n.chainId === 11155111);
-const mockCollection = sepolia.collectionAddress ?? "0x" + "b".repeat(40);
-const mockRenderer = sepolia.rendererAddress ?? "0x" + "c".repeat(40);
+const base = publishedConfig.networks.find(n => n.chainId === 8453);
+assert.deepEqual(publishedConfig.networks.map(n => n.chainId), [8453], "The page is Base only");
+const mockCollection = base.collectionAddress ?? "0x" + "b".repeat(40);
+const mockRenderer = base.rendererAddress ?? "0x" + "c".repeat(40);
 const exportedURI = await readFile(new URL("../../previews/nft/token-1.uri.txt", import.meta.url), "utf8");
 const profile = await mkdtemp(path.join(tmpdir(), "ghoulballs-chrome-"));
 const mime = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json", ".svg": "image/svg+xml", ".gif": "image/gif", ".png": "image/png" };
@@ -58,18 +59,18 @@ try {
     const collection = ${JSON.stringify(mockCollection)}, renderer = ${JSON.stringify(mockRenderer)}, exportedURI = ${JSON.stringify(exportedURI)};
     const account = '0x'+'a'.repeat(40), hash = '0x'+'d'.repeat(64);
     const abiString = value => '0x'+(32n).toString(16).padStart(64,'0')+BigInt(value.length).toString(16).padStart(64,'0')+[...new TextEncoder().encode(value)].map(b=>b.toString(16).padStart(2,'0')).join('').padEnd(64,'0');
-    window.__qaCalls=[]; let minted=false;
+    window.__qaCalls=[]; let minted=false, chain='0xaa36a7'; // the wallet starts on another network
     const live = new URL(location.href).searchParams.has('mint-qa');
     const nativeFetch = window.fetch.bind(window);
     window.fetch = async (url, options) => {
       if (String(url).endsWith('config.json')) {
         const config=structuredClone(sourceConfig);
         for (const n of config.networks) {
-          n.deployed=live && n.chainId===11155111;
+          n.deployed=live && n.chainId===8453;
           n.collectionAddress=n.deployed?collection:null;
           n.rendererAddress=n.deployed?renderer:null;
           n.tokensPerMint=1; n.mintLimit=n.deployed?1:null;
-          n.collections=n.deployed?[{version:1,address:'0x'+'1'.repeat(40),current:false,tokensPerMint:1,mintLimit:null},{version:3,address:'0x'+'3'.repeat(40),current:false,tokensPerMint:3,mintLimit:1},{version:4,address:collection,current:true,tokensPerMint:1,mintLimit:1}]:[];
+          n.collections=n.deployed?[{version:4,address:collection,current:true,tokensPerMint:1,mintLimit:1}]:[];
         }
         return new Response(JSON.stringify(config),{status:200});
       }
@@ -77,7 +78,7 @@ try {
         const request=JSON.parse(options.body);
         const data=request.params?.[0]?.data??'';
         if(request.method==='eth_call'&&live){
-          window.__qaCalls.push({rpc:String(url),data,gas:request.params[0].gas});
+          window.__qaCalls.push({rpc:String(url),data,gas:request.params[0].gas,to:request.params[0].to});
           let result='0x'+'0'.repeat(64);
           const id=data.length>=74?Number(BigInt('0x'+data.slice(10,74))):0, set=request.params[0].to===collection;
           if(data==='0x18160ddd') result='0x'+(request.params[0].to==='0x'+'3'.repeat(40)?'3':'1').padStart(64,'0');
@@ -95,7 +96,8 @@ try {
     window.ethereum={isMetaMask:true,on(){},removeListener(){},async request(r){
       window.__qaCalls.push(r);
       if(r.method==='eth_requestAccounts'||r.method==='eth_accounts')return [account];
-      if(r.method==='eth_chainId')return '0xaa36a7';
+      if(r.method==='eth_chainId')return chain;
+      if(r.method==='wallet_switchEthereumChain'){chain=r.params[0].chainId;return null;}
       if(r.method==='eth_getCode')return '0x60006000';
       if(r.method==='eth_call'){
         if(['0x06fdde03','0x95d89b41'].includes(r.params[0].data))return abiString('ghoulballs');
@@ -118,30 +120,30 @@ try {
   await cdp("Page.navigate", { url: origin });
   await until("document.getElementById('availability-text')?.textContent === 'NOT LIVE'");
   assert(await evaluate("document.getElementById('mint-button').disabled"));
-  assert.equal(await evaluate("document.getElementById('network').value"), "11155111");
+  assert.equal(await evaluate("document.getElementById('network')"), null, "No network picker");
   assert.equal(await evaluate("document.querySelectorAll('.token-card').length"), 0);
   await evaluate("document.getElementById('connect-wallet').click()");
   await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
-  assert.equal(await evaluate("window.__qaCalls.filter(c=>c.method==='eth_sendTransaction').length"), 0);
-  await evaluate("document.getElementById('network').value='8453';document.getElementById('network').dispatchEvent(new Event('change'))");
+  assert.equal(await evaluate("window.__qaCalls.filter(c=>c.method==='eth_sendTransaction'||c.method==='wallet_switchEthereumChain').length"), 0, "No switch or send before deployment");
   assert(await evaluate("document.getElementById('mint-button').disabled"));
 
   // Live: supply, newest token on screen, every version listed newest first, then a mocked mint.
   await cdp("Page.navigate", { url: origin + "/?mint-qa=1" });
-  await until("document.getElementById('availability-text')?.textContent === 'FREE'");
+  await until("document.getElementById('availability-text')?.textContent === 'FREE · 1 PER ADDRESS'");
   await until("document.getElementById('hero-image').src.startsWith('data:image/svg+xml')");
   await until("document.querySelector('.token-card img')?.complete && document.querySelector('.token-card img').naturalWidth>0");
   assert.equal(await evaluate("document.getElementById('minted-count').textContent"), "1 / 6,667");
   assert.equal(await evaluate("document.getElementById('gallery-status-text').textContent"), "");
   assert.equal(await evaluate("document.querySelectorAll('.version-head, .gallery-version').length"), 0);
-  assert.deepEqual(await evaluate("[...document.querySelectorAll('.token-card strong')].map(s=>s.textContent)"), ["#1", "#1", "#1"]);
-  // A set collection shows one card per set: its GIF token (#1 of v3 is token 1).
-  assert(await evaluate("window.__qaCalls.some(c=>c.data==='0xc87b56dd'+'1'.padStart(64,'0'))"));
+  // Only the current collection is shown.
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('.token-card strong')].map(s=>s.textContent)"), ["#1"]);
+  assert.deepEqual(await evaluate("[...new Set(window.__qaCalls.filter(c=>c.to).map(c=>c.to))]"), [mockCollection]);
+  assert.equal(await evaluate("document.getElementById('network')"), null);
   assert.equal(await evaluate("document.querySelectorAll('.token-media iframe, .download-row').length"), 0);
   assert.match(await evaluate("document.querySelector('.token-card img').src"), /^data:image\/svg\+xml,.*pixelated/);
   assert.equal(await evaluate("document.querySelector('.token-card strong').textContent"), "#1");
   const renderCall = await evaluate("window.__qaCalls.find(c=>c.data?.startsWith('0xc87b56dd'))");
-  assert.equal(renderCall.rpc, sepolia.renderRpcUrl);
+  assert.equal(renderCall.rpc, base.renderRpcUrl);
   assert.equal(renderCall.gas, "0x1dcd6500");
   assert(await evaluate("document.documentElement.scrollWidth<=window.innerWidth"), "Desktop layout overflows");
   await screenshot("/tmp/ghoulballs-mint-desktop.png");
@@ -153,6 +155,9 @@ try {
   assert.equal(await evaluate("document.getElementById('mint-button').disabled"), false);
   await evaluate("document.getElementById('connect-wallet').click()");
   await until("document.getElementById('connect-wallet').textContent.includes('0xaaaa')");
+  // Connected on another chain: the page asks the wallet to switch to Base straight away.
+  await until("window.__qaCalls.some(c=>c.method==='wallet_switchEthereumChain' && c.params[0].chainId==='0x2105')");
+  await until("document.getElementById('mint-button').textContent === 'MINT'");
   await evaluate("document.getElementById('mint-button').click()");
   await until("document.getElementById('mint-status').textContent === 'MINTED #1'");
   await until("document.getElementById('mint-button').textContent === 'MINTED' && document.getElementById('mint-button').disabled");
@@ -161,9 +166,9 @@ try {
   assert.equal(sends[0].params[0].value, "0x0");
   assert.equal(sends[0].params[0].data, "0x1249c58b");
   assert.equal(sends[0].params[0].to.toLowerCase(), mockCollection.toLowerCase());
-  assert.match(await evaluate("document.getElementById('transaction-link').href"), /sepolia.etherscan.io\/tx\/0x/);
+  assert.match(await evaluate("document.getElementById('transaction-link').href"), /basescan.org\/tx\/0x/);
   assert.deepEqual(exceptions, []);
-  console.log("PASS undeployed guard, Base selection, live supply, newest token on screen, one merged list of GIFs from every collection (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
+  console.log("PASS undeployed guard, live supply, newest token on screen, current collection's GIFs only, Base only with automatic switch to Base, 1 per address note (render RPC at 500M gas, pixelated SVG), desktop/mobile layout, simulated mint/receipt, no real transaction or script errors.");
   console.log("Screenshots: /tmp/ghoulballs-mint-desktop.png and /tmp/ghoulballs-mint-mobile.png");
 } finally {
   ws?.close(); chrome?.kill("SIGTERM"); await new Promise(r => server.close(r));

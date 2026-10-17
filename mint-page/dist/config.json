@@ -1,52 +1,7 @@
 {
   "collectionName": "ghoulballs",
-  "defaultChainId": 11155111,
+  "defaultChainId": 8453,
   "networks": [
-    {
-      "chainId": 11155111,
-      "chainHex": "0xaa36a7",
-      "name": "Sepolia",
-      "subtitle": "Ethereum testnet",
-      "testnet": true,
-      "rpcUrl": "https://ethereum-sepolia-rpc.publicnode.com",
-      "renderRpcUrl": "https://sepolia.gateway.tenderly.co",
-      "explorerUrl": "https://sepolia.etherscan.io",
-      "collectionAddress": "0x02f3825aaf1d07efbdee52b5308981ecf47d769d",
-      "rendererAddress": "0xbd0e5fbcffd843f8c58a7bbb3cb6f75400fd60f9",
-      "deployed": true,
-      "tokensPerMint": 1,
-      "mintLimit": 1,
-      "collections": [
-        {
-          "version": 1,
-          "address": "0xd162eacfb30b69523aebc9dc0a07c28b7e26f11a",
-          "current": false,
-          "tokensPerMint": 1,
-          "mintLimit": null
-        },
-        {
-          "version": 2,
-          "address": "0xe7b06a27957ad992db764939c1836f92386369f1",
-          "current": false,
-          "tokensPerMint": 1,
-          "mintLimit": null
-        },
-        {
-          "version": 3,
-          "address": "0x48cd7822a357b473bab2b0bc90a0926c1e1897ab",
-          "current": false,
-          "tokensPerMint": 3,
-          "mintLimit": 1
-        },
-        {
-          "version": 4,
-          "address": "0x02f3825aaf1d07efbdee52b5308981ecf47d769d",
-          "current": true,
-          "tokensPerMint": 1,
-          "mintLimit": 1
-        }
-      ]
-    },
     {
       "chainId": 8453,
       "chainHex": "0x2105",
@@ -56,28 +11,20 @@
       "rpcUrl": "https://mainnet.base.org",
       "renderRpcUrl": "https://base.gateway.tenderly.co",
       "explorerUrl": "https://basescan.org",
-      "collectionAddress": null,
-      "rendererAddress": null,
-      "deployed": false,
+      "collectionAddress": "0xf3654d0ce6cf518f4efbbe490f4a26483fb0969c",
+      "rendererAddress": "0x5902e513c974f5d644dde577b46626a4bf7ceb30",
+      "deployed": true,
       "tokensPerMint": 1,
-      "mintLimit": null,
-      "collections": []
-    },
-    {
-      "chainId": 84532,
-      "chainHex": "0x14a34",
-      "name": "Base Sepolia",
-      "subtitle": "Base testnet",
-      "testnet": true,
-      "rpcUrl": "https://sepolia.base.org",
-      "renderRpcUrl": "https://base-sepolia.gateway.tenderly.co",
-      "explorerUrl": "https://sepolia.basescan.org",
-      "collectionAddress": null,
-      "rendererAddress": null,
-      "deployed": false,
-      "tokensPerMint": 1,
-      "mintLimit": null,
-      "collections": []
+      "mintLimit": 1,
+      "collections": [
+        {
+          "version": 1,
+          "address": "0xf3654d0ce6cf518f4efbbe490f4a26483fb0969c",
+          "current": true,
+          "tokensPerMint": 1,
+          "mintLimit": 1
+        }
+      ]
     }
   ]
 }
