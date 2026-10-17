@@ -1,0 +1,675 @@
+[
+  {
+    "success": true,
+    "gas": 285208151,
+    "bytes": 656616,
+    "name": "avi-128-20-0",
+    "codec": "rawvideo",
+    "decoded_frames": 40,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 123989072,
+    "bytes": 820696,
+    "name": "avi-128-25-6",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": false,
+    "budget": 500000000,
+    "name": "avi-256-25-0"
+  },
+  {
+    "success": true,
+    "gas": 35470596,
+    "bytes": 82696,
+    "name": "avi-64-10-0",
+    "codec": "rawvideo",
+    "decoded_frames": 20,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 29439480,
+    "bytes": 82696,
+    "name": "avi-64-10-1",
+    "codec": "rawvideo",
+    "decoded_frames": 20,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 14258400,
+    "bytes": 82696,
+    "name": "avi-64-10-2",
+    "codec": "rawvideo",
+    "decoded_frames": 20,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 1,
+    "gas": 4705602,
+    "bytes": 206296,
+    "name": "avi-64-25-3-seed1",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2,
+    "gas": 6026604,
+    "bytes": 206296,
+    "name": "avi-64-25-3-seed2",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 7599410,
+    "bytes": 206296,
+    "name": "avi-64-25-3",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 4,
+    "gas": 12578856,
+    "bytes": 206296,
+    "name": "avi-64-25-4-seed4",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 12575806,
+    "bytes": 206296,
+    "name": "avi-64-25-4",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 7,
+    "gas": 24019563,
+    "bytes": 206296,
+    "name": "avi-64-25-5-seed7",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 22185798,
+    "bytes": 206296,
+    "name": "avi-64-25-5",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2026,
+    "gas": 38002022,
+    "bytes": 206296,
+    "name": "avi-64-25-6-seed2026",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 3,
+    "gas": 26752622,
+    "bytes": 206296,
+    "name": "avi-64-25-6-seed3",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 42,
+    "gas": 30921214,
+    "bytes": 206296,
+    "name": "avi-64-25-6-seed42",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 99,
+    "gas": 30452030,
+    "bytes": 206296,
+    "name": "avi-64-25-6-seed99",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 30917140,
+    "bytes": 206296,
+    "name": "avi-64-25-6",
+    "codec": "rawvideo",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 436685387,
+    "bytes": 441561,
+    "name": "gif-128-20-0",
+    "codec": "gif",
+    "decoded_frames": 40,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 312519511,
+    "bytes": 551931,
+    "name": "gif-128-25-6",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": false,
+    "budget": 500000000,
+    "name": "gif-256-25-0"
+  },
+  {
+    "success": true,
+    "gas": 54525684,
+    "bytes": 55581,
+    "name": "gif-64-10-0",
+    "codec": "gif",
+    "decoded_frames": 20,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 48494568,
+    "bytes": 55581,
+    "name": "gif-64-10-1",
+    "codec": "gif",
+    "decoded_frames": 20,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 33313488,
+    "bytes": 55581,
+    "name": "gif-64-10-2",
+    "codec": "gif",
+    "decoded_frames": 20,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 1,
+    "gas": 52120164,
+    "bytes": 138831,
+    "name": "gif-64-25-3-seed1",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2,
+    "gas": 53441166,
+    "bytes": 138831,
+    "name": "gif-64-25-3-seed2",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 55139190,
+    "bytes": 138831,
+    "name": "gif-64-25-3",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 4,
+    "gas": 59993162,
+    "bytes": 138831,
+    "name": "gif-64-25-4-seed4",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 60115586,
+    "bytes": 138831,
+    "name": "gif-64-25-4",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 7,
+    "gas": 71433356,
+    "bytes": 138831,
+    "name": "gif-64-25-5-seed7",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 69725578,
+    "bytes": 138831,
+    "name": "gif-64-25-5",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2026,
+    "gas": 85415302,
+    "bytes": 138831,
+    "name": "gif-64-25-6-seed2026",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 3,
+    "gas": 74165902,
+    "bytes": 138831,
+    "name": "gif-64-25-6-seed3",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 42,
+    "gas": 78334494,
+    "bytes": 138831,
+    "name": "gif-64-25-6-seed42",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 99,
+    "gas": 77865310,
+    "bytes": 138831,
+    "name": "gif-64-25-6-seed99",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 78456920,
+    "bytes": 138831,
+    "name": "gif-64-25-6",
+    "codec": "gif",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": false,
+    "budget": 500000000,
+    "name": "mpeg-1024-25-0"
+  },
+  {
+    "success": true,
+    "gas": 21149377,
+    "bytes": 20074,
+    "name": "mpeg-128-25-0",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 82769541,
+    "bytes": 71949,
+    "name": "mpeg-256-25-0",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 328110960,
+    "bytes": 265846,
+    "name": "mpeg-512-25-0",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 300318942,
+    "bytes": 225959,
+    "name": "mpeg-512-25-1",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 284359748,
+    "bytes": 291528,
+    "name": "mpeg-512-25-2",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 1,
+    "gas": 224189991,
+    "bytes": 207410,
+    "name": "mpeg-512-25-3-seed1",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2,
+    "gas": 226124811,
+    "bytes": 209904,
+    "name": "mpeg-512-25-3-seed2",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 228087614,
+    "bytes": 211204,
+    "name": "mpeg-512-25-3",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 4,
+    "gas": 232792786,
+    "bytes": 210054,
+    "name": "mpeg-512-25-4-seed4",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 234710394,
+    "bytes": 216959,
+    "name": "mpeg-512-25-4",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 7,
+    "gas": 247364434,
+    "bytes": 220256,
+    "name": "mpeg-512-25-5-seed7",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 246711029,
+    "bytes": 224842,
+    "name": "mpeg-512-25-5",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2026,
+    "gas": 263033743,
+    "bytes": 226205,
+    "name": "mpeg-512-25-6-seed2026",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 3,
+    "gas": 252541734,
+    "bytes": 228943,
+    "name": "mpeg-512-25-6-seed3",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 42,
+    "gas": 256691467,
+    "bytes": 229041,
+    "name": "mpeg-512-25-6-seed42",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 99,
+    "gas": 255817030,
+    "bytes": 227147,
+    "name": "mpeg-512-25-6-seed99",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 256688937,
+    "bytes": 229041,
+    "name": "mpeg-512-25-6",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "gas": 355931828,
+    "bytes": 267000,
+    "name": "mpg-512-25-0",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 1,
+    "gas": 245638003,
+    "bytes": 208564,
+    "name": "mpg-512-25-3-seed1",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2,
+    "gas": 247825704,
+    "bytes": 211058,
+    "name": "mpg-512-25-3-seed2",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 249918631,
+    "bytes": 212358,
+    "name": "mpg-512-25-3",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 4,
+    "gas": 254508772,
+    "bytes": 211208,
+    "name": "mpg-512-25-4-seed4",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 257125386,
+    "bytes": 218113,
+    "name": "mpg-512-25-4",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 7,
+    "gas": 270115197,
+    "bytes": 221410,
+    "name": "mpg-512-25-5-seed7",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 269925583,
+    "bytes": 225996,
+    "name": "mpg-512-25-5",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 2026,
+    "gas": 286387303,
+    "bytes": 227359,
+    "name": "mpg-512-25-6-seed2026",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 3,
+    "gas": 276173627,
+    "bytes": 230097,
+    "name": "mpg-512-25-6-seed3",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 42,
+    "gas": 280333129,
+    "bytes": 230195,
+    "name": "mpg-512-25-6-seed42",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "generative": true,
+    "seed": 99,
+    "gas": 279266458,
+    "bytes": 228301,
+    "name": "mpg-512-25-6-seed99",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  },
+  {
+    "success": true,
+    "seed": 42,
+    "gas": 280329710,
+    "bytes": 230195,
+    "name": "mpg-512-25-6",
+    "codec": "mpeg1video",
+    "decoded_frames": 50,
+    "duration_seconds": 2
+  }
+]

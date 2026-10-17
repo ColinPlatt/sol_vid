@@ -1,0 +1,250 @@
+[
+  {
+    "seed": 1,
+    "scene": 3,
+    "ball_count": 1,
+    "balls": [
+      {
+        "radius": 9,
+        "x_phase": 65,
+        "y_phase": 51,
+        "colour": "#bd5e65"
+      }
+    ]
+  },
+  {
+    "seed": 2,
+    "scene": 3,
+    "ball_count": 1,
+    "balls": [
+      {
+        "radius": 11,
+        "x_phase": 68,
+        "y_phase": 54,
+        "colour": "#a9e570"
+      }
+    ]
+  },
+  {
+    "seed": 3,
+    "scene": 6,
+    "ball_count": 6,
+    "balls": [
+      {
+        "radius": 9,
+        "x_phase": 20,
+        "y_phase": 67,
+        "colour": "#83bd5c"
+      },
+      {
+        "radius": 12,
+        "x_phase": 11,
+        "y_phase": 53,
+        "colour": "#8b865f"
+      },
+      {
+        "radius": 12,
+        "x_phase": 74,
+        "y_phase": 28,
+        "colour": "#c3e1cf"
+      },
+      {
+        "radius": 12,
+        "x_phase": 34,
+        "y_phase": 46,
+        "colour": "#6f95e4"
+      },
+      {
+        "radius": 10,
+        "x_phase": 34,
+        "y_phase": 23,
+        "colour": "#60aad6"
+      },
+      {
+        "radius": 10,
+        "x_phase": 25,
+        "y_phase": 0,
+        "colour": "#40eb78"
+      }
+    ]
+  },
+  {
+    "seed": 4,
+    "scene": 4,
+    "ball_count": 2,
+    "balls": [
+      {
+        "radius": 12,
+        "x_phase": 74,
+        "y_phase": 12,
+        "colour": "#65fd99"
+      },
+      {
+        "radius": 13,
+        "x_phase": 70,
+        "y_phase": 14,
+        "colour": "#837696"
+      }
+    ]
+  },
+  {
+    "seed": 7,
+    "scene": 5,
+    "ball_count": 4,
+    "balls": [
+      {
+        "radius": 9,
+        "x_phase": 46,
+        "y_phase": 79,
+        "colour": "#ebede6"
+      },
+      {
+        "radius": 12,
+        "x_phase": 4,
+        "y_phase": 77,
+        "colour": "#7e6391"
+      },
+      {
+        "radius": 14,
+        "x_phase": 28,
+        "y_phase": 23,
+        "colour": "#658ae9"
+      },
+      {
+        "radius": 15,
+        "x_phase": 36,
+        "y_phase": 52,
+        "colour": "#525b61"
+      }
+    ]
+  },
+  {
+    "seed": 42,
+    "scene": 6,
+    "ball_count": 6,
+    "balls": [
+      {
+        "radius": 13,
+        "x_phase": 42,
+        "y_phase": 66,
+        "colour": "#f350f9"
+      },
+      {
+        "radius": 12,
+        "x_phase": 13,
+        "y_phase": 61,
+        "colour": "#c08f41"
+      },
+      {
+        "radius": 14,
+        "x_phase": 31,
+        "y_phase": 42,
+        "colour": "#77a160"
+      },
+      {
+        "radius": 9,
+        "x_phase": 45,
+        "y_phase": 58,
+        "colour": "#d041f5"
+      },
+      {
+        "radius": 9,
+        "x_phase": 49,
+        "y_phase": 27,
+        "colour": "#dc5acb"
+      },
+      {
+        "radius": 13,
+        "x_phase": 14,
+        "y_phase": 46,
+        "colour": "#5d79c3"
+      }
+    ]
+  },
+  {
+    "seed": 99,
+    "scene": 6,
+    "ball_count": 6,
+    "balls": [
+      {
+        "radius": 13,
+        "x_phase": 14,
+        "y_phase": 29,
+        "colour": "#697192"
+      },
+      {
+        "radius": 15,
+        "x_phase": 58,
+        "y_phase": 63,
+        "colour": "#4e8953"
+      },
+      {
+        "radius": 10,
+        "x_phase": 70,
+        "y_phase": 20,
+        "colour": "#8567eb"
+      },
+      {
+        "radius": 9,
+        "x_phase": 73,
+        "y_phase": 68,
+        "colour": "#e5d9b8"
+      },
+      {
+        "radius": 9,
+        "x_phase": 1,
+        "y_phase": 19,
+        "colour": "#45d8a5"
+      },
+      {
+        "radius": 13,
+        "x_phase": 54,
+        "y_phase": 68,
+        "colour": "#72b041"
+      }
+    ]
+  },
+  {
+    "seed": 2026,
+    "scene": 6,
+    "ball_count": 6,
+    "balls": [
+      {
+        "radius": 10,
+        "x_phase": 72,
+        "y_phase": 44,
+        "colour": "#7a8280"
+      },
+      {
+        "radius": 13,
+        "x_phase": 26,
+        "y_phase": 2,
+        "colour": "#77d27c"
+      },
+      {
+        "radius": 15,
+        "x_phase": 3,
+        "y_phase": 10,
+        "colour": "#ae5660"
+      },
+      {
+        "radius": 13,
+        "x_phase": 47,
+        "y_phase": 46,
+        "colour": "#9da189"
+      },
+      {
+        "radius": 14,
+        "x_phase": 22,
+        "y_phase": 7,
+        "colour": "#577396"
+      },
+      {
+        "radius": 14,
+        "x_phase": 58,
+        "y_phase": 59,
+        "colour": "#ae8892"
+      }
+    ]
+  }
+]
