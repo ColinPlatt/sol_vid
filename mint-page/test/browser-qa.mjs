@@ -139,6 +139,7 @@ try {
   assert.deepEqual(await evaluate("[...document.querySelectorAll('.token-card strong')].map(s=>s.textContent)"), ["#1"]);
   assert.deepEqual(await evaluate("[...new Set(window.__qaCalls.filter(c=>c.to).map(c=>c.to))]"), [mockCollection]);
   assert.equal(await evaluate("document.getElementById('network')"), null);
+  assert.equal(await evaluate("document.querySelector('.tagline').textContent"), "Ethereum's first (probably) fully onchain animated GIF");
   assert.equal(await evaluate("document.querySelectorAll('.token-media iframe, .download-row').length"), 0);
   assert.match(await evaluate("document.querySelector('.token-card img').src"), /^data:image\/svg\+xml,.*pixelated/);
   assert.equal(await evaluate("document.querySelector('.token-card strong').textContent"), "#1");
