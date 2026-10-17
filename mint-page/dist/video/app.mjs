@@ -80,7 +80,7 @@ try {
   config = validateVideoConfig(await response.json()); network = config.networks[0];
   status('release', config.mintEnabled ? 'Video mint is open on Base.' : 'Video mint is not open yet. Onchain rendering and marketplace playback are being validated.');
   $('view').disabled = $('refresh').disabled = !network.deployed; controls();
-  const id = new URL(location.href).searchParams.get('id');
+  const id = new URL(location.href).searchParams.get('id') ?? (network.deployed ? '1' : null);
   if (id && network.deployed) { $('token-id').value = tokenId(id); await view(id); }
 } catch (e) { status('release', friendlyError(e)); }
 window.addEventListener('pagehide', () => { if (downloadURL) URL.revokeObjectURL(downloadURL); });

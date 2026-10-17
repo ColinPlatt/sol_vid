@@ -1,8 +1,8 @@
 {
   "collectionName": "ghoulballs",
   "defaultChainId": 8453,
-  "playbackVerified": false,
-  "mintEnabled": false,
+  "playbackVerified": true,
+  "mintEnabled": true,
   "networks": [
     {
       "chainId": 8453,
@@ -15,9 +15,9 @@
         "https://base.gateway.tenderly.co"
       ],
       "explorerUrl": "https://basescan.org",
-      "collectionAddress": null,
-      "rendererAddress": null,
-      "deployed": false,
+      "collectionAddress": "0x318761bb4cac5fb8eea16fe7af3176f4915a83f9",
+      "rendererAddress": "0x25ff2902374541f04a4e74ce1c3cbd418aca8d94",
+      "deployed": true,
       "tokensPerMint": 1,
       "mintLimit": 1
     }

@@ -6,11 +6,12 @@ import { decodeAVI } from '../../players/avi-rle.mjs';
 const config=JSON.parse(await readFile(new URL('../dist/video-config.json',import.meta.url)));
 const uri=await readFile(new URL('../../previews/video/nft-metadata.bin',import.meta.url),'utf8');
 test('undeployed video release remains disabled',async()=>{
-  assert.equal(validateVideoConfig(config).mintEnabled,false);
+  const disabled=structuredClone(config);disabled.mintEnabled=false;disabled.playbackVerified=false;Object.assign(disabled.networks[0],{deployed:false,collectionAddress:null,rendererAddress:null});
+  assert.equal(validateVideoConfig(disabled).mintEnabled,false);
   let contacted=false;
-  await assert.rejects(submitVideoMint({request(){contacted=true;}},config,'0x'+'a'.repeat(40)),/awaiting/);
+  await assert.rejects(submitVideoMint({request(){contacted=true;}},disabled,'0x'+'a'.repeat(40)),/awaiting/);
   assert.equal(contacted,false);
-  const invalid=structuredClone(config);invalid.mintEnabled=true;
+  const invalid=structuredClone(disabled);invalid.mintEnabled=true;
   assert.throws(()=>validateVideoConfig(invalid),/checks/);
 });
 test('parse contract metadata and extract original AVI without executing HTML',()=>{

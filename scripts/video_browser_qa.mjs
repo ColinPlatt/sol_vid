@@ -48,7 +48,7 @@ try{
  const abi=s=>'0x'+'20'.padStart(64,'0')+BigInt(s.length).toString(16).padStart(64,'0')+Array.from(new TextEncoder().encode(s),b=>b.toString(16).padStart(2,'0')).join('');
  const nativeFetch=window.fetch.bind(window);const live=new URL(location.href).searchParams.get('qa')==='live';let minted=false;window.__qaRequests=[];
  window.fetch=async(url,options)=>{
-  if(String(url).endsWith('/video-config.json')){const c=structuredClone(settings);if(live){c.mintEnabled=c.playbackVerified=true;Object.assign(c.networks[0],{deployed:true,collectionAddress:collection,rendererAddress:renderer});}return new Response(JSON.stringify(c));}
+  if(String(url).endsWith('/video-config.json')){const c=structuredClone(settings);c.mintEnabled=c.playbackVerified=live;Object.assign(c.networks[0],{deployed:live,collectionAddress:live?collection:null,rendererAddress:live?renderer:null});return new Response(JSON.stringify(c));}
   if(String(url).startsWith('https:')){
    const r=JSON.parse(options.body);window.__qaRequests.push(r);let result;
    if(r.method==='eth_call'){if(window.__qaReadFail)return new Response('{}',{status:503});result=r.params[0].data==='0x18160ddd'?'0x1':abi(uri);}

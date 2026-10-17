@@ -282,7 +282,7 @@ The isolated [marketplace probe](docs/MARKETPLACE_PROBE.md) provides 15 controls
 RPC read budgets, HTML encodings and scripts, payload size, native MP4 and SVG/GIF
 handling. It is built and tested locally; no probe is deployed to a public network.
 
-## Video edition (release gated)
+## Video edition (Base)
 
 A separate lossless AVI experiment now targets 512×512, two seconds at 25fps,
 with the video, static poster and embedded player generated onchain. Across
@@ -290,7 +290,7 @@ with the video, static poster and embedded player generated onchain. Across
 complete metadata measures approximately 231–311M gas within a 500M capped
 STATICCALL. Chrome and Firefox playback pass; Safari still needs checking.
 
-The existing GIF mint remains unchanged. The new `/video/` route stays disabled
-until a confirmed video deployment and actual OpenSea playback pass the release
-gates. See [video implementation and rollout](docs/VIDEO.md), including exact
+The existing GIF mint remains unchanged. The new `/video/` route enables minting only after confirmed deployment and
+actual OpenSea playback. Both gates passed for the deployed AVI edition at
+[`0x318761bb4cac5fb8eea16fe7af3176f4915a83f9`](https://basescan.org/address/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9). See [video implementation and rollout](docs/VIDEO.md), including exact
 profile measurements, candidate deployment and reproducible validation commands.

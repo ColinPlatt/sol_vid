@@ -52,3 +52,7 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   Keep video release settings separate and disabled until confirmed deployment
   and production OpenSea playback evidence. MPEG/MP4 fallback work is conditional.
   The Base marketplace probe broadcast was authorized on 2026-10-17.
+- The user also authorized the Base AVI canary and gated edition launch on
+  2026-10-17. Both are deployed and their actual OpenSea players pass; confirmed
+  receipts and evidence are in `deployments/video-base.json`. This authorization
+  does not imply permission for unrelated redeployments.
