@@ -1,0 +1,15 @@
+{
+  "purpose": "Prerecorded compatibility controls; not a Solidity MP4 encoder",
+  "html_bytes": 600000,
+  "large_uri_bytes": 801261,
+  "large_uri_compact_header_bytes": 1421,
+  "large_uri_repeat_bytes": 799712,
+  "large_uri_compact_tail_bytes": 128,
+  "sha256": {
+    "html-css.html": "5a6db33a768cf417bd4d1cbfb759f4328405cdf3554a53b7acc970e327919842",
+    "html-js.html": "24897aa36bb3225e1d611ccf8c5d2e3211a7b07317261fcbecb4b5ee78abfbd5",
+    "image-control.gif": "42da309a77e3bd93c74654110043b6b1eb77accbd3505c5634feb96770f91822",
+    "large-html.uri": "9136934b145365743ead90fef741cf400ea57801c2a37fad26a29928175d1d22",
+    "native-control.mp4": "976be9a771ffb56a1a8289e3c093bd9546069475ad3bc4eda89111be406c438e"
+  }
+}
