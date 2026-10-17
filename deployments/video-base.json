@@ -1,0 +1,36 @@
+{
+  "status": "prepared_not_deployed",
+  "chain_id": 8453,
+  "collection_name": "ghoulballs",
+  "collection_symbol": "ghoulballs",
+  "supply_cap": 6667,
+  "tokens_per_mint": 1,
+  "mint_limit": 1,
+  "format": "AVI BI_RLE8",
+  "width": 512,
+  "height": 512,
+  "fps": 25,
+  "duration_seconds": 2,
+  "collection": null,
+  "renderer": null,
+  "transaction_hashes": [],
+  "opensea_playback": {
+    "status": "not_checked",
+    "evidence_url": null,
+    "checked_at_utc": null
+  },
+  "candidate": {
+    "status": "prepared_not_deployed",
+    "collection": null,
+    "renderer": null,
+    "preparation": {
+      "checked_at_utc": "2026-10-17T17:33:42.663712+00:00",
+      "estimated_total_gas_with_buffer": 9263917,
+      "estimated_max_fee_gwei": "0.010367157",
+      "estimated_execution_fee_eth": "0.000096040481973969",
+      "broadcast": false,
+      "notes": "Final Base dry run only. Includes renderer + one-token canary. L1 data fee is separate; estimates change."
+    }
+  },
+  "notes": "AVI is the provisional candidate. No marketplace compatibility or public deployment is claimed."
+}

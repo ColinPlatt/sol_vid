@@ -13,6 +13,15 @@
           "value": "no-store"
         }
       ]
+    },
+    {
+      "source": "/video-config.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
     }
   ],
   "redirects": [

@@ -46,3 +46,9 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   colours). Preserve the original scenes 0–6. Update `scripts/vapor_reference.py`
   independently when the recipe changes; refresh mint-page media using
   `scripts/sync_mint_art.py`.
+
+- The separate video edition is authorized in `docs/VIDEO.md`; `VideoNFT` uses AVI
+  and a static poster, while the live GIF collection and its page stay unchanged.
+  Keep video release settings separate and disabled until confirmed deployment
+  and production OpenSea playback evidence. MPEG/MP4 fallback work is conditional.
+  The Base marketplace probe broadcast was authorized on 2026-10-17.

@@ -281,3 +281,16 @@ The procedural palette rendering and single-allocation media writers are inspire
 The isolated [marketplace probe](docs/MARKETPLACE_PROBE.md) provides 15 controls for
 RPC read budgets, HTML encodings and scripts, payload size, native MP4 and SVG/GIF
 handling. It is built and tested locally; no probe is deployed to a public network.
+
+## Video edition (release gated)
+
+A separate lossless AVI experiment now targets 512×512, two seconds at 25fps,
+with the video, static poster and embedded player generated onchain. Across
+64 artwork combinations, all 3,200 frames match an independent RGB reference;
+complete metadata measures approximately 231–311M gas within a 500M capped
+STATICCALL. Chrome and Firefox playback pass; Safari still needs checking.
+
+The existing GIF mint remains unchanged. The new `/video/` route stays disabled
+until a confirmed video deployment and actual OpenSea playback pass the release
+gates. See [video implementation and rollout](docs/VIDEO.md), including exact
+profile measurements, candidate deployment and reproducible validation commands.

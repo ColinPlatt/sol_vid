@@ -1,0 +1,6 @@
+{
+  "chrome": true,
+  "firefox": true,
+  "safari": "not_tested_requires_macOS",
+  "marketplace": "not_checked"
+}
