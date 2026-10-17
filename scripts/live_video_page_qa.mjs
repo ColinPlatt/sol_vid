@@ -1,0 +1,26 @@
+// Read-only checks of the public video page against its confirmed deployment.
+import{spawn}from'node:child_process';import{mkdtemp,rm,writeFile,readFile}from'node:fs/promises';import{tmpdir}from'node:os';import path from'node:path';import assert from'node:assert/strict';
+import{fileURLToPath}from'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url)),profile=await mkdtemp(path.join(tmpdir(),'ghoulballs-live-video-'));const deployment=JSON.parse(await readFile(path.join(root,'deployments/video-base.json'),'utf8'));let chrome,ws;const delay=ms=>new Promise(r=>setTimeout(r,ms));
+try{
+ chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-dev-shm-usage','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
+ const endpoint=await new Promise((resolve,reject)=>{let log='';const t=setTimeout(()=>reject(Error('Startup timeout')),20000);chrome.stderr.on('data',d=>{log+=d;const m=log.match(/DevTools listening on (ws:\/\/\S+)/);if(m){clearTimeout(t);resolve(m[1]);}});});
+ const targets=await(await fetch(`http://127.0.0.1:${new URL(endpoint).port}/json/list`)).json();ws=new WebSocket(targets.find(t=>t.type==='page').webSocketDebuggerUrl);await new Promise(r=>ws.addEventListener('open',r,{once:true}));let id=0;const pending=new Map(),rpc=[],errors=[];
+ ws.addEventListener('message',e=>{const r=JSON.parse(e.data);if(r.id&&pending.has(r.id)){const p=pending.get(r.id);pending.delete(r.id);r.error?p.reject(Error(JSON.stringify(r.error))):p.resolve(r.result);}if(r.method==='Runtime.exceptionThrown')errors.push(r.params.exceptionDetails.exception?.description??r.params.exceptionDetails.text);if(r.method==='Log.entryAdded')errors.push(r.params.entry.text);if(r.method==='Network.requestWillBeSent'&&r.params.request.postData){try{rpc.push(JSON.parse(r.params.request.postData).method);}catch{}}});
+ const cdp=(method,params={})=>new Promise((resolve,reject)=>{const key=++id;pending.set(key,{resolve,reject});ws.send(JSON.stringify({id:key,method,params}));});
+ const evaluate=async expression=>{const r=await cdp('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
+ await cdp('Page.enable');await cdp('Runtime.enable');await cdp('Network.enable');await cdp('Log.enable');await cdp('Emulation.setDeviceMetricsOverride',{width:1280,height:950,deviceScaleFactor:1,mobile:false});
+ await cdp('Page.navigate',{url:'https://ghoulballs.vercel.app/video/?id=1'});
+ let loaded=false;for(let i=0;i<120;++i){if(await evaluate("document.querySelector('#view-status')?.textContent.includes('loaded')")){loaded=true;break;}if(i>5&&errors.length)break;await delay(500);}
+ if(!loaded){await writeFile(root+'/previews/video/live-page-debug.png',Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));console.log('Browser errors:',JSON.stringify(errors));throw Error(await evaluate("JSON.stringify({release:document.querySelector('#release')?.textContent,view:document.querySelector('#view-status')?.textContent,text:document.body.innerText.slice(0,3000)})"));}
+ const config=await evaluate("fetch('/video-config.json',{cache:'no-store'}).then(r=>r.json())");assert(config.mintEnabled&&config.playbackVerified);assert.equal(config.networks[0].collectionAddress.toLowerCase(),deployment.collection.toLowerCase());
+ assert(await evaluate("document.querySelector('#screen iframe').getAttribute('sandbox')==='allow-scripts'"));
+ await evaluate("document.querySelector('#screen iframe').scrollIntoView({block:'center'})");await delay(750);
+ const rect=await evaluate("(()=>{const r=document.querySelector('iframe').getBoundingClientRect();return{x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height,scale:1}})()");
+ const before=(await cdp('Page.captureScreenshot',{format:'png',clip:rect})).data;await delay(260);const after=(await cdp('Page.captureScreenshot',{format:'png',clip:rect})).data;assert(before!==after,'Live embedded video did not animate');
+ await writeFile(root+'/previews/video/live-mint-player.png',Buffer.from(after,'base64'));
+ await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await evaluate('scrollTo(0,0)');assert(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+ await writeFile(root+'/previews/video/live-mint-mobile.png',Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ assert(rpc.every(method=>method==='eth_call'),'Unexpected write/signing RPC');
+ await writeFile(root+'/previews/video/live-page-validation.json',JSON.stringify({url:'https://ghoulballs.vercel.app/video/?id=1',checked_at_utc:new Date().toISOString(),real_rpc:true,mint_enabled:true,collection:config.networks[0].collectionAddress,sandboxed_animation:true,mobile_layout:true,rpc_methods:rpc,transactions_sent:0},null,2)+'\n');console.log('PASS public video mint route: real Base metadata, moving sandboxed player, enabled confirmed collection, mobile layout; only read RPCs, no transactions.');
+}finally{ws?.close();chrome?.kill('SIGTERM');await delay(250);await rm(profile,{recursive:true,force:true}).catch(()=>{});}

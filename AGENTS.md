@@ -56,3 +56,7 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   2026-10-17. Both are deployed and their actual OpenSea players pass; confirmed
   receipts and evidence are in `deployments/video-base.json`. This authorization
   does not imply permission for unrelated redeployments.
+- For future deployments, the user prefers Foundry's `--verify` alongside
+  `--broadcast` when explorer publication is authorized. Confirm the installed
+  Foundry version's verifier destinations first; this version also submits to
+  Sourcify even when Etherscan is selected.

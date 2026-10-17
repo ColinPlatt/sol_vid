@@ -284,6 +284,9 @@ handling. It is built and tested locally; no probe is deployed to a public netwo
 
 ## Video edition (Base)
 
+[Mint / view the AVI edition](https://ghoulballs.vercel.app/video/) ·
+[OpenSea token 1](https://opensea.io/item/base/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9/1)
+
 A separate lossless AVI experiment now targets 512×512, two seconds at 25fps,
 with the video, static poster and embedded player generated onchain. Across
 64 artwork combinations, all 3,200 frames match an independent RGB reference;

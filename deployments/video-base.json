@@ -94,5 +94,65 @@
     }
   },
   "first_token_owner": "0xbb789f9508dfbdd31de814e7a13ee1b549703d68",
-  "first_token_uri_bytes": 1100981
+  "first_token_uri_bytes": 1100981,
+  "mint_page": {
+    "url": "https://ghoulballs.vercel.app/video/",
+    "production_deployment": "https://ghoulballs-fpdntqb4k-platt-advisors-projects.vercel.app",
+    "status": "live",
+    "read_only_browser_validation": "previews/video/live-page-validation.json"
+  },
+  "source_verification": {
+    "status": "verified",
+    "explorer": "Basescan",
+    "contracts": [
+      {
+        "kind": "candidate",
+        "contract": "AviRleVideo",
+        "address": "0xc793a9dba05c7e82ca390cc8df11c9d30528fe3c",
+        "status": "verified",
+        "verifier": "Etherscan V2 / Basescan",
+        "explorer_url": "https://basescan.org/address/0xc793a9dba05c7e82ca390cc8df11c9d30528fe3c#code",
+        "compiler": "v0.8.30+commit.73712a01",
+        "evm_version": "cancun",
+        "optimizer_runs": "200",
+        "checked_at_utc": "2026-10-17T17:46:00.182069+00:00"
+      },
+      {
+        "kind": "candidate",
+        "contract": "VideoCandidate",
+        "address": "0xaf9f7c62d2f4f23c3528ee3a2acf067c9da7dbe9",
+        "status": "verified",
+        "verifier": "Etherscan V2 / Basescan",
+        "explorer_url": "https://basescan.org/address/0xaf9f7c62d2f4f23c3528ee3a2acf067c9da7dbe9#code",
+        "compiler": "v0.8.30+commit.73712a01",
+        "evm_version": "cancun",
+        "optimizer_runs": "200",
+        "checked_at_utc": "2026-10-17T17:46:01.290150+00:00"
+      },
+      {
+        "kind": "edition",
+        "contract": "AviRleVideo",
+        "address": "0x25ff2902374541f04a4e74ce1c3cbd418aca8d94",
+        "status": "verified",
+        "verifier": "Etherscan V2 / Basescan",
+        "explorer_url": "https://basescan.org/address/0x25ff2902374541f04a4e74ce1c3cbd418aca8d94#code",
+        "compiler": "v0.8.30+commit.73712a01",
+        "evm_version": "cancun",
+        "optimizer_runs": "200",
+        "checked_at_utc": "2026-10-17T17:46:02.390786+00:00"
+      },
+      {
+        "kind": "edition",
+        "contract": "VideoNFT",
+        "address": "0x318761bb4cac5fb8eea16fe7af3176f4915a83f9",
+        "status": "verified",
+        "verifier": "Etherscan V2 / Basescan",
+        "explorer_url": "https://basescan.org/address/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9#code",
+        "compiler": "v0.8.30+commit.73712a01",
+        "evm_version": "cancun",
+        "optimizer_runs": "200",
+        "checked_at_utc": "2026-10-17T17:46:03.870847+00:00"
+      }
+    ]
+  }
 }

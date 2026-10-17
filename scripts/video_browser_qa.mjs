@@ -66,7 +66,6 @@ try{
  const rect=await evaluate("(()=>{const r=document.querySelector('iframe').getBoundingClientRect();return {x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height,scale:1}})()");
  const embeddedBefore=(await cdp('Page.captureScreenshot',{format:'png',clip:rect})).data;await delay(230);
  const embeddedAfter=(await cdp('Page.captureScreenshot',{format:'png',clip:rect})).data;
- await writeFile(path.join(root,'previews/video/chrome-iframe-debug.png'),Buffer.from(embeddedAfter,'base64'));
  assert(embeddedBefore!==embeddedAfter,'Sandboxed onchain player did not animate');
  await writeFile(path.join(root,'previews/video/chrome-embedded-player.png'),Buffer.from(embeddedAfter,'base64'));
 

@@ -14,7 +14,11 @@ The constructor/deployment first mint belongs to the deployer. Both the one-toke
 canary and actual edition [token 1](https://opensea.io/item/base/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9/1)
 pass OpenSea playback: the iframe animates and its rehosted HTML is byte-identical
 to the onchain player. All 50 frames of each deployed token also match the independent
-RGB reference. Live receipts, bytecode hashes and media evidence are committed.
+RGB reference. Live receipts, bytecode hashes and media evidence are committed. All four
+canary/edition contracts are verified on Basescan. The [video mint page](https://ghoulballs.vercel.app/video/)
+is live; its real Base reads, moving sandboxed player and mobile layout pass browser
+QA without a wallet or any transaction. The original GIF HTML, config, app and
+wallet files remain byte-identical to the previous public deployment.
 
 ## Implementation and validation
 
