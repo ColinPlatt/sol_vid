@@ -12,7 +12,7 @@
   "via_ir": true,
   "deployment_script": "script/DeploySepolia.s.sol:DeploySepolia",
   "mint_price_wei": "0",
-  "supply_cap": null,
+  "supply_cap": 6667,
   "admin": null,
   "render_gas_budget": 500000000
 }

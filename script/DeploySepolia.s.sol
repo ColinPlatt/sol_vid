@@ -1,33 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
-import {GenerativeVideo} from "../src/GenerativeVideo.sol";
-import {SolVideoNFT} from "../src/SolVideoNFT.sol";
+import {DeployGhoulballs} from "./DeployGhoulballs.s.sol";
 
-interface VmDeploy {
-    function startBroadcast() external;
-    function stopBroadcast() external;
-}
-
-/// @notice Dry-run by default; only broadcasts when forge is given --broadcast.
-contract DeploySepolia {
-    error WrongChain(uint256 chainId);
-
-    VmDeploy constant vm = VmDeploy(address(uint160(uint256(keccak256("hevm cheat code")))));
-
-    function run() external returns (GenerativeVideo renderer, SolVideoNFT collection) {
-        if (block.chainid != 11155111) revert WrongChain(block.chainid);
-        vm.startBroadcast();
-        renderer = new GenerativeVideo();
-        collection = new SolVideoNFT(renderer);
-        vm.stopBroadcast();
-        require(address(collection.renderer()) == address(renderer), "Renderer mismatch");
-        require(collection.totalSupply() == 0, "Unexpected initial supply");
-        require(keccak256(bytes(collection.name())) == keccak256("ghoulballs"), "Unexpected name");
-        require(keccak256(bytes(collection.symbol())) == keccak256("ghoulballs"), "Unexpected symbol");
-        require(
-            collection.supportsInterface(0x80ac58cd) && collection.supportsInterface(0x5b5e139f),
-            "Missing ERC721 metadata"
-        );
+contract DeploySepolia is DeployGhoulballs {
+    function targetChainId() public pure override returns (uint256) {
+        return 11155111;
     }
 }

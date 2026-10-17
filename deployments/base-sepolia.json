@@ -1,0 +1,18 @@
+{
+  "status": "prepared-not-broadcast",
+  "chain_id": 84532,
+  "collection_name": "ghoulballs",
+  "collection_symbol": "ghoulballs",
+  "renderer": null,
+  "collection": null,
+  "transaction_hashes": [],
+  "compiler": "0.8.30",
+  "evm_version": "cancun",
+  "optimizer_runs": 200,
+  "via_ir": true,
+  "deployment_script": "script/DeployBase.s.sol:DeployBaseSepolia",
+  "mint_price_wei": "0",
+  "supply_cap": 6667,
+  "admin": null,
+  "render_gas_budget": 500000000
+}

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
+import {DeployGhoulballs} from "../script/DeployGhoulballs.s.sol";
 import {DeploySepolia} from "../script/DeploySepolia.s.sol";
 import {GenerativeVideo} from "../src/GenerativeVideo.sol";
 import {SolVideoNFT} from "../src/SolVideoNFT.sol";
@@ -16,7 +17,7 @@ contract DeploySepoliaTest {
     function testRejectsWrongNetwork() public {
         DeploySepolia deploy = new DeploySepolia();
         vm.chainId(1);
-        vm.expectRevert(abi.encodeWithSelector(DeploySepolia.WrongChain.selector, 1));
+        vm.expectRevert(abi.encodeWithSelector(DeployGhoulballs.WrongChain.selector, 1));
         deploy.run();
     }
 

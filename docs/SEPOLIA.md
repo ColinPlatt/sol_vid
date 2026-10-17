@@ -9,13 +9,13 @@ simulation addresses, not live deployments.
 
 Deploy `GenerativeVideo`, then `SolVideoNFT(rendererAddress)`. The renderer reference
 is immutable and the renderer itself has no upgrade mechanism. There is no proxy,
-owner, pause, allowlist, supply cap, per-wallet mint limit, payment, royalty or
+owner, pause, allowlist, per-wallet mint limit, payment, royalty or
 administrative mint function. Token IDs start at 1 and advance sequentially.
-Supply is uncapped within ERC-721's uint256 token-ID space.
+The fixed `MAX_SUPPLY` is **6,667**; both mint paths revert with `SoldOut()` once reached.
 
 `mint()` safely mints one token to the caller; `mintTo(recipient)` safely mints one
 to any address. These methods are nonpayable. Minting is free of protocol fees;
-the caller pays network gas. Repeat minting as often as desired. Contract
+the caller pays network gas. Repeat minting while supply remains. Contract
 recipients must implement ERC721Receiver. Failed callbacks revert the entire
 mint, including its counter increment. Reentrant receiver mints get fresh IDs.
 
@@ -39,9 +39,9 @@ supported. Enumerable and burn extensions are not exposed.
 
 ## Playback and RPC requirements
 
-The complete metadata read was measured at **386,902,264 gas** for the exported
+The complete metadata read was measured at **386,993,398 gas** for the exported
 first token. A six-ball sample selected for the largest summed squared radii among
-the first 64 tokens used **390,734,393 gas**. These measurements include the
+the first 64 tokens used **390,814,969 gas**. These measurements include the
 STATICCALL and ABI return-data copy, both media files, JSON and all base64 layers.
 They are real 500M-capped calls, not extrapolated codec-only measurements.
 
@@ -90,34 +90,44 @@ derivation and attributes; decodes GIF/MPEG; checks timestamps; and compares
 pixels/luma against the token's independently returned AVI.
 
 Current runtime sizes: `GenerativeVideo` **12,256 bytes**, `SolVideoNFT`
-**8,125 bytes**, each below 24,576. The local deployment rehearsal uses about
-**4.23M gas** across two CREATE transactions. The first safe mint measured about
+**8,202 bytes**, each below 24,576. The local deployment rehearsal uses about
+**4.27M gas** across two CREATE transactions. The first safe mint measured about
 75.5K call gas including a contract receiver callback; this excludes transaction
 intrinsic gas and is not a fee quote.
 
 ## Sepolia dry run and broadcast
 
 Sepolia chain ID is **11155111**. The script checks it before starting broadcast.
-Use a Sepolia-funded signer in an encrypted Foundry keystore; keep credentials out
-of the repository. `.env.example` names the RPC and optional verification API key.
+Copy `.env.example` to `.env` and fill in `SEPOLIA_RPC_URL`,
+`DEPLOYER_PRIVATE_KEY`, and the corresponding public `DEPLOYER_ADDRESS`.
+Fund that address with Sepolia ETH. `.env` is gitignored; never put signing keys
+in the frontend or deployment manifests. The script uses the signer selected by
+Foundry; `--sender` checks the intended public address.
 
 ```bash
-export SEPOLIA_RPC_URL='https://your-sepolia-rpc'
+set -a
+source .env
+set +a
+
+# Confirm the key matches the intended public address before using it:
+KEY_ADDRESS=$(cast wallet address --private-key "$DEPLOYER_PRIVATE_KEY")
+test "${KEY_ADDRESS,,}" = "${DEPLOYER_ADDRESS,,}" || { echo 'Deployer address mismatch'; exit 1; }
 
 # Dry run against Sepolia using your intended signer; omitting --broadcast sends nothing:
 forge script script/DeploySepolia.s.sol:DeploySepolia \
-  --rpc-url "$SEPOLIA_RPC_URL" --chain 11155111 --account sepolia-deployer -vvv
+  --rpc-url "$SEPOLIA_RPC_URL" --chain 11155111 --private-key "$DEPLOYER_PRIVATE_KEY" --sender "$DEPLOYER_ADDRESS" -vvv
 
 # Actual deployment command, for the later broadcast step:
 forge script script/DeploySepolia.s.sol:DeploySepolia \
-  --rpc-url "$SEPOLIA_RPC_URL" --chain 11155111 --account sepolia-deployer \
+  --rpc-url "$SEPOLIA_RPC_URL" --chain 11155111 --private-key "$DEPLOYER_PRIVATE_KEY" --sender "$DEPLOYER_ADDRESS" \
   --broadcast --slow -vvv
 ```
 
 After broadcast, record both deployed addresses and the successful transaction
 hashes in `deployments/sepolia.json`, changing its status to `deployed`. Do not
 substitute addresses from a simulation. Commit the public deployment manifest;
-raw Foundry `broadcast/` artifacts are ignored.
+raw Foundry `broadcast/` artifacts are ignored. Run
+`python3 scripts/sync_mint_config.py` to enable that network on the mint page.
 
 For source verification, verify both contracts with the same compiler settings:
 Use a current Foundry release or explicitly select the Etherscan V2 endpoint
@@ -136,13 +146,13 @@ forge verify-contract --chain 11155111 --watch \
   --etherscan-api-key "$ETHERSCAN_API_KEY"
 ```
 
-Check `name()`, `symbol()`, `renderer()` and `totalSupply()` against the deployment
+Check `name()`, `symbol()`, `renderer()` and `totalSupply()` and `MAX_SUPPLY()` against the deployment
 manifest, then mint a test token and inspect its owner, seed and metadata using a
 high-cap read endpoint. Minting one token to the signer after deployment:
 
 ```bash
 cast send "$COLLECTION_ADDRESS" 'mint()' \
-  --rpc-url "$SEPOLIA_RPC_URL" --account sepolia-deployer
+  --rpc-url "$SEPOLIA_RPC_URL" --private-key "$DEPLOYER_PRIVATE_KEY" --sender "$DEPLOYER_ADDRESS"
 ```
 
 ## Primary references

@@ -12,7 +12,7 @@ measurements and example media in sync as this experiment develops.
   an explicit version change and updated independent reference validation.
 - Do not modify sibling inspiration repositories without an explicit request.
 - The NFT collection name and symbol are both `ghoulballs`. Minting is free of
-  protocol fees, with no supply or wallet limit. Network gas still applies.
+  protocol fees, with a fixed maximum supply of 6,667 and no per-wallet limit. Network gas still applies.
 - `deployments/sepolia.json` records deployment status. Keep simulation addresses
   separate from real deployments; preparation does not authorize broadcasting.
 - Check the vendored OpenZeppelin snapshot with `python3 scripts/check_vendor.py`.
@@ -25,3 +25,9 @@ the README's measurements and examples. The compiler is pinned in `foundry.toml`
 `FOUNDRY_SOLC=/usr/bin/solc` is the local override in this workspace.
 For NFT metadata changes also run `python3 scripts/validate_nft.py` and measure
 the complete `tokenURI`, including both media files, JSON and base64 layers.
+
+- Base and Base Sepolia manifests follow the same no-broadcast preparation rule.
+- The static mint page lives in `mint-page/`; run `npm test` and `npm run check`
+  there after wallet changes. Browser QA uses a mocked wallet and sends no real transactions.
+- Rebuild page deployment settings with `python3 scripts/sync_mint_config.py`
+  after updating confirmed deployment manifests. Never put signing keys in page files.

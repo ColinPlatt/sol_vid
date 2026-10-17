@@ -4,13 +4,15 @@ pragma solidity ^0.8.30;
 import {ERC721, Base64, Strings} from "../vendor/openzeppelin/Flattened.sol";
 import {GenerativeVideo} from "./GenerativeVideo.sol";
 
-/// @notice Uncapped, zero-price ERC-721 with deterministic, fully onchain video.
+/// @notice Limited-edition, zero-price ERC-721 with deterministic, fully onchain video.
 /// @dev No owner, upgrade, pause, fees, wallet cap, or privileged mint path.
 contract SolVideoNFT is ERC721 {
     using Strings for uint256;
 
     error InvalidRenderer();
+    error SoldOut();
 
+    uint256 public constant MAX_SUPPLY = 6667;
     string public constant COLLECTION_NAME = "ghoulballs";
     string public constant COLLECTION_SYMBOL = "ghoulballs";
     GenerativeVideo public immutable renderer;
@@ -32,6 +34,7 @@ contract SolVideoNFT is ERC721 {
     }
 
     function _mintNext(address recipient) private returns (uint256 tokenId) {
+        if (totalSupply >= MAX_SUPPLY) revert SoldOut();
         tokenId = ++totalSupply;
         // The counter advances before the receiver hook, including reentrant mints.
         _safeMint(recipient, tokenId);
@@ -101,7 +104,7 @@ contract SolVideoNFT is ERC721 {
             " #",
             tokenId.toString(),
             '","description":"A deterministic two-second generative video, rendered entirely in Solidity. ',
-            'Uncapped free mint; network gas applies. GIF image and MPEG-1 animation are fully onchain.",',
+            '6,667 editions. Free mint; network gas applies. GIF image and MPEG-1 animation are fully onchain.",',
             '"image":"data:image/gif;base64,',
             Base64.encode(renderer.gifFromSeed(64, 10, seed)),
             '","animation_url":"data:video/mpeg;base64,',

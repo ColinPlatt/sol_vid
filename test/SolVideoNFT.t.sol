@@ -62,6 +62,7 @@ contract SolVideoNFTTest is IERC721Receiver {
         require(nft.supportsInterface(0x80ac58cd), "Missing ERC721");
         require(nft.supportsInterface(0x5b5e139f), "Missing metadata");
         require(!nft.supportsInterface(0xffffffff), "Invalid interface supported");
+        require(nft.MAX_SUPPLY() == 6667, "Wrong supply cap");
         require(nft.totalSupply() == 0 && address(nft.renderer()) == address(renderer), "Bad initial state");
         require(keccak256(bytes(nft.name())) == keccak256("ghoulballs"), "Bad name");
         require(keccak256(bytes(nft.symbol())) == keccak256("ghoulballs"), "Bad symbol");
@@ -114,6 +115,23 @@ contract SolVideoNFTTest is IERC721Receiver {
         receiver.start();
         require(nft.totalSupply() == 2 && nft.balanceOf(address(receiver)) == 2, "Wrong reentrant supply");
         require(nft.ownerOf(1) == address(receiver) && nft.ownerOf(2) == address(receiver), "Duplicate ID");
+    }
+
+    function testSupplyCapBothMintPathsAndReentrantBoundary() public {
+        for (uint256 i; i < nft.MAX_SUPPLY() - 1; ++i) {
+            nft.mintTo(ALICE);
+        }
+        ReentrantMinter receiver = new ReentrantMinter(nft);
+        vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.SoldOut.selector));
+        receiver.start();
+        require(nft.totalSupply() == 6666, "Reentrant failure did not roll back");
+        require(nft.balanceOf(address(receiver)) == 0, "Reentrant mint escaped rollback");
+        require(nft.mintTo(BOB) == 6667 && nft.ownerOf(6667) == BOB, "Final mint failed");
+        vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.SoldOut.selector));
+        nft.mint();
+        vm.expectRevert(abi.encodeWithSelector(SolVideoNFT.SoldOut.selector));
+        nft.mintTo(ALICE);
+        require(nft.totalSupply() == 6667, "Supply exceeded cap");
     }
 
     function testTransfersApprovalsAndStableSeed() public {
