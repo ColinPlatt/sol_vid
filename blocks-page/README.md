@@ -25,3 +25,9 @@ mocked wallet. Publish this directory through the linked blocks Vercel project.
 `blocks.vercel.app` was already assigned to another account when this project was
 created; Vercel assigned `blocks-eight-pi.vercel.app`. Project identity and the
 confirmed production deployment are recorded in `deployments/blocks-site.json`.
+
+Production: https://blocks-eight-pi.vercel.app . The project is linked to
+`ColinPlatt/sol_vid`, with root directory `blocks-page`. The recorded release was
+explicitly deployed from `blocks-site`; merge its PR after the Sepolia deployment
+PR to make the site available on the repository's normal production branch.
+Only the read RPC is stored as a Vercel secret.
