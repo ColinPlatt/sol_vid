@@ -10,3 +10,12 @@ __pycache__/
 
 # Private research notes (not committed)
 docs/research/
+
+# Reproducible block-art decoder/reference fixtures (retain compact validation reports).
+previews/blockart/*.raw
+previews/blockart/*.palette
+previews/blockart/*.uri
+# Earlier diagnostic filenames are superseded by the blockart/ exports above.
+previews/blockart-*.raw
+previews/blockart-*.uri
+previews/blockart-*.gif

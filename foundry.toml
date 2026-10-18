@@ -23,5 +23,11 @@ solc = "0.8.30"
 evm_version = "cancun"
 experimental = false
 
+# New blocks collection: modern compiler, Base execution rules; legacy deployed profiles remain pinned above.
+[profile.blocks_base]
+solc = "0.8.37"
+evm_version = "cancun"
+experimental = false
+
 [fmt]
 ignore = ["vendor/**"]

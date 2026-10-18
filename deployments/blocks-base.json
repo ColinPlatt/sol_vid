@@ -1,0 +1,27 @@
+{
+  "chain_id": 8453,
+  "status": "development_not_deployed",
+  "collection_name": "blocks",
+  "collection_symbol": "blocks",
+  "art_version": "NEO_TOKYO_BLOCKS_V1",
+  "collection": null,
+  "renderer": null,
+  "scenes": {
+    "canyon": null,
+    "descent": null,
+    "monorail": null,
+    "spire": null,
+    "skyline": null,
+    "alley": null,
+    "nighttrain": null,
+    "satoyama": null
+  },
+  "transaction_hashes": [],
+  "mint_enabled": false,
+  "marketplace_playback": {
+    "status": "not_checked"
+  },
+  "build_profile": "blocks_base",
+  "compiler": "0.8.37",
+  "evm_version": "cancun"
+}
