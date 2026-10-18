@@ -1,0 +1,11 @@
+{
+  "name": "Base",
+  "chainId": 8453,
+  "chainHex": "0x2105",
+  "rpcUrl": "https://mainnet.base.org",
+  "explorerUrl": "https://basescan.org",
+  "deployed": false,
+  "mintEnabled": false,
+  "collectionAddress": null,
+  "rendererAddress": null
+}

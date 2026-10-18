@@ -1,0 +1,10 @@
+{
+  "chromium": "passed",
+  "wallet": "mocked only; no real transactions",
+  "closed_release": true,
+  "header_mint": true,
+  "scenes": 8,
+  "mobile": true,
+  "firefox": "not_checked",
+  "safari": "not_checked"
+}

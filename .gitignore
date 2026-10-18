@@ -13,3 +13,20 @@ docs/research/
 
 # Reproducible full matrix exports; retain compact validation reports instead.
 previews/video/matrix/
+
+# Reproducible block-art decoder/reference fixtures (retain compact validation reports).
+previews/blockart/*.raw
+previews/blockart/*.palette
+previews/blockart/*.uri
+# Earlier diagnostic filenames are superseded by the blockart/ exports above.
+previews/blockart-*.raw
+previews/blockart-*.uri
+previews/blockart-*.gif
+
+# Full live token metadata embeds megabytes of media; retain the original GIF/AVI and compact manifest.
+previews/blocks-sepolia/*.metadata.json
+
+previews/blocks-single/*.raw
+previews/blocks-single/*.palette
+previews/blocks-single/*.uri
+previews/blocks-single/*.metadata.json

@@ -60,3 +60,13 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   `--broadcast` when explorer publication is authorized. Confirm the installed
   Foundry version's verifier destinations first; this version also submits to
   Sourcify even when Etherscan is selected.
+
+- `src/blockart/` is a separate authorized collection, named/symbolled `blocks`,
+  with verified ten-block epochs and `NEO_TOKYO_BLOCKS_V1` artwork. Preserve the
+  existing ghoulballs contracts and page. Block-art work has no broadcast approval.
+- Block-art media changes require capped GIF/AVI/metadata measurements and
+  `scripts/validate_blockart.py`; gallery generation is `scripts/blockart_gallery.py`.
+  The `/blocks/` mint route stays disabled until its own deployment/playback gates.
+- New `blocks` Base builds use `FOUNDRY_PROFILE=blocks_base` (Solidity 0.8.37,
+  Cancun). The legacy base/base_sepolia compiler pins and live deployments stay
+  unchanged. Record the compiler and profile with all new measurements.

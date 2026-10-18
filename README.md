@@ -2,6 +2,13 @@
 
 Source and ongoing development: [ColinPlatt/sol_vid](https://github.com/ColinPlatt/sol_vid).
 
+New development: [**blocks — Neo-Tokyo block art**](docs/BLOCK_ART.md), a separate
+collection derived from ten verified Base blocks per token. Eight 128px scenes,
+six-second loops, native GIF and AVI, with a separate disabled `/blocks/` mint page.
+[Preview sheet](previews/blockart/contact-sheet.png) · [local gallery](previews/blockart/index.html).
+This collection is not deployed; the live ghoulballs collection below is unchanged.
+
+
 | Contract | Purpose |
 |---|---|
 | `SolVideo` | Complete uncompressed indexed AVI and animated GIF files |
