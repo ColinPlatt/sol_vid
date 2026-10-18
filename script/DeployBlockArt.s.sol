@@ -14,17 +14,24 @@ import {Satoyama} from "../src/blockart/scenes/Satoyama.sol";
 
 interface BlockArtDeployVm {
     function envUint(string calldata) external returns (uint256);
+    function envAddress(string calldata) external returns (address);
+    function addr(uint256 privateKey) external pure returns (address);
     function envString(string calldata) external returns (string memory);
     function parseJsonBytesArray(string calldata, string calldata) external pure returns (bytes[] memory);
     function startBroadcast() external;
+    function startBroadcast(uint256 privateKey) external;
     function stopBroadcast() external;
 }
 
-/// @notice Preparation only. Supply a recent epoch proof and use the Base/Cancun profile.
+/// @notice Supply a recent proof from the target chain. Base uses blocks_base/Cancun; Ethereum Sepolia uses default/Amsterdam.
 abstract contract DeployBlockArt {
     error WrongChain();
     BlockArtDeployVm constant vm = BlockArtDeployVm(address(uint160(uint256(keccak256("hevm cheat code")))));
     function targetChainId() public pure virtual returns (uint256);
+
+    function _startBroadcast() internal virtual {
+        vm.startBroadcast();
+    }
 
     function run() external returns (BlockArtRenderer renderer, BlockArtNFT collection) {
         if (block.chainid != targetChainId()) revert WrongChain();
@@ -32,7 +39,7 @@ abstract contract DeployBlockArt {
         bytes[] memory headers = vm.parseJsonBytesArray(vm.envString("BLOCKART_HEADERS_JSON"), ".headers");
         // Reject stale, tampered or misordered proofs before any deployment transaction is signed.
         BlockHeaders.verifyEpoch(epoch, headers);
-        vm.startBroadcast();
+        _startBroadcast();
         address[8] memory scenes = [
             address(new Canyon()),
             address(new Descent()),
@@ -64,5 +71,18 @@ contract DeployBlockArtBase is DeployBlockArt {
 contract DeployBlockArtBaseSepolia is DeployBlockArt {
     function targetChainId() public pure override returns (uint256) {
         return 84532;
+    }
+}
+
+/// @notice Ethereum Sepolia only. The signing key is read from the local environment, never a CLI argument.
+contract DeployBlockArtSepolia is DeployBlockArt {
+    function targetChainId() public pure override returns (uint256) {
+        return 11155111;
+    }
+
+    function _startBroadcast() internal override {
+        uint256 privateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+        require(vm.addr(privateKey) == vm.envAddress("DEPLOYER_ADDRESS"), "Deployer address mismatch");
+        vm.startBroadcast(privateKey);
     }
 }

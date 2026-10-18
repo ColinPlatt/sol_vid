@@ -146,3 +146,34 @@ The local browser check is `node scripts/blockart_browser_qa.mjs`. Its committed
 screenshots are mocked QA: they exercise a closed release, proof submission,
 receipt matching, eight real preview GIFs and mobile layout in Chromium. No real
 transaction is sent. Firefox and Safari checks are still outstanding.
+
+### Ethereum Sepolia deployment
+
+Ethereum Sepolia is chain **11155111**, using the default Solidity 0.8.37 / Amsterdam
+profile. It is separate from Base Sepolia (84532). Its proof uses Ethereum Sepolia's
+own ten consecutive blocks. The proof encoder includes `blockAccessListHash` and
+`slotNumber` for Amsterdam headers, while preserving Base header hashes.
+
+Configure `SEPOLIA_RPC_URL`, `DEPLOYER_PRIVATE_KEY` and its matching
+`DEPLOYER_ADDRESS` in the gitignored local `.env`. Rehearse with
+`python3 scripts/deploy_blocks_sepolia.py --env-file /path/to/.env`.
+After deployment authorization, add `--broadcast`. The script checks chain ID,
+header hashes, parent links, signer address and funding; fetches a fresh epoch;
+and deploys eight scenes, the router and collection before minting that epoch to
+the deployer. It caps testnet fees explicitly and never passes the private key as
+a command-line argument. A rehearsal does not authorize a broadcast.
+
+Record confirmed receipts in `deployments/blocks-sepolia.json`, separately from
+Base. The existing `/blocks/` production mint route remains gated for Base; a
+Sepolia deployment does not enable that route or replace the ghoulballs collection.
+
+The Ethereum Sepolia collection is deployed at
+[`0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825`](https://sepolia.etherscan.io/address/0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825).
+The first token, **1194011**, is ALLEY, derived from Sepolia blocks
+11,940,110–11,940,119 and minted to the deployer. All eleven transactions succeeded,
+using **264,264,442 gas** and paying **4,757,410,377 wei** in total. The live tokenURI
+and AVI each succeeded with a 500M-gas call cap. Pillow and FFmpeg confirmed all
+90 frames, six-second timing, and exact GIF/AVI RGB agreement. Confirmed addresses,
+receipts, code hashes and media checks are in `deployments/blocks-sepolia.json`;
+source-verification inputs are in `verification/blocks-sepolia/`. This testnet
+deployment does not establish marketplace playback or launch the Base mint route.

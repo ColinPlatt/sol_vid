@@ -1,0 +1,72 @@
+[
+  {
+    "contract": "Canyon",
+    "source": "src/blockart/scenes/Canyon.sol",
+    "address": "0x9b98725f47fae11edc4d62cc1a6be6cdffa4ba9e",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": ""
+  },
+  {
+    "contract": "Descent",
+    "source": "src/blockart/scenes/Descent.sol",
+    "address": "0x40ec5092c0b4b9230e8f5cc9e1d0dde8479e13e3",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": ""
+  },
+  {
+    "contract": "Monorail",
+    "source": "src/blockart/scenes/Monorail.sol",
+    "address": "0x052d7c4f8388868ee4d609b7b766b2e55493eadb",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": ""
+  },
+  {
+    "contract": "Spire",
+    "source": "src/blockart/scenes/Spire.sol",
+    "address": "0x6a12fcab116179201e8ab8018524f48c66a89525",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": ""
+  },
+  {
+    "contract": "Skyline",
+    "source": "src/blockart/scenes/Skyline.sol",
+    "address": "0x5930977cb50acef591838b6dc60ea4798635a4d3",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": ""
+  },
+  {
+    "contract": "Alley",
+    "source": "src/blockart/scenes/Alley.sol",
+    "address": "0x6b5c2c6e2fab7bfd3b35284aa3ec47a0e0ab1c1a",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": ""
+  },
+  {
+    "contract": "NightTrain",
+    "source": "src/blockart/scenes/NightTrain.sol",
+    "address": "0x8f9ba4f5a8ae784c771b0b17d7959dd9210430dd",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": ""
+  },
+  {
+    "contract": "Satoyama",
+    "source": "src/blockart/scenes/Satoyama.sol",
+    "address": "0x82a997de5a28eeb9c772febb8a02fa70afa34b08",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": ""
+  },
+  {
+    "contract": "BlockArtRenderer",
+    "source": "src/blockart/BlockArtRenderer.sol",
+    "address": "0xedf6937b047c1ad9d2fe4c7203b5c54f4eadad46",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": "0000000000000000000000009b98725f47fae11edc4d62cc1a6be6cdffa4ba9e00000000000000000000000040ec5092c0b4b9230e8f5cc9e1d0dde8479e13e3000000000000000000000000052d7c4f8388868ee4d609b7b766b2e55493eadb0000000000000000000000006a12fcab116179201e8ab8018524f48c66a895250000000000000000000000005930977cb50acef591838b6dc60ea4798635a4d30000000000000000000000006b5c2c6e2fab7bfd3b35284aa3ec47a0e0ab1c1a0000000000000000000000008f9ba4f5a8ae784c771b0b17d7959dd9210430dd00000000000000000000000082a997de5a28eeb9c772febb8a02fa70afa34b08"
+  },
+  {
+    "contract": "BlockArtNFT",
+    "source": "src/blockart/BlockArtNFT.sol",
+    "address": "0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825",
+    "compiler": "v0.8.37+commit.f401782d",
+    "constructor_arguments": "000000000000000000000000edf6937b047c1ad9d2fe4c7203b5c54f4eadad46"
+  }
+]
