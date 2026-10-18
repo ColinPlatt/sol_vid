@@ -1,0 +1,158 @@
+{
+  "status": "deployed",
+  "chain_id": 8453,
+  "collection_name": "ghoulballs",
+  "collection_symbol": "ghoulballs",
+  "supply_cap": 6667,
+  "tokens_per_mint": 1,
+  "mint_limit": 1,
+  "format": "AVI BI_RLE8",
+  "width": 512,
+  "height": 512,
+  "fps": 25,
+  "duration_seconds": 2,
+  "collection": "0x318761bb4cac5fb8eea16fe7af3176f4915a83f9",
+  "renderer": "0x25ff2902374541f04a4e74ce1c3cbd418aca8d94",
+  "transaction_hashes": [
+    "0xf5cca2a90235c6aa4390a91e5e7f407b8a4394a222241982a51dac43fddc4ae8",
+    "0x72fab7c6204a87c5c432aba4538f23294194cd6b0f2bd6a8eb11c78e72f06bf7",
+    "0x1190c9e4b8502d42382e222473e75d1ec5565115086af9e0b69fb7c462e77dbf"
+  ],
+  "opensea_playback": {
+    "status": "passed",
+    "evidence_url": "https://opensea.io/item/base/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9/1",
+    "checked_at_utc": "2026-10-17T17:39:37.297Z",
+    "observations": "previews/video/opensea-edition/observations.json",
+    "html_sha256": "abf5841f0c038a37135c15db61c4dbd003523726ae32a5d1474c3164bfa58b38"
+  },
+  "candidate": {
+    "status": "deployed",
+    "receipt_verified": true,
+    "collection": "0xaf9f7c62d2f4f23c3528ee3a2acf067c9da7dbe9",
+    "renderer": "0xc793a9dba05c7e82ca390cc8df11c9d30528fe3c",
+    "transaction_hashes": [
+      "0xddba5cc3b461244650191dc16772bbb2f7ba91ea650ba734439708ea37284aa4",
+      "0xcad99929cb8dde9390f81d73ec2a156b72437579277474de99c4bf5eeb9f37c9"
+    ],
+    "confirmed_blocks": [
+      52734654,
+      52734655
+    ],
+    "gas_used": [
+      2914136,
+      4211955
+    ],
+    "checked_at_utc": "2026-10-17T17:37:57.985598+00:00",
+    "runtime_checks": {
+      "AviRleVideo": {
+        "runtime_bytes": 13232,
+        "runtime_sha256": "606bfafbe9909f25edbc1dbaf6c7e21a6ef337728bdf7c329a5b78b2bf332e5c"
+      },
+      "VideoCandidate": {
+        "runtime_bytes": 18480,
+        "runtime_sha256": "a4b6f87f0e83cb65637d8cb518ae20ba2d2234cdb10b35fc73fa4087e7452f3d"
+      }
+    },
+    "first_token_owner": "0xbb789f9508dfbdd31de814e7a13ee1b549703d68",
+    "first_token_uri_bytes": 1031325,
+    "opensea_playback": {
+      "status": "passed",
+      "evidence_url": "https://opensea.io/item/base/0xaf9f7c62d2f4f23c3528ee3a2acf067c9da7dbe9/1",
+      "checked_at_utc": "2026-10-17T17:38:03.588Z",
+      "observations": "previews/video/opensea-candidate/observations.json",
+      "html_sha256": "7e9c8538f3285e675898401a8d44a99f217b34457c5ad0d13a8c7ed116431ca1"
+    }
+  },
+  "notes": "Separate AVI edition deployed on Base. Candidate and edition token 1 both pass actual OpenSea animation and byte-identical rehosted-player checks; all live frames match the independent RGB reference. Existing GIF collection is unchanged.",
+  "broadcast_authorization": {
+    "candidate": true,
+    "edition_after_candidate_opensea_pass": true,
+    "enable_mint_after_edition_opensea_pass": true,
+    "authorized_at_utc": "2026-10-17T17:36:46.554159+00:00",
+    "source": "Explicit user approval: Authorize candidate and gated edition launch"
+  },
+  "receipt_verified": true,
+  "confirmed_blocks": [
+    52734701,
+    52734702,
+    52734703
+  ],
+  "gas_used": [
+    2914136,
+    4119846,
+    112766
+  ],
+  "checked_at_utc": "2026-10-17T17:39:32.779297+00:00",
+  "runtime_checks": {
+    "AviRleVideo": {
+      "runtime_bytes": 13232,
+      "runtime_sha256": "606bfafbe9909f25edbc1dbaf6c7e21a6ef337728bdf7c329a5b78b2bf332e5c"
+    },
+    "VideoNFT": {
+      "runtime_bytes": 18527,
+      "runtime_sha256": "ec8c2ecd56162f83998d0689a1934bb0a3775213645c03f4c4124b72d0ceeae2"
+    }
+  },
+  "first_token_owner": "0xbb789f9508dfbdd31de814e7a13ee1b549703d68",
+  "first_token_uri_bytes": 1100981,
+  "mint_page": {
+    "url": "https://ghoulballs.vercel.app/video/",
+    "production_deployment": "https://ghoulballs-fpdntqb4k-platt-advisors-projects.vercel.app",
+    "status": "live",
+    "read_only_browser_validation": "previews/video/live-page-validation.json"
+  },
+  "source_verification": {
+    "status": "verified",
+    "explorer": "Basescan",
+    "contracts": [
+      {
+        "kind": "candidate",
+        "contract": "AviRleVideo",
+        "address": "0xc793a9dba05c7e82ca390cc8df11c9d30528fe3c",
+        "status": "verified",
+        "verifier": "Etherscan V2 / Basescan",
+        "explorer_url": "https://basescan.org/address/0xc793a9dba05c7e82ca390cc8df11c9d30528fe3c#code",
+        "compiler": "v0.8.30+commit.73712a01",
+        "evm_version": "cancun",
+        "optimizer_runs": "200",
+        "checked_at_utc": "2026-10-17T17:46:00.182069+00:00"
+      },
+      {
+        "kind": "candidate",
+        "contract": "VideoCandidate",
+        "address": "0xaf9f7c62d2f4f23c3528ee3a2acf067c9da7dbe9",
+        "status": "verified",
+        "verifier": "Etherscan V2 / Basescan",
+        "explorer_url": "https://basescan.org/address/0xaf9f7c62d2f4f23c3528ee3a2acf067c9da7dbe9#code",
+        "compiler": "v0.8.30+commit.73712a01",
+        "evm_version": "cancun",
+        "optimizer_runs": "200",
+        "checked_at_utc": "2026-10-17T17:46:01.290150+00:00"
+      },
+      {
+        "kind": "edition",
+        "contract": "AviRleVideo",
+        "address": "0x25ff2902374541f04a4e74ce1c3cbd418aca8d94",
+        "status": "verified",
+        "verifier": "Etherscan V2 / Basescan",
+        "explorer_url": "https://basescan.org/address/0x25ff2902374541f04a4e74ce1c3cbd418aca8d94#code",
+        "compiler": "v0.8.30+commit.73712a01",
+        "evm_version": "cancun",
+        "optimizer_runs": "200",
+        "checked_at_utc": "2026-10-17T17:46:02.390786+00:00"
+      },
+      {
+        "kind": "edition",
+        "contract": "VideoNFT",
+        "address": "0x318761bb4cac5fb8eea16fe7af3176f4915a83f9",
+        "status": "verified",
+        "verifier": "Etherscan V2 / Basescan",
+        "explorer_url": "https://basescan.org/address/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9#code",
+        "compiler": "v0.8.30+commit.73712a01",
+        "evm_version": "cancun",
+        "optimizer_runs": "200",
+        "checked_at_utc": "2026-10-17T17:46:03.870847+00:00"
+      }
+    ]
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "scope": "Standalone PR #2 codec/player revision; not deployed collection costs",
+  "profiles": {
+    "amsterdam": {
+      "solc": "0.8.37",
+      "evm": "amsterdam",
+      "optimizer_runs": 200,
+      "via_ir": true,
+      "sizes": {
+        "256": {
+          "raw": {
+            "gas": 45841937,
+            "bytes": 257596
+          },
+          "player": {
+            "gas": 70505904,
+            "bytes": 353431
+          }
+        },
+        "512": {
+          "raw": {
+            "gas": 52342988,
+            "bytes": 538236
+          },
+          "player": {
+            "gas": 114452333,
+            "bytes": 727615
+          }
+        }
+      },
+      "runtime_bytes": {
+        "AviRleVideo": 13090,
+        "AviRlePlayer": 13239
+      }
+    },
+    "base_cancun": {
+      "solc": "0.8.30",
+      "evm": "cancun",
+      "optimizer_runs": 200,
+      "via_ir": true,
+      "sizes": {
+        "256": {
+          "raw": {
+            "gas": 45841937,
+            "bytes": 257596
+          },
+          "player": {
+            "gas": 70505504,
+            "bytes": 353431
+          }
+        },
+        "512": {
+          "raw": {
+            "gas": 52342988,
+            "bytes": 538236
+          },
+          "player": {
+            "gas": 114451933,
+            "bytes": 727615
+          }
+        }
+      },
+      "runtime_bytes": {
+        "AviRleVideo": 13076,
+        "AviRlePlayer": 13225
+      }
+    }
+  },
+  "comparison": {
+    "amsterdam_worst_case_buffer_prototype": {
+      "256_raw_gas": 51615156,
+      "512_raw_gas": 76825017
+    },
+    "native_media_byte_identical_to_baseline": 107
+  }
+}

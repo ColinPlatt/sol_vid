@@ -11,6 +11,9 @@ __pycache__/
 # Private research notes (not committed)
 docs/research/
 
+# Reproducible full matrix exports; retain compact validation reports instead.
+previews/video/matrix/
+
 # Reproducible block-art decoder/reference fixtures (retain compact validation reports).
 previews/blockart/*.raw
 previews/blockart/*.palette

@@ -1,0 +1,145 @@
+{
+  "checked_at": "2026-10-17T17:16:13.366551+00:00",
+  "chain_id": 8453,
+  "rpc_host": "mainnet.base.org",
+  "collection": "0x9d7fe1fc9c33d1539b8354d080599f7d32c2c043",
+  "requested_gas": 500000000,
+  "note": "RPC retrieval only; no inference about marketplace ingestion or gas actually granted.",
+  "results": [
+    {
+      "token_id": 1,
+      "status": "retrieved",
+      "name": "ghoulballs probe #1 - Gas 10M",
+      "uri_bytes": 1049,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.13
+    },
+    {
+      "token_id": 2,
+      "status": "retrieved",
+      "name": "ghoulballs probe #2 - Gas 30M",
+      "uri_bytes": 1049,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.167
+    },
+    {
+      "token_id": 3,
+      "status": "retrieved",
+      "name": "ghoulballs probe #3 - Gas 45M",
+      "uri_bytes": 1049,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.204
+    },
+    {
+      "token_id": 4,
+      "status": "retrieved",
+      "name": "ghoulballs probe #4 - Gas 60M",
+      "uri_bytes": 1049,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.177
+    },
+    {
+      "token_id": 5,
+      "status": "retrieved",
+      "name": "ghoulballs probe #5 - Gas 100M",
+      "uri_bytes": 1053,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.185
+    },
+    {
+      "token_id": 6,
+      "status": "retrieved",
+      "name": "ghoulballs probe #6 - Gas 200M",
+      "uri_bytes": 1053,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.299
+    },
+    {
+      "token_id": 7,
+      "status": "retrieved",
+      "name": "ghoulballs probe #7 - Gas 400M",
+      "uri_bytes": 1053,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.43
+    },
+    {
+      "token_id": 8,
+      "status": "retrieved",
+      "name": "ghoulballs probe #8 - HTML JS base64",
+      "uri_bytes": 2281,
+      "has_image": true,
+      "has_animation": true,
+      "elapsed_seconds": 0.129
+    },
+    {
+      "token_id": 9,
+      "status": "retrieved",
+      "name": "ghoulballs probe #9 - HTML JS percent",
+      "uri_bytes": 2353,
+      "has_image": true,
+      "has_animation": true,
+      "elapsed_seconds": 0.139
+    },
+    {
+      "token_id": 10,
+      "status": "retrieved",
+      "name": "ghoulballs probe #10 - HTML CSS no JS",
+      "uri_bytes": 1885,
+      "has_image": true,
+      "has_animation": true,
+      "elapsed_seconds": 0.147
+    },
+    {
+      "token_id": 11,
+      "status": "retrieved",
+      "name": "ghoulballs probe #11 - Cheap 600KB HTML",
+      "uri_bytes": 801261,
+      "has_image": true,
+      "has_animation": true,
+      "elapsed_seconds": 0.245
+    },
+    {
+      "token_id": 12,
+      "status": "retrieved",
+      "name": "ghoulballs probe #12 - Offchain-encoded MP4 control",
+      "uri_bytes": 5993,
+      "has_image": true,
+      "has_animation": true,
+      "elapsed_seconds": 0.132
+    },
+    {
+      "token_id": 13,
+      "status": "retrieved",
+      "name": "ghoulballs probe #13 - Hosted HTML JS",
+      "uri_bytes": 1157,
+      "has_image": true,
+      "has_animation": true,
+      "elapsed_seconds": 0.129
+    },
+    {
+      "token_id": 14,
+      "status": "retrieved",
+      "name": "ghoulballs probe #14 - SVG wrapped GIF",
+      "uri_bytes": 1473,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.13
+    },
+    {
+      "token_id": 15,
+      "status": "retrieved",
+      "name": "ghoulballs probe #15 - Raw GIF image",
+      "uri_bytes": 1065,
+      "has_image": true,
+      "has_animation": false,
+      "elapsed_seconds": 0.129
+    }
+  ]
+}

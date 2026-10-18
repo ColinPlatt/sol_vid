@@ -1,19 +1,19 @@
 marketplace,token_id,probe,metadata_ingested,image_animated,animation_loaded,js_running,metadata_url,display_animation_url,checked_at_utc,notes
-OpenSea,1,Gas 10M,not_checked,,,,,,,
-OpenSea,2,Gas 30M,not_checked,,,,,,,
-OpenSea,3,Gas 45M,not_checked,,,,,,,
-OpenSea,4,Gas 60M,not_checked,,,,,,,
-OpenSea,5,Gas 100M,not_checked,,,,,,,
-OpenSea,6,Gas 200M,not_checked,,,,,,,
-OpenSea,7,Gas 400M,not_checked,,,,,,,
-OpenSea,8,HTML JS base64,not_checked,,,,,,,
-OpenSea,9,HTML JS percent,not_checked,,,,,,,
-OpenSea,10,HTML CSS no JS,not_checked,,,,,,,
-OpenSea,11,Cheap 600KB HTML,not_checked,,,,,,,
-OpenSea,12,Offchain-encoded MP4 control,not_checked,,,,,,,
-OpenSea,13,Hosted HTML JS,not_checked,,,,,,,
-OpenSea,14,SVG wrapped GIF,not_checked,,,,,,,
-OpenSea,15,Raw GIF image,not_checked,,,,,,,
+OpenSea,1,Gas 10M,yes,yes,,,,,2026-10-17T17:20:45.643Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-1.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,2,Gas 30M,yes,yes,,,,,2026-10-17T17:20:49.542Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-2.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,3,Gas 45M,yes,yes,,,,,2026-10-17T17:20:53.725Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-3.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,4,Gas 60M,yes,yes,,,,,2026-10-17T17:20:57.675Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-4.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,5,Gas 100M,yes,yes,,,,,2026-10-17T17:21:01.523Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-5.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,6,Gas 200M,yes,yes,,,,,2026-10-17T17:21:05.392Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-6.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,7,Gas 400M,yes,yes,,,,,2026-10-17T17:21:09.142Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-7.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,8,HTML JS base64,yes,,yes,yes,,https://raw2.seadn.io/base/0x9d7fe1fc9c33d1539b8354d080599f7d32c2c043/c936bffa22ce5aee1095bf819ffedb/3cc936bffa22ce5aee1095bf819ffedb.html,2026-10-17T17:21:13.142Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-8.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,9,HTML JS percent,yes,,yes,yes,,https://raw2.seadn.io/base/0x9d7fe1fc9c33d1539b8354d080599f7d32c2c043/c936bffa22ce5aee1095bf819ffedb/3cc936bffa22ce5aee1095bf819ffedb.html,2026-10-17T17:21:17.077Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-9.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,10,HTML CSS no JS,yes,,yes,no_script_control,,https://raw2.seadn.io/base/0x9d7fe1fc9c33d1539b8354d080599f7d32c2c043/55b127dd8e9c722a4a14a68706cde0/0f55b127dd8e9c722a4a14a68706cde0.html,2026-10-17T17:21:21.107Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-10.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,11,Cheap 600KB HTML,yes,,yes,no_script_control,,https://raw2.seadn.io/base/0x9d7fe1fc9c33d1539b8354d080599f7d32c2c043/e5dff09ba9a94a77aaae090d4e46eb/5ae5dff09ba9a94a77aaae090d4e46eb.html,2026-10-17T17:21:25.357Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=False. Evidence: opensea/token-11.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,12,Offchain-encoded MP4 control,yes,,yes,,,,2026-10-17T17:21:29.258Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-12.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,13,Hosted HTML JS,yes,,yes,yes,,https://raw2.seadn.io/base/0x9d7fe1fc9c33d1539b8354d080599f7d32c2c043/c936bffa22ce5aee1095bf819ffedb/3cc936bffa22ce5aee1095bf819ffedb.html,2026-10-17T17:21:33.207Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-13.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,14,SVG wrapped GIF,yes,yes,,,,,2026-10-17T17:21:37.290Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-14.png and opensea/observations.json. API requires authentication (401); not a media failure."
+OpenSea,15,Raw GIF image,yes,yes,,,,,2026-10-17T17:21:41.123Z,"Public OpenSea UI: matching token name; three media-only screenshot hashes, moving=True. Evidence: opensea/token-15.png and opensea/observations.json. API requires authentication (401); not a media failure."
 Manifold,1,Gas 10M,not_checked,,,,,,,
 Manifold,2,Gas 30M,not_checked,,,,,,,
 Manifold,3,Gas 45M,not_checked,,,,,,,

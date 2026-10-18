@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
 
+import {AviContainer} from "./AviContainer.sol";
 import {Scene} from "./Scene.sol";
 
 /// @notice Entire two-second media files generated inside one pure EVM call.
@@ -64,51 +65,7 @@ contract SolVideo is Scene {
         uint256 n = size * size;
         uint256 movieSize = frames * (8 + n);
         out = new bytes(296 + movieSize + 16 * frames);
-        _copy(out, 0, bytes("RIFF"));
-        _le(out, 4, out.length - 8, 4);
-        _copy(out, 8, bytes("AVI LIST"));
-        _le(out, 16, 256, 4);
-        _copy(out, 20, bytes("hdrlavih"));
-        _le(out, 28, 56, 4);
-        _le(out, 32, 1_000_000 / fps, 4);
-        _le(out, 36, (n + 8) * fps, 4);
-        _le(out, 44, 16, 4); // AVIF_HASINDEX
-        _le(out, 48, frames, 4);
-        _le(out, 56, 1, 4); // one stream
-        _le(out, 60, n, 4);
-        _le(out, 64, size, 4);
-        _le(out, 68, size, 4);
-        _copy(out, 88, bytes("LIST"));
-        _le(out, 92, 180, 4);
-        _copy(out, 96, bytes("strlstrh"));
-        _le(out, 104, 56, 4);
-        _copy(out, 108, bytes("vidsDIB "));
-        _le(out, 128, 1, 4); // scale
-        _le(out, 132, fps, 4); // rate
-        _le(out, 140, frames, 4);
-        _le(out, 144, n, 4);
-        _le(out, 148, 0xffffffff, 4); // default quality
-        _le(out, 160, size, 2);
-        _le(out, 162, size, 2);
-        _copy(out, 164, bytes("strf"));
-        _le(out, 168, 104, 4); // BITMAPINFOHEADER + 16 RGBQUADs
-        _le(out, 172, 40, 4);
-        _le(out, 176, size, 4);
-        _le(out, 180, size, 4);
-        _le(out, 184, 1, 2); // planes
-        _le(out, 186, 8, 2); // bits per pixel; BI_RGB = 0
-        _le(out, 192, n, 4);
-        _le(out, 204, 16, 4);
-        _le(out, 208, 16, 4);
-        bytes memory palette = _palette(scene, seed);
-        for (uint256 i; i < 16; ++i) {
-            out[212 + 4 * i] = palette[3 * i + 2];
-            out[213 + 4 * i] = palette[3 * i + 1];
-            out[214 + 4 * i] = palette[3 * i];
-        }
-        _copy(out, 276, bytes("LIST"));
-        _le(out, 280, 4 + movieSize, 4);
-        _copy(out, 284, bytes("movi"));
+        AviContainer.header(out, size, fps, frames, movieSize, n, _palette(scene, seed), 0);
         bytes memory pixels = new bytes(n);
         bytes memory background = _background(size, scene, seed);
         uint256 p = 288;
@@ -129,17 +86,11 @@ contract SolVideo is Scene {
             }
             p += n;
         }
-        _copy(out, p, bytes("idx1"));
-        _le(out, p + 4, 16 * frames, 4);
-        p += 8;
+        uint256[] memory sizes = new uint256[](frames);
         for (uint256 f; f < frames; ++f) {
-            _copy(out, p, bytes("00db"));
-            _le(out, p + 4, 16, 4); // every frame is a keyframe
-            _le(out, p + 8, 4 + f * (8 + n), 4);
-            _le(out, p + 12, n, 4);
-            p += 16;
+            sizes[f] = n;
         }
-        assert(p == out.length);
+        AviContainer.index(out, p, bytes4("00db"), sizes);
     }
 
     /// @dev Clear the dictionary every 14 literals: all codes stay 5 bits.
@@ -173,14 +124,10 @@ contract SolVideo is Scene {
     }
 
     function _le(bytes memory out, uint256 p, uint256 value, uint256 count) private pure {
-        for (uint256 i; i < count; ++i) {
-            out[p + i] = bytes1(uint8(value >> (8 * i)));
-        }
+        AviContainer.le(out, p, value, count);
     }
 
     function _copy(bytes memory out, uint256 p, bytes memory value) private pure {
-        assembly ("memory-safe") {
-            mcopy(add(add(out, 32), p), add(value, 32), mload(value))
-        }
+        AviContainer.copy(out, p, value);
     }
 }

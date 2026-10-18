@@ -1,0 +1,25 @@
+{
+  "collectionName": "ghoulballs",
+  "defaultChainId": 8453,
+  "playbackVerified": true,
+  "mintEnabled": true,
+  "networks": [
+    {
+      "chainId": 8453,
+      "chainHex": "0x2105",
+      "name": "Base",
+      "testnet": false,
+      "rpcUrl": "https://mainnet.base.org",
+      "renderRpcUrls": [
+        "https://mainnet.base.org",
+        "https://base.gateway.tenderly.co"
+      ],
+      "explorerUrl": "https://basescan.org",
+      "collectionAddress": "0x318761bb4cac5fb8eea16fe7af3176f4915a83f9",
+      "rendererAddress": "0x25ff2902374541f04a4e74ce1c3cbd418aca8d94",
+      "deployed": true,
+      "tokensPerMint": 1,
+      "mintLimit": 1
+    }
+  ]
+}

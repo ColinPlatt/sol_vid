@@ -1,0 +1,45 @@
+{
+  "environment": "disposable local Anvil only; not Base receipts or marketplace evidence",
+  "checked_at_utc": "2026-10-17T17:25:56.849639+00:00",
+  "results": [
+    {
+      "kind": "candidate",
+      "receipt_count": 2,
+      "runtime_checks": {
+        "AviRleVideo": {
+          "runtime_bytes": 13232,
+          "runtime_sha256": "606bfafbe9909f25edbc1dbaf6c7e21a6ef337728bdf7c329a5b78b2bf332e5c"
+        },
+        "VideoCandidate": {
+          "runtime_bytes": 18480,
+          "runtime_sha256": "84836fee6d2d3c21ddd0f5bbacc088f1a7952e46b9f448d8c223bd8793ec9e75"
+        }
+      },
+      "first_token_uri_bytes": 1094365,
+      "gas_used": [
+        2914136,
+        4211955
+      ]
+    },
+    {
+      "kind": "edition",
+      "receipt_count": 3,
+      "runtime_checks": {
+        "AviRleVideo": {
+          "runtime_bytes": 13232,
+          "runtime_sha256": "606bfafbe9909f25edbc1dbaf6c7e21a6ef337728bdf7c329a5b78b2bf332e5c"
+        },
+        "VideoNFT": {
+          "runtime_bytes": 18527,
+          "runtime_sha256": "7db5bdb13c79b241eede65e44efab563a832b7f6c614199c99ccfa554f2aeb1a"
+        }
+      },
+      "first_token_uri_bytes": 1045433,
+      "gas_used": [
+        2914136,
+        4119846,
+        112766
+      ]
+    }
+  ]
+}

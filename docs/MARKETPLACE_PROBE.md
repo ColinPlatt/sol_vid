@@ -6,9 +6,32 @@ metadata retrieval or display question. All 15 tokens are minted to the deployer
 in the constructor; there is no public mint, owner, metadata setter or upgrade.
 Normal ERC-721 transfers remain available.
 
-**Status: built and tested locally, not deployed to a public network.** Local
-Anvil addresses and transactions are not Base deployment records. Private research
-notes are excluded from this branch.
+**Status: deployed on Base and observed on OpenSea, 2026-10-17.** Collection:
+[`0x9d7fe1fc9c33d1539b8354d080599f7d32c2c043`](https://basescan.org/address/0x9d7fe1fc9c33d1539b8354d080599f7d32c2c043).
+Transaction: `0xa85c228b817d93886d7c73a7edf4925c10651b22fabf738710ff86f021c4ce0c`.
+Public RPC confirms its receipt, bytecode and all 15 metadata responses. The runtime
+matches the exact Base/Cancun build (14,482 bytes). Creation used 3,750,968 gas.
+The hosted diagnostic URL is live and byte-identical to its fixture. Private
+research notes remain excluded; local Anvil records are still only local tests.
+
+## Observed marketplace results
+
+All 15 token names/traits appeared in the public OpenSea UI, including the 400M
+ladder control. Both base64 and percent-encoded HTML/JS were rehosted at the same
+OpenSea CDN URL and animated inside `sandbox="allow-scripts"` iframes. CSS-only,
+inline prerecorded MP4, hosted HTML and both GIF image controls also animated.
+The 600KB HTML page displayed its expected text and stayed static as designed.
+
+Three screenshots of each media region (620ms apart) record actual changes,
+independently of page chrome. Evidence is in `previews/probe/opensea/` and the
+observation CSV; the 600KB control is the expected non-moving negative control.
+This tests these fixtures on Base, not every payload or the proposed AVI movie.
+It neither measures an exact indexer gas cap nor proves the original Sepolia
+player's failure cause. The AVI candidate must pass separately before release.
+
+The public OpenSea API returned **401 authentication required**; this is an API
+access result, not a media compatibility failure. Other marketplaces remain
+`not_checked`.
 
 ## Controls and measured read cost
 
@@ -107,14 +130,14 @@ The Base and Base Sepolia scripts reject the wrong chain before reading settings
 1. Publish `mint-page/dist/probe/player.html` at an HTTPS URL accessible without
    authentication. On the existing host the planned path is
    `https://ghoulballs.vercel.app/probe/player.html`. This branch contains the asset;
-   the path is not yet confirmed live. Check that the returned bytes match
+   the path is confirmed live. Check that the returned bytes still match
    `fixtures/marketplace-probe/html-js.html` before embedding the immutable URL.
 2. Set the **public** deployer address and hosted URL below. Sign using the existing
    Base keystore or another deliberately selected signer; do not reuse the exposed
    Sepolia key.
 3. Dry run, review its estimate and addresses, then obtain deployment authorization.
-   Adding `--broadcast --slow` sends the real transaction. No broadcast was performed
-   as part of building this probe.
+   Adding `--broadcast --slow` sends a real transaction. The deployment above was
+   subsequently authorized and signed locally; do not redeploy it accidentally.
 4. Record the confirmed collection address, transaction receipt, chain ID and hosted
    URL separately from the live artwork deployment manifests.
 
@@ -153,7 +176,7 @@ Use `previews/probe/observations.csv` to record each marketplace's metadata inge
 image animation and player behavior, plus timestamps, refresh state/errors and
 any original/display media URLs exposed by its API. Start with a refresh and allow
 indexing time; a missing token is not proof that its media type is unsupported.
-The CSV currently marks every marketplace result as `not_checked`.
+The CSV records the observed OpenSea results; other marketplaces remain `not_checked`.
 
 | Observation | Interpretation to investigate |
 | --- | --- |
