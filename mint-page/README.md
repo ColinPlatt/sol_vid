@@ -109,3 +109,14 @@ The requested Vercel owner is `colin@numerate.tech` and the GitHub owner is
 was confirmed as colin@numerate.tech (team `platt-advisors-projects`, project
 `mint-page`). Production: https://mint-page-mauve.vercel.app. The project is linked to
 the GitHub repo; its Root Directory must be `mint-page` for git-triggered deploys.
+
+## Separate blocks collection (development)
+
+`/blocks/` is the separate ten-block Neo-Tokyo collection. Its configuration is
+`dist/blocks/config.json`; it is not deployed and minting is disabled. Its UI and
+proof/epoch mint module are separate from the existing ghoulballs flow. Tests
+reconstruct twenty recorded Base headers, compare dynamic-array calldata against
+Foundry, and mock the zero-value mint including changed accounts and expired
+proofs. `scripts/sync_blocks_art.py` copies the eight validated Base GIF previews;
+`scripts/sync_blocks_config.py` gates launch on the new collection's own receipts,
+runtime validation and actual OpenSea evidence.
