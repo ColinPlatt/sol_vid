@@ -5,13 +5,13 @@
   "team": "platt-advisors-projects",
   "root_directory": "blocks-page",
   "production_url": "https://blocks-eight-pi.vercel.app",
-  "deployment_id": "dpl_9uW8PZS8Cv1tAzeBxqnKNYDi4cdq",
-  "deployment_url": "https://blocks-6gnzbjyew-platt-advisors-projects.vercel.app",
-  "source_commit": "a4e0e7b591adfd43b40e0e067d4fdc41d9b57c19",
-  "source_ref": "blocks-site",
+  "deployment_id": "dpl_7Cr7F5BsKy6fiUHLfKhD9bY53wc3",
+  "deployment_url": "https://blocks-pf5m1v3rv-platt-advisors-projects.vercel.app",
+  "source_commit": "67fd74e82c86e26bdef57346901c441c0e736aa5",
+  "source_ref": "main",
   "repository": "https://github.com/ColinPlatt/sol_vid",
   "chain_id": 11155111,
-  "collection": "0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825",
+  "collection": "0x4a37f71418870d89e192bc973626db8eb4ded06b",
   "requested_hostname": "blocks.vercel.app",
   "requested_hostname_status": "unavailable-already-in-use-by-another-account",
   "server_environment_variables": [
@@ -19,14 +19,27 @@
   ],
   "signing_keys_uploaded": false,
   "validation": {
-    "standalone_tests": 13,
-    "existing_site_tests": 28,
-    "foundry_tests": 107,
-    "chromium": "mocked wallet mint, receipt, art view, scene selection and mobile layout pass",
-    "live_api": "ALLEY #1194011 original GIF SHA-256 matches the confirmed deployment manifest",
-    "unminted_epoch_api_http_status": 404,
-    "browser_rpc_cors_http_status": 204,
-    "final_css_matches_source": true
+    "standalone_tests": 9,
+    "existing_site_tests": 32,
+    "foundry_tests": 163,
+    "chromium": "WebGL street scene, pause, reduced motion, no-WebGL fallback, one-action mocked wallet mint and receipt; desktop, 390px and 320px mobile layouts pass",
+    "live_api": "DESCENT #11941801 original GIF SHA-256 matches confirmed deployment manifest",
+    "minted_token_api_http_status": 200,
+    "unminted_block_api_http_status": 404,
+    "static_assets_match_source": {
+      "index.html": "b35e2f19c3230bb67f70e0d49a97ee72ba272041ace1c35cf174a0c2edcde273",
+      "style.css": "d48746f1bf04b502fccc9bc9a61c735eb9f6ff5950f3a8abe09369d3438b1b8f",
+      "city.mjs": "f3fc24b3a4d912ebb8fa9b3b4b12b28ed82ceb58c8e82662343c48a145cbe31e",
+      "app.mjs": "ddc9962c3ee164a07e7eafb36ef0bc25f779a3dfee67c93deb8b6821813bc14a",
+      "config.json": "1f19bf11134cf33493c4b859f9680ae7fd29d38d5a3c9dfe10eb048cebd91bc0",
+      "assets/block-11941801.gif": "53e7f9c58a62cdccb1b88777031f8cadc8465aa9ab6354a276a0bfb6c6c589d3"
+    },
+    "firefox": "not checked",
+    "safari": "not checked"
   },
-  "checked_at_utc": "2026-10-18T10:21:55Z"
+  "checked_at_utc": "2026-10-18T15:00:50.178727+00:00",
+  "previous_collection": "0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825",
+  "art_version": "BLOCKS_SINGLE_V1",
+  "first_token_id": 11941801,
+  "mint_enabled": true
 }
