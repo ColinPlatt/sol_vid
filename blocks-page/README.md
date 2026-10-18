@@ -19,6 +19,11 @@ city. Pause, reduced-motion preferences, background-tab suspension and a no-WebG
 fallback are supported. This browser atmosphere is labelled separately from the
 original onchain GIF in the collection viewer.
 
+The tab icon is a locally drawn neon city block with animated windows. Like
+ghoulballs, it swaps pre-rendered PNG frames, respects reduced motion, and keeps
+static ICO/PNG and Apple touch fallbacks. Browser QA exports its first frame to
+`previews/blocks-sepolia/tab-icon.png`.
+
 The only server credential is `SEPOLIA_RPC_URL`, used for fixed-contract reads
 capped at 500M gas. Never upload a deployment key or the repository's `.env`.
 The API reads its public collection address from `dist/config.json` and refuses

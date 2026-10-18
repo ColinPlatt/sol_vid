@@ -9,6 +9,7 @@
   "scenes": 8,
   "mobile": true,
   "narrow_mobile_320": true,
+  "animated_favicon": "PNG swaps, reduced motion and static first-frame export passed",
   "firefox": "not_checked",
   "safari": "not_checked"
 }
