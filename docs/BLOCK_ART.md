@@ -211,10 +211,17 @@ All eight scenes pass capped metadata/GIF/AVI checks and independent decoding of
 after the Foundry tests to reproduce them. Metadata costs in the measured set
 range from 234,255,355 to 448,416,431 gas.
 
-Ethereum Sepolia preparation reuses the already verified scene router. Rehearse
-with `python3 scripts/deploy_single_block_sepolia.py --env-file /path/to/.env`.
-Only after explicit authorization, add `--broadcast` to deploy the new collection
-and mint its first block. The two-transaction rehearsal estimates 20,611,765 gas
-including Foundry's margin, with a 1,000-wei/gas fee cap. No revised deployment has
-been broadcast; automatic approval review requires explicit authorization for
-this replacement. The epoch prototype's receipts and manifest remain intact.
+The revised collection was explicitly authorized and deployed on Ethereum Sepolia
+on 2026-10-18: **0x4a37f71418870d89e192bc973626db8eb4ded06b**, reusing the verified
+scene router. Its first NFT is **DESCENT #11941801**, minted to the deployer.
+The two successful transactions used **15,716,455 gas**, costing **267,179,735 wei**
+in total test ETH. The first token's captured fields match the actual mint block;
+its 90 GIF and AVI frames decode identically, last six seconds, and loop.
+Sourcify confirms exact creation and runtime source matches. Etherscan's direct
+standard-JSON check still rejects the Amsterdam EVM target.
+
+`deployments/blocks-single-sepolia.json` records the receipts and validation.
+The separate immersive site at https://blocks-eight-pi.vercel.app uses this
+collection and its zero-argument mint. The original epoch deployment and the
+Base `/blocks/` release configuration remain separate. The deployment script
+refuses a duplicate broadcast once this manifest is deployed.

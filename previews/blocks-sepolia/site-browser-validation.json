@@ -8,6 +8,7 @@
   "threejs": "WebGL rendered, pause and reduced-motion verified; no-WebGL fallback preserves mint",
   "scenes": 8,
   "mobile": true,
+  "narrow_mobile_320": true,
   "firefox": "not_checked",
   "safari": "not_checked"
 }

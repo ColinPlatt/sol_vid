@@ -63,10 +63,17 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
 
 - `src/blockart/` is a separate authorized collection, named/symbolled `blocks`,
   with verified ten-block epochs and `NEO_TOKYO_BLOCKS_V1` artwork. Preserve the
-  existing ghoulballs contracts and page. Block-art work has no broadcast approval.
+  existing ghoulballs contracts and page. Base block-art work has no broadcast approval.
 - Block-art media changes require capped GIF/AVI/metadata measurements and
   `scripts/validate_blockart.py`; gallery generation is `scripts/blockart_gallery.py`.
   The `/blocks/` mint route stays disabled until its own deployment/playback gates.
 - New `blocks` Base builds use `FOUNDRY_PROFILE=blocks_base` (Solidity 0.8.37,
   Cancun). The legacy base/base_sepolia compiler pins and live deployments stay
   unchanged. Record the compiler and profile with all new measurements.
+
+- The user authorized the revised single-block Ethereum Sepolia deployment and
+  site update on 2026-10-18. Confirmed receipts and exact-source verification are
+  in `deployments/blocks-single-sepolia.json`. The standalone `blocks-page/` uses
+  this collection; its zero-argument mint captures one current execution block.
+  Further deployments still need their own authorization.
+- The user requested working directly on `main`; do not create routine feature branches.

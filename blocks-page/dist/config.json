@@ -4,11 +4,11 @@
   "chainHex": "0xaa36a7",
   "rpcUrl": "https://ethereum-sepolia-rpc.publicnode.com",
   "explorerUrl": "https://sepolia.etherscan.io",
-  "deployed": false,
-  "mintEnabled": false,
-  "collectionAddress": null,
+  "deployed": true,
+  "mintEnabled": true,
+  "collectionAddress": "0x4a37f71418870d89e192bc973626db8eb4ded06b",
   "rendererAddress": "0xedf6937b047c1ad9d2fe4c7203b5c54f4eadad46",
-  "firstTokenId": null,
+  "firstTokenId": 11941801,
   "artVersion": "BLOCKS_SINGLE_V1",
-  "firstScene": null
+  "firstScene": "\u5730\u4e0b DESCENT"
 }

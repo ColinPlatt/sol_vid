@@ -6,15 +6,18 @@ requests the free mint, waits for the receipt, then displays the token selected 
 the transaction's actual block. No epoch, seed or header inputs are presented.
 Only one token can be minted per block. Wallets can mint again in later blocks.
 
-The new collection is **prepared, not deployed**. Its preview keeps minting and
-artwork reads disabled until a confirmed deployment is recorded. The existing
-public epoch collection and production site remain usable until the replacement
-is explicitly authorized and validated. Status: `deployments/blocks-single-sepolia.json`.
+The revised collection is deployed on **Ethereum Sepolia** at
+`0x4a37f71418870d89e192bc973626db8eb4ded06b`. The first NFT, **DESCENT #11941801**,
+is owned by the deployment wallet. Receipts, exact bytecode checks and original
+media hashes are in `deployments/blocks-single-sepolia.json`. Sourcify verified
+exact creation and runtime matches. The prior epoch prototype remains separate.
 
-The hero is a locally bundled Three.js r180 scene: instanced neon city, moving
-train, rain and pointer parallax. Pause, reduced-motion preferences, background-tab
-suspension and a no-WebGL fallback are supported. This browser illustration is
-labelled separately from the original onchain GIF in the collection viewer.
+The full-screen Three.js city has a street-level camera, neon signs drawn locally,
+instanced towers and windows, wet-road reflections, rain, moving traffic, an
+elevated train and pointer parallax. A single readable mint panel sits over the
+city. Pause, reduced-motion preferences, background-tab suspension and a no-WebGL
+fallback are supported. This browser atmosphere is labelled separately from the
+original onchain GIF in the collection viewer.
 
 The only server credential is `SEPOLIA_RPC_URL`, used for fixed-contract reads
 capped at 500M gas. Never upload a deployment key or the repository's `.env`.

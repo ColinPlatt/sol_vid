@@ -1,5 +1,4 @@
 import deployment from '../dist/config.json' with {type:'json'};
-const COLLECTION=deployment.collectionAddress;
 export function decodeToken(result,id){
  if(!/^0x(?:[a-f0-9]{2})+$/i.test(result??''))throw Error('Invalid contract response');
  const raw=Buffer.from(result.slice(2),'hex');
@@ -16,11 +15,13 @@ export function decodeToken(result,id){
  if(!match||!Array.isArray(metadata.attributes))throw Error('Unexpected onchain GIF');
  return {tokenId:id,name:metadata.name,attributes:metadata.attributes,image:match[1]};
 }
-export default async function handler(req,res){
+export function createHandler(settings){
+const COLLECTION=settings.collectionAddress;
+return async function handler(req,res){
  if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({error:'Use GET'});}
  const id=req.query.id;
  if(typeof id!=='string'||!/^\d{1,18}$/.test(id))return res.status(400).json({error:'Enter a valid block number'});
- if(!deployment.deployed||!COLLECTION)return res.status(503).json({error:'The single-block edition is not open yet.'});
+ if(!settings.deployed||!COLLECTION)return res.status(503).json({error:'The single-block edition is not open yet.'});
  const rpc=process.env.SEPOLIA_RPC_URL;
  if(!rpc)return res.status(503).json({error:'Artwork reads are temporarily unavailable. Try again shortly.'});
  try{
@@ -29,4 +30,6 @@ export default async function handler(req,res){
   if(body.error){const missing=/nonexistent|0x7e273289|ERC721NonexistentToken/i.test(JSON.stringify(body.error));return res.status(missing?404:502).setHeader('Cache-Control','no-store').json({error:missing?'That block has not been minted.':'Could not read the artwork. Try again shortly.'});}
   const token=decodeToken(body.result,id);return res.status(200).setHeader('Cache-Control','public, max-age=86400, s-maxage=31536000, immutable').json(token);
  }catch{return res.status(502).setHeader('Cache-Control','no-store').json({error:'Could not render the artwork. Try again shortly.'});}
+};
 }
+export default createHandler(deployment);

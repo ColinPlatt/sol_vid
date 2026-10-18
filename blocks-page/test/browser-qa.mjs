@@ -47,9 +47,13 @@ try{
  assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth'),true);
  assert.equal(await evaluate("document.querySelector('#mint').getBoundingClientRect().top<window.innerHeight"),true);
  await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-mobile-mocked.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await cdp('Emulation.setDeviceMetricsOverride',{width:320,height:740,deviceScaleFactor:1,mobile:true});await delay(100);
+ assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth'),true);
+ assert.equal(await evaluate("document.querySelector('.hero-copy').getBoundingClientRect().bottom+16<document.querySelector('.mint-panel').getBoundingClientRect().top"),true);
+ assert.equal(await evaluate("document.querySelector('#mint').getBoundingClientRect().bottom<window.innerHeight"),true);
  await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});await until("document.querySelector('#motion').getAttribute('aria-pressed')==='true'");
  await cdp('Page.addScriptToEvaluateOnNewDocument',{source:"const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:originalContext.call(this,type,...args);};"});
  await cdp('Page.navigate',{url:origin+'/?qa=live'});await until("document.documentElement.dataset.scene==='fallback' && !document.querySelector('#mint').disabled");
- await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,zero_argument_mint:true,threejs:'WebGL rendered, pause and reduced-motion verified; no-WebGL fallback preserves mint',scenes:8,mobile:true,firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,zero_argument_mint:true,threejs:'WebGL rendered, pause and reduced-motion verified; no-WebGL fallback preserves mint',scenes:8,mobile:true,narrow_mobile_320:true,firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
  console.log('PASS single-block site: WebGL city, pause, one-action zero-argument mint, receipt, scene selection, mobile');
 }finally{ws?.close();chrome?.kill();server.close();await delay(100);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:100});}
