@@ -1,0 +1,32 @@
+{
+  "status": "deployed",
+  "project_name": "blocks",
+  "project_id": "prj_sfjNvUhjg94BxBrlXDc5syW7GwFO",
+  "team": "platt-advisors-projects",
+  "root_directory": "blocks-page",
+  "production_url": "https://blocks-eight-pi.vercel.app",
+  "deployment_id": "dpl_9uW8PZS8Cv1tAzeBxqnKNYDi4cdq",
+  "deployment_url": "https://blocks-6gnzbjyew-platt-advisors-projects.vercel.app",
+  "source_commit": "a4e0e7b591adfd43b40e0e067d4fdc41d9b57c19",
+  "source_ref": "blocks-site",
+  "repository": "https://github.com/ColinPlatt/sol_vid",
+  "chain_id": 11155111,
+  "collection": "0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825",
+  "requested_hostname": "blocks.vercel.app",
+  "requested_hostname_status": "unavailable-already-in-use-by-another-account",
+  "server_environment_variables": [
+    "SEPOLIA_RPC_URL"
+  ],
+  "signing_keys_uploaded": false,
+  "validation": {
+    "standalone_tests": 13,
+    "existing_site_tests": 28,
+    "foundry_tests": 107,
+    "chromium": "mocked wallet mint, receipt, art view, scene selection and mobile layout pass",
+    "live_api": "ALLEY #1194011 original GIF SHA-256 matches the confirmed deployment manifest",
+    "unminted_epoch_api_http_status": 404,
+    "browser_rpc_cors_http_status": 204,
+    "final_css_matches_source": true
+  },
+  "checked_at_utc": "2026-10-18T10:21:55Z"
+}

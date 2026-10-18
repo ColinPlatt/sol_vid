@@ -1,0 +1,13 @@
+{
+  "network": "Ethereum Sepolia",
+  "site": "standalone blocks-page",
+  "chromium": "passed",
+  "wallet": "mocked only; no real transactions",
+  "closed_release": true,
+  "zero_argument_mint": true,
+  "threejs": "WebGL rendered, pause and reduced-motion verified; no-WebGL fallback preserves mint",
+  "scenes": 8,
+  "mobile": true,
+  "firefox": "not_checked",
+  "safari": "not_checked"
+}

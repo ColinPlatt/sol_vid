@@ -1,0 +1,9 @@
+{
+  "name": "blocks-mint",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check dist/app.mjs && node --check dist/mint.mjs && node --check dist/city.mjs && node --check dist/wallet.mjs && node --check api/token.js"
+  }
+}

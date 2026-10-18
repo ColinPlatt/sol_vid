@@ -1,0 +1,14 @@
+{
+  "name": "Ethereum Sepolia",
+  "chainId": 11155111,
+  "chainHex": "0xaa36a7",
+  "rpcUrl": "https://ethereum-sepolia-rpc.publicnode.com",
+  "explorerUrl": "https://sepolia.etherscan.io",
+  "deployed": false,
+  "mintEnabled": false,
+  "collectionAddress": null,
+  "rendererAddress": "0xedf6937b047c1ad9d2fe4c7203b5c54f4eadad46",
+  "firstTokenId": null,
+  "artVersion": "BLOCKS_SINGLE_V1",
+  "firstScene": null
+}
