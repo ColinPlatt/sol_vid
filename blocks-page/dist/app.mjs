@@ -13,6 +13,7 @@ async function viewToken(id,scroll=false){
  try{
   const response=await fetch('/api/token?id='+encodeURIComponent(id)),token=await response.json();if(!response.ok)throw Error(token.error||'This block could not be read.');
   if(!/^data:image\/gif;base64,[A-Za-z0-9+/=]+$/.test(token.image)||!Array.isArray(token.attributes))throw Error('Unexpected artwork response.');
+  window.dispatchEvent(new CustomEvent('blocks:artwork',{detail:{...token,tokenId:String(id)}}));
   $('hero').src=token.image;$('hero').alt=token.name;$('caption').textContent=token.name+' / ETHEREUM SEPOLIA';$('art-name').textContent=(token.name.split('#')[0].replace(/[^a-zA-Z ]/g,'').trim()||'Your night')+'.';$('art-label').textContent='MINTED BLOCK #'+id;$('edition').textContent='ONE BLOCK / ONE EDITION';$('art-description').textContent='This is the original GIF from the contract, generated from the block your mint landed in.';$('download').href=token.image;$('download').download=`blocks-${id}.gif`;traits(token.attributes);selectScene('');$('read-status').textContent='';if(scroll)$('collection').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
  }catch(error){$('read-status').textContent=friendlyError(error);}finally{reading=false;$('view').disabled=false;}
 }

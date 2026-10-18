@@ -7,6 +7,9 @@
   "functions": {
     "api/token.js": {
       "maxDuration": 60
+    },
+    "api/world.js": {
+      "maxDuration": 30
     }
   },
   "headers": [

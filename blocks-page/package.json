@@ -4,6 +4,6 @@
   "type": "module",
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "check": "node --check dist/app.mjs && node --check dist/mint.mjs && node --check dist/city.mjs && node --check dist/wallet.mjs && node --check api/token.js && node --check dist/favicon.mjs"
+    "check": "node --check dist/app.mjs && node --check dist/mint.mjs && node --check dist/city.mjs && node --check dist/wallet.mjs && node --check dist/world.mjs && node --check api/world.js && node --check api/token.js && node --check dist/favicon.mjs"
   }
 }

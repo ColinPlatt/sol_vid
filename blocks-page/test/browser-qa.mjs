@@ -10,6 +10,7 @@ const root=fileURLToPath(new URL('../../',import.meta.url)),dist=path.join(root,
 const server=createServer(async(req,res)=>{try{let name=new URL(req.url,'http://localhost').pathname;if(name.endsWith('/'))name+='index.html';const file=path.resolve(dist,'.'+name);if(!file.startsWith(dist+path.sep))throw Error('path');const data=await readFile(file);res.setHeader('Content-Type',({'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.json':'application/json','.gif':'image/gif'})[path.extname(file)]??'application/octet-stream');res.end(data);}catch{res.writeHead(404).end();}});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin=`http://127.0.0.1:${server.address().port}`;
+const galleryGIF=(await readFile(path.join(dist,'assets/block-11941801.gif'))).toString('base64');
 const profile=await mkdtemp(path.join(tmpdir(),'blocks-browser-'));const delay=ms=>new Promise(r=>setTimeout(r,ms));let chrome,ws;
 try{
  chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
@@ -24,7 +25,9 @@ try{
  const account='0x'+'a'.repeat(40),collection='0x'+'b'.repeat(40),renderer='0x'+'c'.repeat(40),hash='0x'+'e'.repeat(64),live=new URL(location.href).searchParams.get('qa')==='live';
  window.__sends=[];const abi=s=>'0x'+'20'.padStart(64,'0')+BigInt(s.length).toString(16).padStart(64,'0')+Array.from(new TextEncoder().encode(s),b=>b.toString(16).padStart(2,'0')).join('').padEnd(64,'0');
  const native=window.fetch.bind(window);window.fetch=async(url,options)=>{
-  if(String(url).startsWith('/api/token'))return new Response(JSON.stringify({name:'ALLEY #13000000',attributes:[{trait_type:'Block',value:13000000}],image:'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'}));
+  if(String(url)==='/api/world'&&window.__worldOffline)return new Response('{}',{status:503});
+  if(String(url)==='/api/world')return new Response(JSON.stringify({chainId:11155111,blockNumber:'13000000',timestamp:Math.floor(Date.now()/1000),baseFeeWei:'123456789',gasUsed:'15000000',gasLimit:'60000000',transactions:72,totalSupply:'2',tokenIds:['13000000','11941801'],observedAt:Date.now()}));
+  if(String(url).startsWith('/api/token'))return new Response(JSON.stringify({name:'ALLEY #13000000',attributes:[{trait_type:'Block',value:13000000}],tokenId:'13000000',image:'data:image/gif;base64,${galleryGIF}'}));
   if(String(url).endsWith('config.json'))return new Response(JSON.stringify({artVersion:'BLOCKS_SINGLE_V1',name:'Ethereum Sepolia',chainId:11155111,chainHex:'0xaa36a7',rpcUrl:'https://mainnet.base.org',explorerUrl:'https://basescan.org',deployed:true,mintEnabled:live,collectionAddress:collection,rendererAddress:renderer}));
   if(options?.body){const req=JSON.parse(options.body);let result;if(req.method==='eth_getTransactionReceipt')result={status:'0x1',blockNumber:'0xc65d40',logs:[{address:collection,topics:['0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef','0x'+'0'.repeat(64),'0x'+account.slice(2).padStart(64,'0'),'0x'+(13000000n).toString(16).padStart(64,'0')]}]};else throw Error('Unexpected RPC '+req.method);return new Response(JSON.stringify({jsonrpc:'2.0',id:req.id,result}));}
   return native(url,options);
@@ -37,6 +40,9 @@ try{
  assert.equal(await evaluate("document.querySelector('#epoch')===null && document.querySelector('#refresh')===null && document.querySelector('#connect')===null"),true);
  await until("['webgl','fallback'].includes(document.documentElement.dataset.scene)");
  assert.equal(await evaluate("document.documentElement.dataset.scene"),'webgl');
+ await until("document.querySelector('#chain-status').textContent==='SEPOLIA / LIVE'");
+ assert.equal(await evaluate("document.querySelector('#chain-head').textContent"),'#13,000,000');
+ assert.equal(await evaluate("document.querySelector('#chain-supply').textContent"),'2 MINTED');
  await until("document.querySelector('#animated-icon')?.href.startsWith('data:image/png;base64,')");
  const icon=await evaluate("document.querySelector('#animated-icon').href");await delay(180);
  assert.notEqual(await evaluate("document.querySelector('#animated-icon').href"),icon,'Tab icon must animate');
@@ -50,7 +56,9 @@ try{
  assert.notEqual((await cdp('Page.captureScreenshot',{format:'png'})).data,streetBefore,'Street must move while walking');
  await evaluate("document.querySelector('#motion').click()");await delay(500);
  const streetPaused=(await cdp('Page.captureScreenshot',{format:'png'})).data;await delay(250);
- assert.equal((await cdp('Page.captureScreenshot',{format:'png'})).data,streetPaused,'Pause must freeze the street and reflections');
+ const pausedAfter=(await cdp('Page.captureScreenshot',{format:'png'})).data;
+ if(pausedAfter!==streetPaused){await writeFile('/tmp/blocks-pause-before.png',Buffer.from(streetPaused,'base64'));await writeFile('/tmp/blocks-pause-after.png',Buffer.from(pausedAfter,'base64'));}
+ assert.ok(pausedAfter===streetPaused,'Pause must freeze the street and reflections');
  await writeFile(path.join(root,'previews/blocks-sepolia/site-street-desktop.png'),Buffer.from(streetPaused,'base64'));
  await evaluate("document.querySelector('#motion').click()");
  await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
@@ -84,8 +92,11 @@ try{
  const stillIcon=await evaluate("document.querySelector('#animated-icon').href");await delay(250);
  assert.equal(await evaluate("document.querySelector('#animated-icon').href"),stillIcon,'Reduced motion must stop the tab icon');
 
+ await evaluate("window.__worldOffline=true;document.dispatchEvent(new Event('visibilitychange'))");
+ await until("document.querySelector('#chain-status').textContent==='SEPOLIA / FEED OFFLINE'");
+ assert.equal(await evaluate("document.querySelector('#chain-head').textContent"),'#13,000,000');
  await cdp('Page.addScriptToEvaluateOnNewDocument',{source:"const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:originalContext.call(this,type,...args);};"});
  await cdp('Page.navigate',{url:origin+'/?qa=live'});await until("document.documentElement.dataset.scene==='fallback' && !document.querySelector('#mint').disabled");
- await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,zero_argument_mint:true,threejs:'Eye-level infinite street, live planar reflections, enter/escape, paused-frame stability and mobile touch look verified; reduced-motion and no-WebGL fallback preserve mint',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,zero_argument_mint:true,threejs:'Eye-level infinite street, live planar reflections, enter/escape, paused-frame stability and mobile touch look verified; reduced-motion and no-WebGL fallback preserve mint',chain_feed:'Mocked head, base fee, minted count and offline state passed; no real wallet transactions',world_gallery:'Eight labelled kiosks with minted originals and demo fallback; WebCodecs GIF playback with static poster fallback',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
  console.log('PASS single-block site: WebGL city, pause, one-action zero-argument mint, receipt, scene selection, mobile');
 }finally{ws?.close();chrome?.kill();server.close();await delay(100);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:100});}

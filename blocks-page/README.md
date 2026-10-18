@@ -26,6 +26,20 @@ Pause, reduced-motion preferences, background-tab/offscreen suspension and a
 no-WebGL fallback are supported. This browser illustration is separate from the
 original onchain GIF in the collection viewer.
 
+The street includes eight art kiosks. They start with labelled demo scenes, then
+show original minted GIFs from the fixed Sepolia collection. New mints also enter
+the gallery after their metadata loads. WebCodecs-capable browsers animate GIF
+textures; other browsers display the first-frame poster. Pausing or requesting
+reduced motion freezes the artwork as well as the walk.
+
+The read-only `/api/world` feed refreshes every 30 seconds and reports the latest
+Sepolia block, base fee and collection mint count in the HUD and overhead signs.
+Delayed/offline readings are marked. Mint discovery uses the collection's
+`latestTokenId`, the known first mint and a bounded 2,000-block Transfer-log scan;
+this is a recent gallery, not a complete historical index. Metadata renders run
+sequentially, at most two new tokens per refresh, without blocking chain updates.
+The endpoint accepts no RPC or collection override and uses only `SEPOLIA_RPC_URL`.
+
 The tab icon is a locally drawn neon city block with animated windows. Like
 ghoulballs, it swaps pre-rendered PNG frames, respects reduced motion, and keeps
 static ICO/PNG and Apple touch fallbacks. Browser QA exports its first frame to

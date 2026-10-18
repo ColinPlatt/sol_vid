@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.min.js';
+import {demos,watchWorld} from './world.mjs';
 
 const canvas = document.querySelector('#city');
 const stage = document.querySelector('#city-stage');
@@ -31,6 +32,20 @@ exit.onclick = () => explore(false);
 const escape = event => { if (event.key === 'Escape') explore(false); };
 document.addEventListener('keydown', escape);
 label();
+let showChain=()=>{},showToken=()=>{},lastChainLabels;
+const hud=document.querySelector('.chain-hud');
+const stopWorld=watchWorld({
+  onState(state,labels){
+    document.querySelector('#chain-head').textContent=labels.head;
+    document.querySelector('#chain-fee').textContent=labels.fee;
+    document.querySelector('#chain-supply').textContent=labels.minted;
+    hud.title='Latest block: '+new Date(state.timestamp*1000).toLocaleTimeString()+' · '+state.transactions+' transactions · '+Math.round(Number(state.gasUsed)/Number(state.gasLimit)*100)+'% gas used';
+    lastChainLabels=labels;showChain(labels);
+  },
+  onStatus(status){hud.dataset.status=status;showChain(lastChainLabels,status);document.querySelector('#chain-status').textContent='SEPOLIA / '+({live:'LIVE',stale:'DELAYED',offline:'FEED OFFLINE'}[status]);},
+  onToken(token){showToken(token);}
+});
+window.addEventListener('pagehide',stopWorld,{once:true});
 
 try {
   renderer = new THREE.WebGLRenderer({canvas, antialias: true, powerPreference: 'low-power'});
@@ -101,6 +116,53 @@ try {
   function sign(group,x,y,z,text,colour,w,h,rotation=0,vertical=false) {
     const mesh=new THREE.Mesh(signGeometry,signMaterial(text,colour,vertical));mesh.position.set(x,y,z);mesh.scale.set(w,h,1);mesh.rotation.y=rotation;group.add(mesh);
   }
+  // A small shared texture pool keeps animated artwork native to the street's billboards.
+  const gallery=[],mintedArt=[],artSources=new Map();let artStamp=-1;
+  function artwork(source){
+    if(artSources.has(source))return artSources.get(source);
+    const image=new Image(),c=document.createElement('canvas');c.width=c.height=128;
+    const ctx=c.getContext('2d');ctx.fillStyle='#100b26';ctx.fillRect(0,0,128,128);
+    const texture=keep(new THREE.CanvasTexture(c));texture.colorSpace=THREE.SRGBColorSpace;
+    texture.magFilter=THREE.NearestFilter;texture.minFilter=THREE.LinearFilter;texture.generateMipmaps=false;
+    const entry={image,ctx,texture,decoder:null,decoding:false,frame:-1,removed:false};artSources.set(source,entry);
+    // WebCodecs exposes actual GIF frames; browsers without it keep the native first-frame poster.
+    if('ImageDecoder' in window)fetch(source).then(response=>response.arrayBuffer()).then(async data=>{
+      if(disposed||entry.removed)return;
+      const decoder=new ImageDecoder({data,type:'image/gif',preferAnimation:true});
+      try{await decoder.completed;if(disposed||entry.removed){decoder.close();return;}entry.decoder=decoder;}
+      catch{decoder.close();}
+    }).catch(()=>{});
+    image.onload=()=>{if(disposed)return;ctx.drawImage(image,0,0,128,128);texture.needsUpdate=true;if(paused)render(true);};image.src=source;
+    return entry;
+  }
+  function galleryLabels(){
+    gallery.forEach((board,i)=>{
+      const token=i<mintedArt.length?mintedArt[i]:(mintedArt.length&&i%3===0?mintedArt[Math.floor(i/3)%mintedArt.length]:null);
+      const source=token?token.image:'assets/'+demos[i%demos.length]+'.gif';
+      board.picture.material.map=artwork(source).texture;board.picture.material.needsUpdate=true;
+      const ctx=board.ctx;ctx.clearRect(0,0,512,96);ctx.fillStyle='#080c21';ctx.fillRect(0,0,512,96);
+      ctx.textAlign='center';ctx.fillStyle=token?'#66ffce':'#ff75d0';ctx.font='bold 23px monospace';
+      ctx.fillText(token?'MINTED / #'+token.tokenId:'DEMO / '+demos[i%demos.length].toUpperCase(),256,39);
+      ctx.font='15px monospace';ctx.fillStyle='#b1d0e1';ctx.fillText(token?'BLOCKS · ONCHAIN ORIGINAL':'SCENE STUDY · NOT MINTED',256,71);board.texture.needsUpdate=true;
+    });
+    const used=new Set(gallery.map(board=>board.picture.material.map));
+    for(const [source,entry] of artSources)if(!used.has(entry.texture)){entry.removed=true;entry.decoder?.close();entry.image.onload=null;entry.image.src='';entry.texture.dispose();resources.delete(entry.texture);artSources.delete(source);}
+  }
+  showToken=token=>{
+    if(disposed)return;
+    const i=mintedArt.findIndex(item=>item.tokenId===token.tokenId);if(i>=0)mintedArt.splice(i,1);
+    mintedArt.unshift(token);mintedArt.length=Math.min(mintedArt.length,8);galleryLabels();if(paused)render(true);
+  };
+  const telemetryCanvas=document.createElement('canvas');telemetryCanvas.width=1024;telemetryCanvas.height=256;
+  const telemetry=telemetryCanvas.getContext('2d'),telemetryTexture=keep(new THREE.CanvasTexture(telemetryCanvas));telemetryTexture.colorSpace=THREE.SRGBColorSpace;
+  const telemetryMaterial=keep(new THREE.MeshBasicMaterial({map:telemetryTexture,toneMapped:false,side:THREE.DoubleSide}));
+  function paintChain(labels,status='connecting'){
+    telemetry.fillStyle='#080c21';telemetry.fillRect(0,0,1024,256);telemetry.strokeStyle='#00edff';telemetry.lineWidth=7;telemetry.strokeRect(5,5,1014,246);
+    telemetry.textAlign='center';telemetry.fillStyle='#ff45bd';telemetry.font='bold 34px monospace';telemetry.fillText('SEPOLIA / '+({live:'LIVE CHAIN',offline:'FEED OFFLINE',stale:'DELAYED FEED',connecting:'CHAIN FEED'}[status]),512,65);
+    telemetry.fillStyle='#72faff';telemetry.font='bold 62px monospace';telemetry.fillText(labels?.head??'CONNECTING',512,145);
+    telemetry.fillStyle='#b8e2f0';telemetry.font='25px monospace';telemetry.fillText(labels?labels.fee+'  /  '+labels.minted:'WAITING FOR LIVE CHAIN DATA',512,211);telemetryTexture.needsUpdate=true;
+  }
+  paintChain();showChain=(labels,status)=>{paintChain(labels,status);if(paused)render(true);};
   const DEPTH=28, COUNT=8, LENGTH=DEPTH*COUNT, tiles=[], trains=[];
   const shopNames=['電脳東京','深夜喫茶','NEON CLUB','未来都市','BLOCKS','ゲーム','不夜城','深夜食堂'];
   const neon=['#00edff','#ff20ad','#b04bff','#ffb51b','#72ff78'];
@@ -179,6 +241,18 @@ try {
       for(let branch=0;branch<4;branch++)leaves.push({x:side*3.5+(random()-.5),y:3+random()*.5,z:-25+(random()-.5),w:.7,h:.8,d:.7,colour:0x315b50});
       for(let zz=-22;zz<1;zz+=10){part(opaque,side*2.3,1.6,zz,.05,3.2,.05,0x536f7e);part(lit,side*2.3,3.22,zz,.5,.04,.12,0xafd5da);halo(group,side*2.3,3.15,zz,2.4,side>0);}
     }
+    // Recessed gallery kiosks along both pavements: demos and minted originals are labelled separately.
+    const gallerySide=tile%2?1:-1,galleryX=gallerySide*3.05;
+    part(opaque,galleryX,1.8,-13,2.05,3.6,.3,0x101327);
+    part(lit,galleryX,3.62,-12.82,2.06,.035,.04,tile%2?0xff20ad:0x00edff);
+    const picture=new THREE.Mesh(signGeometry,keep(new THREE.MeshBasicMaterial({toneMapped:false,side:THREE.DoubleSide})));
+    picture.position.set(galleryX,2.25,-12.82);picture.scale.set(1.85,1.85,1);group.add(picture);
+    const caption=document.createElement('canvas');caption.width=512;caption.height=96;
+    const captionTexture=keep(new THREE.CanvasTexture(caption));captionTexture.colorSpace=THREE.SRGBColorSpace;
+    const captionMesh=new THREE.Mesh(signGeometry,keep(new THREE.MeshBasicMaterial({map:captionTexture,toneMapped:false,side:THREE.DoubleSide})));
+    captionMesh.position.set(galleryX,1.05,-12.81);captionMesh.scale.set(1.9,.36,1);group.add(captionMesh);
+    gallery.push({picture,ctx:caption.getContext('2d'),texture:captionTexture});
+    if(tile===1||tile===5){const feed=new THREE.Mesh(signGeometry,telemetryMaterial);feed.position.set(0,5.3,-20);feed.scale.set(6.5,1.625,1);group.add(feed);}
     if(tile%2===1) {
       // Thin glazed footbridges pass overhead, then disappear behind the walker.
       part(opaque,0,6.9,-17,11.5,.3,3.1,0x718d9c);
@@ -200,6 +274,7 @@ try {
     if(tile%2===0)for(let x=-1.8;x<2;x+=.75)part(opaque,x,.018,-25,.4,.025,2.8,0xb7c6c8);
     batch(group,box,solid,opaque);batch(group,box,glass,glazed);batch(group,box,emissive,lit);batch(group,leafGeometry,leafMaterial,leaves);
   }
+  galleryLabels();
   // The street's own reflected image is rendered at a modest resolution, a few times per second.
   const reflection = keep(new THREE.WebGLRenderTarget(512,512,{depthBuffer:true}));
   const reflectedMatrix = new THREE.Matrix4();
@@ -248,6 +323,17 @@ try {
     camera.position.set(.65+cursor.x*.4,1.72+bob,6);
     const yaw=cursor.x*.65;
     look.set(.65+Math.sin(yaw)*38,2.05-cursor.y*45,6-Math.cos(yaw)*38);camera.lookAt(look);camera.updateMatrixWorld();
+    if(!paused&&!reduced.matches&&elapsed-artStamp>1/12){
+      for(const entry of artSources.values())if(entry.decoder&&!entry.decoding){
+        const index=Math.floor(elapsed*15)%entry.decoder.tracks.selectedTrack.frameCount;
+        if(index===entry.frame)continue;entry.decoding=true;
+        entry.decoder.decode({frameIndex:index}).then(({image:frame})=>{
+          if(!disposed&&!entry.removed&&!paused&&!reduced.matches){entry.ctx.drawImage(frame,0,0,128,128);entry.texture.needsUpdate=true;entry.frame=index;}
+          frame.close();
+        }).catch(()=>{}).finally(()=>{entry.decoding=false;});
+      }
+      artStamp=elapsed;
+    }
     tiles.forEach((tile,i)=>{tile.position.z=28-((28+i*DEPTH-distance)%LENGTH+LENGTH)%LENGTH;});
     trains.forEach(train=>{train.position.x=(elapsed*4)%85-48;});rain.position.y=-(elapsed*6)%7;
     groundMaterial.uniforms.time.value=elapsed;groundMaterial.uniforms.travel.value=distance;groundMaterial.uniforms.pulse.value=pulse;
@@ -291,7 +377,7 @@ try {
   const viewport=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;visibility();});viewport.observe(stage);
   window.addEventListener('pointermove',pointer);stage.addEventListener('pointerdown',down);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
   document.documentElement.addEventListener('pointerleave',leave);document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',preference);window.addEventListener('blocks:minted',minted);
-  window.addEventListener('pagehide',()=>{disposed=true;renderer.setAnimationLoop(null);observer.disconnect();viewport.disconnect();window.removeEventListener('pointermove',pointer);stage.removeEventListener('pointerdown',down);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);document.documentElement.removeEventListener('pointerleave',leave);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',preference);window.removeEventListener('blocks:minted',minted);document.removeEventListener('keydown',escape);resources.forEach(resource=>resource.dispose());renderer.dispose();},{once:true});
+  window.addEventListener('pagehide',()=>{disposed=true;renderer.setAnimationLoop(null);observer.disconnect();viewport.disconnect();window.removeEventListener('pointermove',pointer);stage.removeEventListener('pointerdown',down);window.removeEventListener('pointerup',up);window.removeEventListener('pointercancel',up);document.documentElement.removeEventListener('pointerleave',leave);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',preference);window.removeEventListener('blocks:minted',minted);document.removeEventListener('keydown',escape);artSources.forEach(entry=>{entry.removed=true;entry.decoder?.close();entry.image.onload=null;entry.image.src='';});resources.forEach(resource=>resource.dispose());renderer.dispose();},{once:true});
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();renderer.setAnimationLoop(null);document.documentElement.dataset.scene='fallback';motion.hidden=true;explore(false,false);enter.hidden=true;});
   document.documentElement.dataset.scene='webgl';resize();visibility();
 }catch {
