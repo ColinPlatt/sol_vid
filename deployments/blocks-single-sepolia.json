@@ -1,0 +1,41 @@
+{
+  "status": "prepared_not_deployed",
+  "network": "Ethereum Sepolia",
+  "chain_id": 11155111,
+  "collection_name": "blocks",
+  "collection_symbol": "blocks",
+  "collection": null,
+  "renderer": "0xedf6937b047c1ad9d2fe4c7203b5c54f4eadad46",
+  "art_version": "BLOCKS_SINGLE_V1",
+  "mint_signature": "mint()",
+  "token_id": "execution block number",
+  "limit": "one NFT per block, first successful caller",
+  "source_fields": [
+    "number",
+    "timestamp",
+    "gasLimit",
+    "baseFee",
+    "prevrandao",
+    "beneficiary",
+    "chainId"
+  ],
+  "previous_collection": "0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825",
+  "compiler": "0.8.37+commit.f401782d",
+  "evm_version": "amsterdam",
+  "optimizer_runs": 200,
+  "via_ir": true,
+  "experimental": true,
+  "simulation": {
+    "transactions": 2,
+    "estimated_gas_including_margin": 20611765,
+    "max_fee_per_gas_wei": "1000",
+    "fee_allowance_wei": "20611765000",
+    "status": "passed"
+  },
+  "runtime_bytes": 9158,
+  "mint_enabled": false,
+  "source_verification": {
+    "status": "input_prepared_and_rebuilds_exact_creation_bytecode"
+  },
+  "broadcast_authorization": "pending_explicit_approval_for_revised_collection"
+}
