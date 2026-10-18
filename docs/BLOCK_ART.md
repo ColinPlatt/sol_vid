@@ -177,3 +177,10 @@ and AVI each succeeded with a 500M-gas call cap. Pillow and FFmpeg confirmed all
 receipts, code hashes and media checks are in `deployments/blocks-sepolia.json`;
 source-verification inputs are in `verification/blocks-sepolia/`. This testnet
 deployment does not establish marketplace playback or launch the Base mint route.
+
+All ten deployed contracts have **exact creation and runtime matches on Sourcify**.
+The NFT source is available at
+[Sourcify](https://repo.sourcify.dev/11155111/0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825).
+Foundry's `--verify` also attempted Etherscan; its verifier currently rejects the
+Amsterdam EVM target (and initially had indexing errors for two scenes). This
+explorer limitation did not affect deployment or the successful Sourcify checks.

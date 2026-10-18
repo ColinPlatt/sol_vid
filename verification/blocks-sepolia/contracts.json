@@ -4,69 +4,99 @@
     "source": "src/blockart/scenes/Canyon.sol",
     "address": "0x9b98725f47fae11edc4d62cc1a6be6cdffa4ba9e",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": ""
+    "constructor_arguments": "",
+    "creation_bytecode_sha256": "260b82801759623dd7fb2de3398c1e85183f0e0adab05a470d903ef84ba82576",
+    "creation_bytecode_bytes": 20814,
+    "creation_transaction_hash": "0xc933c0a034f888b44fb1597b400669c5cc1f3b03a1805c18975fe48a4e0feccd"
   },
   {
     "contract": "Descent",
     "source": "src/blockart/scenes/Descent.sol",
     "address": "0x40ec5092c0b4b9230e8f5cc9e1d0dde8479e13e3",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": ""
+    "constructor_arguments": "",
+    "creation_bytecode_sha256": "96eba25595bc159167f0bf723b799d92e78826580a7845b0418a0008803b9cad",
+    "creation_bytecode_bytes": 17618,
+    "creation_transaction_hash": "0x28157cdb968891e277e60bd74745a0927fbd90d23242c2043ffcacf609c8d26a"
   },
   {
     "contract": "Monorail",
     "source": "src/blockart/scenes/Monorail.sol",
     "address": "0x052d7c4f8388868ee4d609b7b766b2e55493eadb",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": ""
+    "constructor_arguments": "",
+    "creation_bytecode_sha256": "d4c253c78c0e7b68b58cfdb621d7d975ce826fbf95df999972439efcb4ad9e2c",
+    "creation_bytecode_bytes": 22066,
+    "creation_transaction_hash": "0x22292dc41f6012167834c7798609d5c6fb048b0a67ac52444e20c8acf90ad500"
   },
   {
     "contract": "Spire",
     "source": "src/blockart/scenes/Spire.sol",
     "address": "0x6a12fcab116179201e8ab8018524f48c66a89525",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": ""
+    "constructor_arguments": "",
+    "creation_bytecode_sha256": "9b5b743b73cc9b0cfc0140f0dafcd80f37eeb25580656b1c443dfd62b4791ba6",
+    "creation_bytecode_bytes": 15801,
+    "creation_transaction_hash": "0x70126eaebea6eac07252303fb987e46b639e83559ebb6f490b2c3417d55d79e0"
   },
   {
     "contract": "Skyline",
     "source": "src/blockart/scenes/Skyline.sol",
     "address": "0x5930977cb50acef591838b6dc60ea4798635a4d3",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": ""
+    "constructor_arguments": "",
+    "creation_bytecode_sha256": "51de8bd8f0aaf5cec04d16b0a66ad023b5f10969b5e8c5c0009bf3d7d2fd91a1",
+    "creation_bytecode_bytes": 18935,
+    "creation_transaction_hash": "0x84ed0ed957ab55e878e973ef46448295219ec97c7c90746ba2c86620e5c19ab3"
   },
   {
     "contract": "Alley",
     "source": "src/blockart/scenes/Alley.sol",
     "address": "0x6b5c2c6e2fab7bfd3b35284aa3ec47a0e0ab1c1a",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": ""
+    "constructor_arguments": "",
+    "creation_bytecode_sha256": "6220cb9f267388603d50b23014fa22d12a21b4e12aa8c73b98dda6708cf17e44",
+    "creation_bytecode_bytes": 20393,
+    "creation_transaction_hash": "0x8a9c39c126da3f1a12a2e74ec194cfa2c58ce060702ccd2f815e723a73be8b86"
   },
   {
     "contract": "NightTrain",
     "source": "src/blockart/scenes/NightTrain.sol",
     "address": "0x8f9ba4f5a8ae784c771b0b17d7959dd9210430dd",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": ""
+    "constructor_arguments": "",
+    "creation_bytecode_sha256": "23ee99cff2fd4067c96b628502c59e3830fd4d3944299b34dd53807e1b28318d",
+    "creation_bytecode_bytes": 21720,
+    "creation_transaction_hash": "0x1092e6106de53c3cbad11d599623d47390cc9d4a0cb3013e4d253c2ec41d2ad8"
   },
   {
     "contract": "Satoyama",
     "source": "src/blockart/scenes/Satoyama.sol",
     "address": "0x82a997de5a28eeb9c772febb8a02fa70afa34b08",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": ""
+    "constructor_arguments": "",
+    "creation_bytecode_sha256": "8c6b7cd8ff1ad1147f5bf98bfc00e2ff79a9f39ede6a2bff45fa0bf9791df83c",
+    "creation_bytecode_bytes": 16652,
+    "creation_transaction_hash": "0x5e3865520e6dda21adbe717b141c70f8790ca2d21871db80cb1e1575fd5c812b"
   },
   {
     "contract": "BlockArtRenderer",
     "source": "src/blockart/BlockArtRenderer.sol",
     "address": "0xedf6937b047c1ad9d2fe4c7203b5c54f4eadad46",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": "0000000000000000000000009b98725f47fae11edc4d62cc1a6be6cdffa4ba9e00000000000000000000000040ec5092c0b4b9230e8f5cc9e1d0dde8479e13e3000000000000000000000000052d7c4f8388868ee4d609b7b766b2e55493eadb0000000000000000000000006a12fcab116179201e8ab8018524f48c66a895250000000000000000000000005930977cb50acef591838b6dc60ea4798635a4d30000000000000000000000006b5c2c6e2fab7bfd3b35284aa3ec47a0e0ab1c1a0000000000000000000000008f9ba4f5a8ae784c771b0b17d7959dd9210430dd00000000000000000000000082a997de5a28eeb9c772febb8a02fa70afa34b08"
+    "constructor_arguments": "0000000000000000000000009b98725f47fae11edc4d62cc1a6be6cdffa4ba9e00000000000000000000000040ec5092c0b4b9230e8f5cc9e1d0dde8479e13e3000000000000000000000000052d7c4f8388868ee4d609b7b766b2e55493eadb0000000000000000000000006a12fcab116179201e8ab8018524f48c66a895250000000000000000000000005930977cb50acef591838b6dc60ea4798635a4d30000000000000000000000006b5c2c6e2fab7bfd3b35284aa3ec47a0e0ab1c1a0000000000000000000000008f9ba4f5a8ae784c771b0b17d7959dd9210430dd00000000000000000000000082a997de5a28eeb9c772febb8a02fa70afa34b08",
+    "creation_bytecode_sha256": "4a8f9163cdf6667397190269801e13e38f57b9e54bd84d2c55e9248de050b57a",
+    "creation_bytecode_bytes": 2701,
+    "creation_transaction_hash": "0xca6c2c88a84fa5bf3e71e2ab014c6ec224338597d9b2c1d8841b4d4d78148e01"
   },
   {
     "contract": "BlockArtNFT",
     "source": "src/blockart/BlockArtNFT.sol",
     "address": "0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825",
     "compiler": "v0.8.37+commit.f401782d",
-    "constructor_arguments": "000000000000000000000000edf6937b047c1ad9d2fe4c7203b5c54f4eadad46"
+    "constructor_arguments": "000000000000000000000000edf6937b047c1ad9d2fe4c7203b5c54f4eadad46",
+    "creation_bytecode_sha256": "ea2605dabbcdeba0f3e119108a29a70a01a2f318fa12073b8ae09924985d2de2",
+    "creation_bytecode_bytes": 10268,
+    "creation_transaction_hash": "0xd585df9bc546db4d296e8f24578243ce3941ddb4a0a46966819abfd2e52a9680"
   }
 ]
