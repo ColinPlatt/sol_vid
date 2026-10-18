@@ -39,16 +39,16 @@ try {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x09121e);
-  scene.fog = new THREE.FogExp2(0x122236, .019);
+  scene.background = new THREE.Color(0x090719);
+  scene.fog = new THREE.FogExp2(0x191131, .014);
   const camera = new THREE.PerspectiveCamera(64, 1, .12, 240);
   const reflected = camera.clone();
   const look = new THREE.Vector3();
-  scene.add(new THREE.HemisphereLight(0xaec7e5, 0x1a1926, 1.8));
-  const moonlight = new THREE.DirectionalLight(0xb7d7f5, 2.1);
+  scene.add(new THREE.HemisphereLight(0x9daeff, 0x38103d, 1.3));
+  const moonlight = new THREE.DirectionalLight(0x8eacff, 1.4);
   moonlight.position.set(-14, 40, 20); scene.add(moonlight);
-  for (const [x,z,colour] of [[-4,0,0x64e7ed],[4,-12,0xffb47b]]) {
-    const light = new THREE.PointLight(colour, 28, 22, 2); light.position.set(x,3,z); scene.add(light);
+  for (const [x,z,colour] of [[-4,0,0x00eaff],[4,-7,0xff168e],[-3,-21,0x9038ff],[4,-37,0xffb000]]) {
+    const light = new THREE.PointLight(colour, 100, 30, 2); light.position.set(x,3,z); scene.add(light);
   }
   const box = keep(new THREE.BoxGeometry(1,1,1));
   const solid = keep(new THREE.MeshStandardMaterial({roughness:.48, metalness:.3}));
@@ -74,10 +74,11 @@ try {
   glowGradient.addColorStop(0,'rgba(255,255,255,.55)'); glowGradient.addColorStop(.15,'rgba(255,255,255,.1)'); glowGradient.addColorStop(1,'transparent');
   g.fillStyle=glowGradient; g.fillRect(0,0,64,64);
   const glowMap = keep(new THREE.CanvasTexture(glowCanvas));
-  const cyanGlow = keep(new THREE.SpriteMaterial({map:glowMap,color:0x63e5f0,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.7}));
-  const warmGlow = keep(new THREE.SpriteMaterial({map:glowMap,color:0xffb98d,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.6}));
-  function halo(group,x,y,z,size,warm=false) {
-    const sprite=new THREE.Sprite(warm?warmGlow:cyanGlow); sprite.position.set(x,y,z); sprite.scale.set(size,size,1); group.add(sprite);
+  const glowMaterials = new Map();
+  function halo(group,x,y,z,size,colour='#00eaff') {
+    if(typeof colour==='boolean')colour=colour?'#ff168e':'#00eaff';
+    if(!glowMaterials.has(colour))glowMaterials.set(colour,keep(new THREE.SpriteMaterial({map:glowMap,color:colour,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,opacity:.85})));
+    const sprite=new THREE.Sprite(glowMaterials.get(colour));sprite.position.set(x,y,z);sprite.scale.set(size,size,1);group.add(sprite);
   }
   const signGeometry = keep(new THREE.PlaneGeometry(1,1));
   const signMaterials = new Map();
@@ -85,10 +86,15 @@ try {
     const key=text+colour+vertical;
     if(signMaterials.has(key))return signMaterials.get(key);
     const c=document.createElement('canvas'); c.width=vertical?128:512;c.height=vertical?512:128;
-    const ctx=c.getContext('2d');ctx.fillStyle='#101d2b';ctx.fillRect(0,0,c.width,c.height);
+    const ctx=c.getContext('2d');
+    ctx.fillStyle='#0d0920';ctx.fillRect(0,0,c.width,c.height);
+    ctx.strokeStyle=colour;ctx.lineWidth=5;ctx.shadowColor=colour;ctx.shadowBlur=18;
+    ctx.strokeRect(7,7,c.width-14,c.height-14);
     ctx.fillStyle=colour;ctx.textAlign='center';ctx.textBaseline='middle';
-    if(vertical){ctx.font='500 65px sans-serif';[...text].slice(0,4).forEach((letter,i)=>ctx.fillText(letter,64,75+i*115));}
-    else{ctx.font='500 42px sans-serif';ctx.fillText(text,256,55);ctx.font='12px monospace';ctx.fillText('TOKYO  /  AFTER HOURS',256,100);}
+    if(vertical){ctx.font='800 72px sans-serif';[...text].slice(0,4).forEach((letter,i)=>ctx.fillText(letter,64,77+i*115));}
+    else{ctx.font='800 48px sans-serif';ctx.fillText(text,256,53,475);ctx.shadowBlur=5;ctx.font='13px monospace';ctx.fillText('電脳街  /  OPEN ALL NIGHT',256,101);}
+    ctx.shadowBlur=0;ctx.globalAlpha=.12;ctx.fillStyle=colour;
+    for(let y=0;y<c.height;y+=4)ctx.fillRect(0,y,c.width,1);
     const texture=keep(new THREE.CanvasTexture(c));texture.colorSpace=THREE.SRGBColorSpace;
     const material=keep(new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide,toneMapped:false}));signMaterials.set(key,material);return material;
   }
@@ -96,56 +102,73 @@ try {
     const mesh=new THREE.Mesh(signGeometry,signMaterial(text,colour,vertical));mesh.position.set(x,y,z);mesh.scale.set(w,h,1);mesh.rotation.y=rotation;group.add(mesh);
   }
   const DEPTH=28, COUNT=8, LENGTH=DEPTH*COUNT, tiles=[], trains=[];
-  const shopNames=['夜間珈琲','書店','STUDIO 01','街角','BLOCKS','喫茶室','夜の庭','ATELIER'];
+  const shopNames=['電脳東京','深夜喫茶','NEON CLUB','未来都市','BLOCKS','ゲーム','不夜城','深夜食堂'];
+  const neon=['#00edff','#ff20ad','#b04bff','#ffb51b','#72ff78'];
   for(let tile=0;tile<COUNT;tile++) {
     const group=new THREE.Group();scene.add(group);tiles.push(group);
     const opaque=[], glazed=[], lit=[], leaves=[];
     const part=(list,x,y,z,w,h,d,colour,ry=0,rz=0)=>list.push({x,y,z,w,h,d,colour,ry,rz});
     for(const side of [-1,1]) {
-      const kind=(tile+(side>0?2:0))%4, height=15+random()*19, width=7+random()*3;
+      const kind=(tile+(side>0?2:0))%4, height=24+random()*25, width=7+random()*3;
       const centre=side*(5.7+width/2), z=-12, depth=19;
-      // Glass volumes, pale concrete fins, cantilevers and a warm, human-scale ground floor.
+      // Dark megastructure frames make the saturated storefronts and neon readable.
       part(glazed,centre,height/2,z,width,height,depth,kind===1?0x243a49:0x192d40);
-      part(opaque,side*5.7,height/2,z,.16,height,depth,0x627d8e);
+      part(opaque,side*5.7,height/2,z,.16,height,depth,0x30344e);
       for(let floor=4;floor<height;floor+=2.7) {
-        part(opaque,centre,floor,z,width+.22,.13,depth+.18,kind===2?0x7b8a95:0x496474);
+        part(opaque,centre,floor,z,width+.22,.13,depth+.18,kind===2?0x444264:0x30364e);
         for(let bay=-8;bay<=8;bay+=2.1) {
           const on=random()>.32;
-          part(lit,side*5.59,floor+1,z+bay,.025,.8,1.6,on?(random()>.25?0x536f80:0xc5a780):0x243b50);
+          part(lit,side*5.59,floor+1,z+bay,.025,.8,1.6,on?(random()>.25?0x28709e:0xff7e8c):0x243b50);
           part(opaque,side*5.5,floor+1.2,z+bay,.15,2.5,.06,0x5a7482);
         }
       }
       for(let rib=-9;rib<=9;rib+=kind===0?1.2:3.1) {
-        part(opaque,side*5.42,height/2,z+rib,kind===0?.32:.1,height,.16,kind===0?0x7f939e:0x5b7688);
+        part(opaque,side*5.42,height/2,z+rib,kind===0?.32:.1,height,.16,kind===0?0x454363:0x303b5c);
       }
       part(opaque,centre,height+.15,z,width+.5,.3,depth+.5,0x82939c);
       // Recessed double-height lobby and luminous shop windows face the pavement.
       part(opaque,side*5.15,2.1,z,.3,4.2,depth,0x223745);
       for(let bay=0;bay<4;bay++) {
         const zz=z-7+bay*4.5;
-        part(lit,side*4.96,1.9,zz,.03,2.65,3.7,bay%2?0x5d8d99:0x9e8266);
+        part(lit,side*4.96,1.9,zz,.03,2.65,3.7,bay%2?0x057f98:0x9d185c);
         part(opaque,side*4.9,1.9,zz+1.85,.12,3,.1,0x101e28);
         // Shelves/light bars add readable interior depth instead of flat neon rectangles.
-        for(let shelf=0;shelf<3;shelf++)part(lit,side*4.89,1+shelf*.65,zz,.035,.035,3.3,0xe4c8a2);
+        for(let shelf=0;shelf<3;shelf++)part(lit,side*4.89,1+shelf*.65,zz,.035,.035,3.3,0xffb74e);
         part(opaque,side*4.82,.85,zz,.12,.08,2.4,0x23313a);
         for(const leg of [-.8,.8])part(opaque,side*4.82,.45,zz+leg,.08,.8,.08,0x23313a);
         for(let book=0;book<5;book++)part(opaque,side*4.79,1.05,zz-.8+book*.38,.15,.3+random()*.1,.16,book%2?0x596a67:0x303f47);
       }
       part(opaque,side*4.5,3.65,z,3,.18,24,0x78909b);
-      part(lit,side*3.25,3.55,z,.035,.025,24,side<0?0x9ee9e5:0xf8c7a8);
+      part(lit,side*3.25,3.55,z,.035,.025,24,side<0?0x00eaff:0xff20ad);
       for(let zz=-23;zz<1;zz+=5.6)part(opaque,side*3.3,1.7,zz,.12,3.4,.12,0x748b96);
       // Raised sidewalks, a narrow curb and a tactile yellow guide strip.
       part(opaque,side*4,.05,-12,4,.1,28,0x455363);
-      part(lit,side*2.45,.115,-12,.045,.015,28,0x568785);
+      part(lit,side*2.45,.115,-12,.045,.015,28,0x09c0d8);
       part(opaque,side*3.05,.111,-12,.18,.012,28,0x8a815c);
       if(kind===1){
         part(opaque,side*5.5,7.8,-10,5.4,.4,8,0x8c9ba4);
         part(opaque,side*3.15,5.65,-6,.25,4.1,.25,0x90a7ac);
       }
-      sign(group,side*4.8,3.05,-12,shopNames[(tile+(side>0?3:0))%8],side<0?'#abf8ee':'#ffdcaf',5,.95,side<0?Math.PI/2:-Math.PI/2);
-      if(tile%2===0) {
-        sign(group,side*4.45,5.5,-2.25,side<0?'夜間珈琲':'夜の街',side<0?'#a6fff0':'#ff96b5',.65,3.1,0,true);
-        halo(group,side*4.3,5.4,-2,3,side>0);
+      const accent=neon[(tile+(side>0?1:0))%neon.length];
+      const second=neon[(tile+(side>0?3:2))%neon.length];
+      sign(group,side*4.8,3.05,-12,shopNames[(tile+(side>0?3:0))%8],accent,6,1.2,side<0?Math.PI/2:-Math.PI/2);
+      // Projecting blade signs face the walker, stacked at different depths and heights.
+      for(let level=0;level<3;level++) {
+        const zz=-3-level*7, yy=5.6+level*3.6, colour=level%2?second:accent;
+        part(opaque,side*4.8,yy,zz,1.7,.12,.13,0x24233c);
+        sign(group,side*(3.75+level*.3),yy,zz,shopNames[(tile+level+(side>0?2:0))%8],colour,1.05,4.1,0,true);
+        halo(group,side*3.7,yy,zz+.15,5,colour);
+      }
+      // Broad luminous billboards interrupt the towers above the intimate shopfronts.
+      sign(group,side*5.32,13.5,-10,side<0?'CYBER / 24':'夢を見る',second,8.5,2.2,side<0?Math.PI/2:-Math.PI/2);
+      sign(group,side*5.4,21,-17,shopNames[(tile+4)%8],accent,5.5,2.3,0);
+      for(let strip=0;strip<3;strip++)part(lit,side*5.28,10+strip*6,-20,.06,4.7,.12,new THREE.Color(accent).getHex());
+      halo(group,side*4.7,2.1,-10,7,accent);
+      // Chunky backlit awning bands and small hanging lanterns colour the sidewalk.
+      for(let zz=-22;zz<0;zz+=5.5){
+        part(lit,side*3.18,3.55,zz,.1,.12,3.8,new THREE.Color(accent).getHex());
+        part(lit,side*3.7,2.8,zz,.28,.6,.28,0xff4a61);
+        part(opaque,side*3.7,3.25,zz,.025,.35,.025,0x262039);
       }
       // A tiny vending machine, street furniture and carefully spaced trees provide scale.
       part(opaque,side*4.5,.9,-2,.65,1.8,.65,0x283c4e);
@@ -161,7 +184,9 @@ try {
       part(opaque,0,6.9,-17,11.5,.3,3.1,0x718d9c);
       part(glazed,0,7.8,-17,11.4,1.55,3,0x37505d);
       part(opaque,0,8.65,-17,11.7,.15,3.3,0x9db0b7);
-      part(lit,0,7.3,-15.46,11,.07,.025,0xc7e9e5);
+      part(lit,0,7.3,-15.46,11,.07,.025,0xff25bc);
+      sign(group,0,7.9,-15.35,tile===1?'電脳街  /  BLOCKS':'不夜城  /  NIGHT CITY',tile%4===1?'#ff29b9':'#00edff',7.8,1.15);
+      halo(group,0,7.8,-15,8,'#ff20ad');
       for(let x=-5;x<=5;x+=1.2)part(opaque,x,7.8,-15.4,.055,1.6,.05,0x8aa2ad);
     }
     if(tile===3) {
@@ -189,9 +214,9 @@ try {
         vec2 uv=mirror.xy/mirror.w*.5+.5;
         uv+=vec2(sin(p.y*4.+time*.7),cos(p.x*9.+p.y*3.+time))*.0014;
         vec3 light=texture2D(reflection,clamp(uv,.001,.999)).rgb;
-        float wet=.35+.18*sin(p.y*.8+sin(p.x*2.));float fresnel=.55+min(length(world.xz-vec2(.8,6.))*.012,.35);
+        float wet=.66+.16*sin(p.y*.8+sin(p.x*2.));float fresnel=.8+min(length(world.xz-vec2(.8,6.))*.012,.35);
         vec3 colour=mix(base,light,wet*fresnel)+vec3(.01,.035,.038)*pulse;
-        colour+=(grain-.5)*.012;float fog=1.-exp(-length(world.xz)*.018);colour=mix(colour,vec3(.018,.035,.06),fog);
+        colour+=(grain-.5)*.012;float fog=1.-exp(-length(world.xz)*.018);colour=mix(colour,vec3(.028,.015,.065),fog);
         gl_FragColor=vec4(colour,1.);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
@@ -202,8 +227,16 @@ try {
   const distant=new THREE.Group();scene.add(distant);const skyline=[];
   for(let i=0;i<14;i++){const h=22+random()*45;skyline.push({x:(i-7)*10,y:h/2,z:-175-random()*20,w:6+random()*6,h,d:8,colour:0x344c66});}
   batch(distant,box,solid,skyline);
-  const crown=[];for(let level=0;level<12;level++)crown.push({x:1,y:25+level*2,z:-164,w:6-level*.35,h:.055,d:5-level*.25,colour:0x8dcbda});
+  const crown=[];for(let level=0;level<12;level++)crown.push({x:1,y:25+level*2,z:-164,w:6-level*.35,h:.055,d:5-level*.25,colour:level%2?0xff26bd:0x14dfff});
   batch(distant,box,emissive,crown);
+  sign(distant,1,20,-161,'BLOCKS','#ff20ad',8,3);
+  // Suspended utility cables add a tangled silhouette between the signs.
+  const cablePoints=[];
+  for(let wire=0;wire<7;wire++)for(let step=0;step<20;step++){
+    const point=t=>new THREE.Vector3(-6+t*12,10+wire*.8-Math.sin(t*Math.PI)*(1.3+wire*.1),-10-wire*15+t*3);
+    cablePoints.push(point(step/20),point((step+1)/20));
+  }
+  scene.add(new THREE.LineSegments(keep(new THREE.BufferGeometry().setFromPoints(cablePoints)),keep(new THREE.LineBasicMaterial({color:0x302343}))));
   const rainCount=innerWidth<700?350:650,points=new Float32Array(rainCount*6);
   for(let i=0;i<rainCount;i++){const x=(random()-.5)*25,y=random()*18,z=12-random()*100;points.set([x,y,z,x-.06,y-.25,z+.03],i*6);}
   const rainGeometry=keep(new THREE.BufferGeometry());rainGeometry.setAttribute('position',new THREE.BufferAttribute(points,3));

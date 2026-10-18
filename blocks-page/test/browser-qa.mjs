@@ -33,7 +33,7 @@ try{
  `});
  await cdp('Page.navigate',{url:origin+'/'});await until("document.querySelector('#hero')?.complete&&document.querySelector('#hero').naturalWidth===128&&document.querySelectorAll('#scenes button').length===8");
  assert.equal(await evaluate("document.querySelector('#mint').disabled"),true);
- await cdp('Page.navigate',{url:origin+'/?qa=live'});await until("!document.querySelector('#mint').disabled");
+ await cdp('Page.navigate',{url:origin+'/?qa=live'});await until("document.querySelector('#mint')?.disabled===false");
  assert.equal(await evaluate("document.querySelector('#epoch')===null && document.querySelector('#refresh')===null && document.querySelector('#connect')===null"),true);
  await until("['webgl','fallback'].includes(document.documentElement.dataset.scene)");
  assert.equal(await evaluate("document.documentElement.dataset.scene"),'webgl');
