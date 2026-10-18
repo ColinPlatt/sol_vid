@@ -29,7 +29,7 @@ try{
  const cdp=(method,params={})=>new Promise((resolve,reject)=>{const n=++id;pending.set(n,{resolve,reject});ws.send(JSON.stringify({id:n,method,params}));});
  const evaluate=async expression=>{const r=await cdp('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
  const until=async expression=>{for(let i=0;i<100;++i){if(await evaluate(expression))return;await delay(100);}throw Error('Timed out: '+expression);};
- await cdp('Page.enable');await cdp('Runtime.enable');
+ await cdp('Page.enable');await cdp('Runtime.enable');await cdp('Emulation.setDeviceMetricsOverride',{width:1280,height:1100,deviceScaleFactor:1,mobile:false});
  await cdp('Page.addScriptToEvaluateOnNewDocument',{source:`
  const blocks=${JSON.stringify(blocks)},account='0x'+'a'.repeat(40),collection='0x'+'b'.repeat(40),renderer='0x'+'c'.repeat(40),hash='0x'+'e'.repeat(64),live=new URL(location.href).searchParams.get('qa')==='live';
  window.__sends=[];const abi=s=>'0x'+'20'.padStart(64,'0')+BigInt(s.length).toString(16).padStart(64,'0')+Array.from(new TextEncoder().encode(s),b=>b.toString(16).padStart(2,'0')).join('').padEnd(64,'0');
@@ -51,7 +51,8 @@ try{
  const desktop=(await cdp('Page.captureScreenshot',{format:'png'})).data;await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-desktop-mocked.png'),Buffer.from(desktop,'base64'));
  await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(100);
  assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth'),true);
+ assert.equal(await evaluate("document.querySelector('#hero').getBoundingClientRect().top<window.innerHeight"),true);
  await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-mobile-mocked.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
- await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,header_mint:true,scenes:8,mobile:true,firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,header_mint:true,scenes:8,mobile:true,firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
  console.log('PASS separate Sepolia blocks page: disabled control, eight real GIF previews, mocked proof mint and receipt, scene selection, mobile layout');
 }finally{ws?.close();chrome?.kill();server.close();await delay(100);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:100});}
