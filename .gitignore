@@ -10,3 +10,6 @@ __pycache__/
 
 # Private research notes (not committed)
 docs/research/
+
+# Reproducible full matrix exports; retain compact validation reports instead.
+previews/video/matrix/

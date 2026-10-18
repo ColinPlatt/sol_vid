@@ -1,0 +1,26 @@
+[
+  {
+    "contract": "src/AviRleVideo.sol:AviRleVideo",
+    "compiler": "0.8.30+commit.73712a01",
+    "evm_version": "cancun",
+    "standard_json": "AviRleVideo.standard.json",
+    "sha256": "b679c35675b18849c557a93b0944d8bbe6aa5998a512dbbc68706500c6708860",
+    "creation_and_runtime_match": true
+  },
+  {
+    "contract": "src/VideoNFT.sol:VideoNFT",
+    "compiler": "0.8.30+commit.73712a01",
+    "evm_version": "cancun",
+    "standard_json": "VideoNFT.standard.json",
+    "sha256": "589d7828ed0ff960c6a89a50c11af2f955627c874a78fa0804a3a9f39459c495",
+    "creation_and_runtime_match": true
+  },
+  {
+    "contract": "src/VideoCandidate.sol:VideoCandidate",
+    "compiler": "0.8.30+commit.73712a01",
+    "evm_version": "cancun",
+    "standard_json": "VideoCandidate.standard.json",
+    "sha256": "616d97771b5e45827b7ba9547d6c94a43eb3ee2f2e1667a81c3f5af081af195f",
+    "creation_and_runtime_match": true
+  }
+]

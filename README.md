@@ -137,8 +137,8 @@ The backdrop is generated once and reused within each single video call.
 | Six-ball Figure Eight, seed 6 | Gas | File bytes |
 | --- | ---: | ---: |
 | [AVI](previews/avi-64-25-10-seed6.avi) | 36,033,158 | 206,296 |
-| [GIF](previews/gif-64-25-10-seed6.gif) | 83,091,066 | 138,831 |
-| [MPEG](previews/mpg-512-25-10-seed6.mpg) | 294,952,752 | 277,899 |
+| [GIF](previews/gif-64-25-10-seed6.gif) | 83,081,561 | 138,831 |
+| [MPEG](previews/mpg-512-25-10-seed6.mpg) | 296,544,367 | 277,899 |
 
 Nine exported seeds (1, 2, 3, 4, 6, 7, 42, 99 and 2026) cover every motion and ball
 count. Exact gallery traits are in [recipes.json](previews/generative/recipes.json).
@@ -200,10 +200,10 @@ Inspired by `../ghoulBalls`, scenes 3–6 render 1, 2, 4 or 6 opaque coloured ci
 | Six-ball output, seed 42 | Dimensions | Logical detail | Gas | File bytes |
 |---|---|---|---:|---:|
 | [AVI](previews/avi-64-25-6.avi) | 64×64 | 64×64, lossless | 30,911,470 | 206,296 |
-| [GIF](previews/gif-64-25-6.gif) | 64×64 | 64×64, lossless | 78,395,960 | 138,831 |
-| [MPEG `.mpg`](previews/mpg-512-25-6.mpg) | 512×512 | 64×64, chroma approximation | 279,193,553 | 230,195 |
+| [GIF](previews/gif-64-25-6.gif) | 64×64 | 64×64, lossless | 78,395,966 | 138,831 |
+| [MPEG `.mpg`](previews/mpg-512-25-6.mpg) | 512×512 | 64×64, chroma approximation | 279,193,554 | 230,195 |
 | [Larger AVI](previews/avi-128-25-6.avi) | 128×128 | 64×64 enlarged 2×, lossless | 123,972,080 | 820,696 |
-| [Larger GIF](previews/gif-128-25-6.gif) | 128×128 | 64×64 enlarged 2×, lossless | 312,258,954 | 551,931 |
+| [Larger GIF](previews/gif-128-25-6.gif) | 128×128 | 64×64 enlarged 2×, lossless | 312,258,960 | 551,931 |
 
 The six-ball MPEG elementary stream alone takes 255,552,694 gas and 229,041 bytes. All listed files fit the 500M render budget, without base64 or metadata wrapping. The larger lossless files enlarge the same logical scene; they do not add geometric detail.
 
@@ -329,3 +329,19 @@ The procedural palette rendering and single-allocation media writers are inspire
 The isolated [marketplace probe](docs/MARKETPLACE_PROBE.md) provides 15 controls for
 RPC read budgets, HTML encodings and scripts, payload size, native MP4 and SVG/GIF
 handling. It is built and tested locally; no probe is deployed to a public network.
+
+## Video edition (Base)
+
+[Mint / view the AVI edition](https://ghoulballs.vercel.app/video/) ·
+[OpenSea token 1](https://opensea.io/item/base/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9/1)
+
+A separate lossless AVI experiment now targets 512×512, two seconds at 25fps,
+with the video, static poster and embedded player generated onchain. Across
+64 artwork combinations, all 3,200 frames match an independent RGB reference;
+complete metadata measures approximately 231–311M gas within a 500M capped
+STATICCALL. Chrome and Firefox playback pass; Safari still needs checking.
+
+The existing GIF mint remains unchanged. The new `/video/` route enables minting only after confirmed deployment and
+actual OpenSea playback. Both gates passed for the deployed AVI edition at
+[`0x318761bb4cac5fb8eea16fe7af3176f4915a83f9`](https://basescan.org/address/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9). See [video implementation and rollout](docs/VIDEO.md), including exact
+profile measurements, candidate deployment and reproducible validation commands.
