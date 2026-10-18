@@ -1,0 +1,16 @@
+{
+  "status": "preview_ready",
+  "production_replaced": false,
+  "mint_enabled": false,
+  "source_commit": "a1f87d8",
+  "preview_url": "https://blocks-bm8b9u71m-platt-advisors-projects.vercel.app",
+  "deployment_id": "dpl_57h2W6YtmsE6pqvWfzx5UVpcTYsz",
+  "project_id": "prj_sfjNvUhjg94BxBrlXDc5syW7GwFO",
+  "preferred_production_url": "https://blocks-eight-pi.vercel.app",
+  "pr": "https://github.com/ColinPlatt/sol_vid/pull/7",
+  "single_block_contract": "prepared_not_deployed",
+  "contract_tests": 129,
+  "site_tests": 8,
+  "decoded_frames_per_decoder": 720,
+  "checked_at_utc": "2026-10-18T14:38:08Z"
+}
