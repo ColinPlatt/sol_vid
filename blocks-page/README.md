@@ -14,7 +14,11 @@ exact creation and runtime matches. The prior epoch prototype remains separate.
 
 The Three.js scene is a Tokyo-inspired modernist night walk at 1.72m eye height.
 Eight street segments recycle behind the walker: glass and concrete facades,
-covered pavements, lit shops, trees, vending machines and overhead bridges.
+covered pavements, stacked neon shop signs, trees, vending machines and overhead
+bridges. Market gates, arcade cabinets, junction signals, umbrella silhouettes,
+floating delivery drones and procedural animated adverts fill out the street.
+A district rail and scrolling market ticker frame the walk; the motion control
+and reduced-motion preference stop these alongside the scene.
 A low-resolution planar reflection pass gives the wet pavement actual reflections
 of the buildings; rain, a passing train and gentle head movement add motion.
 

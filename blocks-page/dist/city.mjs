@@ -12,6 +12,7 @@ const keep = resource => (resources.add(resource), resource);
 let renderer, paused = reduced.matches, disposed = false, visible = true, exploring = false;
 let savedScroll = 0, lastPreference = reduced.matches;
 function label() {
+  document.body.dataset.walkPaused=String(paused);
   motion.textContent = paused ? 'Resume walk ▷' : 'Pause walk Ⅱ';
   motion.setAttribute('aria-pressed', String(paused));
 }
@@ -163,9 +164,16 @@ try {
     telemetry.fillStyle='#b8e2f0';telemetry.font='25px monospace';telemetry.fillText(labels?labels.fee+'  /  '+labels.minted:'WAITING FOR LIVE CHAIN DATA',512,211);telemetryTexture.needsUpdate=true;
   }
   paintChain();showChain=(labels,status)=>{paintChain(labels,status);if(paused)render(true);};
-  const DEPTH=28, COUNT=8, LENGTH=DEPTH*COUNT, tiles=[], trains=[];
+  const DEPTH=28, COUNT=8, LENGTH=DEPTH*COUNT, tiles=[], trains=[], drones=[];
   const shopNames=['電脳東京','深夜喫茶','NEON CLUB','未来都市','BLOCKS','ゲーム','不夜城','深夜食堂'];
   const neon=['#00edff','#ff20ad','#b04bff','#ffb51b','#72ff78'];
+  // Shared procedural advert screens add motion without external media or extra render passes.
+  const adMaterial=keep(new THREE.ShaderMaterial({
+    uniforms:{time:{value:0}},side:THREE.DoubleSide,toneMapped:false,
+    vertexShader:`varying vec2 uvAd;void main(){uvAd=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`varying vec2 uvAd;uniform float time;void main(){vec2 p=(uvAd-.5)*vec2(1.,1.25);float r=length(p);float rings=pow(.5+.5*cos(r*65.-time*1.4),14.);float eye=1.-smoothstep(.09,.105,length(p*vec2(.8,1.8)));float slits=step(.92,fract(uvAd.y*70.));vec3 c=mix(vec3(.03,.01,.12),vec3(.95,.06,.65),rings*.7);c+=vec3(.05,.8,.95)*eye;c+=vec3(.04,.06,.1)*slits;float edge=step(.025,uvAd.x)*step(uvAd.x,.975)*step(.02,uvAd.y)*step(uvAd.y,.98);gl_FragColor=vec4(mix(vec3(.05,.9,1.),c,edge),1.);}`
+  }));
+  const ringGeometry=keep(new THREE.TorusGeometry(.65,.018,5,40));
   for(let tile=0;tile<COUNT;tile++) {
     const group=new THREE.Group();scene.add(group);tiles.push(group);
     const opaque=[], glazed=[], lit=[], leaves=[];
@@ -232,6 +240,32 @@ try {
         part(lit,side*3.7,2.8,zz,.28,.6,.28,0xff4a61);
         part(opaque,side*3.7,3.25,zz,.025,.35,.025,0x262039);
       }
+      // Dense shop-level wayfinding and staggered adverts fill the gaps between the big blades.
+      const microNames=['拉麺 / RAMEN','ARCADE 24','音楽 / AUDIO','HOTEL 夜','REPAIR LAB','夢 / DREAMS','VINYL 909','CYBER TEA'];
+      for(let ad=0;ad<4;ad++){
+        const zz=-4-ad*5.3,yy=4.25+(ad%2)*1.5;
+        sign(group,side*4.35,yy,zz,microNames[(tile+ad+(side>0?3:0))%8],ad%2?accent:second,1.75,.63);
+        part(opaque,side*4.9,yy,zz,1.3,.06,.06,0x34314d);
+        sign(group,side*4.65,2.7,zz-1.1,ad%2?'営業中 / OPEN':'24H / ALL NIGHT',second,1.5,.45);
+      }
+      for(let ad=0;ad<3;ad++){
+        const xx=side*(4.4+ad*.2),yy=10+ad*3.5,zz=-5-ad*6;
+        sign(group,xx,yy,zz,microNames[(tile+ad+2)%8],ad%2?second:accent,2.2,1.05);
+      }
+      // Louvered air conditioners, pipes and striped awnings break up the flat facades.
+      for(let unit=0;unit<4;unit++){
+        const zz=-5-unit*4.7;
+        part(opaque,side*5.15,5.1,zz,.5,.65,1.1,0x4a526c);
+        for(let vent=0;vent<4;vent++)part(opaque,side*4.88,4.89+vent*.13,zz,.025,.04,.9,0x171c32);
+        part(opaque,side*5.05,4.4,zz+.65,.09,1.9,.08,0x687088);
+        for(let stripe=0;stripe<5;stripe++)part(lit,side*4.5,3.79,zz-1+stripe*.4,2.8,.035,.19,stripe%2?0xff427f:0xffbe61);
+      }
+      if((tile+(side>0?1:0))%2===0){
+        const advert=new THREE.Mesh(signGeometry,adMaterial);advert.position.set(side*3.85,6.2,-9);advert.scale.set(1.6,2,1);group.add(advert);
+        sign(group,side*3.85,7.48,-8.98,'夢を接続 / DREAMLINK',second,1.9,.45);
+        const ring=new THREE.Mesh(ringGeometry,emissive);ring.material=keep(new THREE.MeshBasicMaterial({color:accent,toneMapped:false}));ring.position.set(side*3.45,4.7,-4.5);group.add(ring);
+        sign(group,side*3.45,4.7,-4.47,'24',accent,.85,.4);
+      }
       // A tiny vending machine, street furniture and carefully spaced trees provide scale.
       part(opaque,side*4.5,.9,-2,.65,1.8,.65,0x283c4e);
       part(lit,side*4.13,1.1,-2,.025,1.15,.5,0x9ed4d7);
@@ -240,6 +274,37 @@ try {
       part(opaque,side*3.5,1.8,-25,.1,2.8,.1,0x394942);
       for(let branch=0;branch<4;branch++)leaves.push({x:side*3.5+(random()-.5),y:3+random()*.5,z:-25+(random()-.5),w:.7,h:.8,d:.7,colour:0x315b50});
       for(let zz=-22;zz<1;zz+=10){part(opaque,side*2.3,1.6,zz,.05,3.2,.05,0x536f7e);part(lit,side*2.3,3.22,zz,.5,.04,.12,0xafd5da);halo(group,side*2.3,3.15,zz,2.4,side>0);}
+    }
+    // Market gates, junction signals, arcade cabinets and people make the street feel occupied.
+    if(tile%2===0){
+      sign(group,0,4.7,-5,tile%4===0?'深夜市場 / NIGHT MARKET':'次の夜 / NEXT DISTRICT','#ffbd36',6.2,.72);
+      for(const side of [-1,1]){
+        part(opaque,side*3.1,2.35,-5,.09,4.7,.09,0x3c304f);
+        part(lit,side*3.1,4.7,-4.94,.09,.8,.05,0xffb51b);
+        part(opaque,side*2.35,3.1,-23,.3,.85,.25,0x10182b);
+        for(let light=0;light<3;light++)part(lit,side*2.35,3.35-light*.25,-22.85,.13,.13,.03,light===(tile%3)?[0xff386d,0xffc13a,0x2affbd][light]:0x263344);
+        part(opaque,side*2.35,1.4,-23,.06,2.8,.06,0x39435a);
+      }
+    }
+    for(const side of [-1,1]){
+      const zz=-19;
+      part(opaque,side*4.1,.7,zz,.7,1.4,.6,0x221c3b);
+      part(lit,side*4.1,1.3,zz+.32,.53,.42,.02,side>0?0xff28ba:0x32eaff);
+      part(opaque,side*4.1,.9,zz+.44,.65,.12,.25,0x4b3e67);
+      sign(group,side*4.1,1.78,zz+.31,'PLAY / 遊','#ffbc45',.74,.3);
+      // Low-poly pedestrians are silhouettes, with bright coats and umbrella canopies.
+      const personZ=-8-(tile%3)*4,personX=side*(3.75+(tile%2)*.35);
+      part(opaque,personX,.95,personZ,.36,.7,.24,side>0?0x352a51:0x295367);
+      part(opaque,personX,1.48,personZ,.22,.25,.22,0x9d6c88);
+      for(const leg of [-1,1])part(opaque,personX+leg*.11,.43,personZ+leg*.08,.11,.52,.14,0x17203b);
+      part(opaque,personX+.24,1.3,personZ,.025,1.4,.025,0x8491a6);
+      part(opaque,personX,1.98,personZ,.95,.12,.8,side>0?0x923c81:0x277087);
+      part(lit,personX,1.99,personZ+.42,.94,.025,.03,side>0?0xff50c5:0x48eaff);
+    }
+    if(tile%2===1){
+      const drone=new THREE.Group();group.add(drone);drones.push({group:drone,tile});
+      batch(drone,box,solid,[{x:0,y:0,z:0,w:.65,h:.18,d:.42,colour:0x66748e},{x:0,y:.12,z:0,w:1.15,h:.035,d:.07,colour:0x283a56}]);
+      batch(drone,box,emissive,[{x:-.5,y:0,z:0,w:.15,h:.025,d:.3,colour:0xff36bb},{x:.5,y:0,z:0,w:.15,h:.025,d:.3,colour:0x00edff},{x:0,y:-.12,z:.21,w:.3,h:.035,d:.04,colour:0xffc64b}]);
     }
     // Recessed gallery kiosks along both pavements: demos and minted originals are labelled separately.
     const gallerySide=tile%2?1:-1,galleryX=gallerySide*3.05;
@@ -335,6 +400,8 @@ try {
       artStamp=elapsed;
     }
     tiles.forEach((tile,i)=>{tile.position.z=28-((28+i*DEPTH-distance)%LENGTH+LENGTH)%LENGTH;});
+    adMaterial.uniforms.time.value=elapsed;
+    drones.forEach(({group:drone,tile})=>{drone.position.set(Math.sin(elapsed*.22+tile)*1.5,4.2+Math.sin(elapsed*.8+tile)*.18,-8+Math.sin(elapsed*.16+tile)*7);drone.rotation.z=Math.sin(elapsed*.4+tile)*.06;});
     trains.forEach(train=>{train.position.x=(elapsed*4)%85-48;});rain.position.y=-(elapsed*6)%7;
     groundMaterial.uniforms.time.value=elapsed;groundMaterial.uniforms.travel.value=distance;groundMaterial.uniforms.pulse.value=pulse;
     if(forceMirror||elapsed-lastMirror>.14) {
