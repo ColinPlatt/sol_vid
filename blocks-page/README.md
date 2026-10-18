@@ -1,33 +1,32 @@
-# blocks — standalone Ethereum Sepolia mint page
+# blocks — one block, one night
 
-A separate Vercel project, `blocks`, serves this directory. The existing
-`mint-page/` ghoulballs site and its Base blocks route are unchanged.
+The single-block redesign targets Ethereum Sepolia and uses `mint()` with **no
+arguments**. One action connects the wallet, checks the deployed recipe/renderer,
+requests the free mint, waits for the receipt, then displays the token selected by
+the transaction's actual block. No epoch, seed or header inputs are presented.
+Only one token can be minted per block. Wallets can mint again in later blocks.
 
-The page targets only Ethereum Sepolia (11155111), collection
-`0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825`. It reconstructs current Amsterdam
-headers, asks the wallet to estimate/simulate a free epoch mint, caps testnet fees,
-checks the selected chain/account again before sending, and validates the receipt.
-After minting it loads the original onchain GIF and traits. Existing minted epochs
-can also be viewed and downloaded. The first token's original GIF is a bundled
-preview, and eight example GIFs come from Solidity scene validation.
+The new collection is **prepared, not deployed**. Its preview keeps minting and
+artwork reads disabled until a confirmed deployment is recorded. The existing
+public epoch collection and production site remain usable until the replacement
+is explicitly authorized and validated. Status: `deployments/blocks-single-sepolia.json`.
 
-`SEPOLIA_RPC_URL` is the sole server-side environment variable used by `api/token.js`.
-It must support a 500M-gas read. Never upload a deployment key or the repository's
-`.env` file to this project. The server only reads the fixed blocks contract;
-it doesn't sign transactions or transcode the returned media. Browser proof
-fetching uses the public Sepolia endpoint in `dist/config.json`.
+The hero is a locally bundled Three.js r180 scene: instanced neon city, moving
+train, rain and pointer parallax. Pause, reduced-motion preferences, background-tab
+suspension and a no-WebGL fallback are supported. This browser illustration is
+labelled separately from the original onchain GIF in the collection viewer.
 
-From the repository root, run `npm test --prefix blocks-page` and
-`npm run check --prefix blocks-page`. Browser QA is
-`PATH=/path/to/foundry:$PATH node blocks-page/test/browser-qa.mjs` and uses only a
-mocked wallet. Publish this directory through the linked blocks Vercel project.
+The only server credential is `SEPOLIA_RPC_URL`, used for fixed-contract reads
+capped at 500M gas. Never upload a deployment key or the repository's `.env`.
+The API reads its public collection address from `dist/config.json` and refuses
+reads for an unconfirmed deployment. No transcoding or signing happens here.
 
-`blocks.vercel.app` was already assigned to another account when this project was
-created; Vercel assigned `blocks-eight-pi.vercel.app`. Project identity and the
-confirmed production deployment are recorded in `deployments/blocks-site.json`.
+Checks from the repo root:
 
-Production: https://blocks-eight-pi.vercel.app . The project is linked to
-`ColinPlatt/sol_vid`, with root directory `blocks-page`. The recorded release was
-explicitly deployed from `blocks-site`; merge its PR after the Sepolia deployment
-PR to make the site available on the repository's normal production branch.
-Only the read RPC is stored as a Vercel secret.
+- `npm test --prefix blocks-page`
+- `npm run check --prefix blocks-page`
+- `node blocks-page/test/browser-qa.mjs` (Chromium; mocked wallet only)
+
+The separate Vercel project is `blocks`, root directory `blocks-page`, production
+URL https://blocks-eight-pi.vercel.app . Three.js provenance/license is in
+`THIRD_PARTY.md`. Existing ghoulballs pages and their contracts are separate.

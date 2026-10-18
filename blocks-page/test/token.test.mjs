@@ -7,3 +7,5 @@ function encoded(m){const uri='data:application/json;base64,'+Buffer.from(JSON.s
 test('returns the original embedded GIF and traits without an SVG wrapper',()=>{const token=decodeToken(encoded(metadata),'1');assert.equal(token.image,'data:image/gif;base64,'+gif);assert.equal(token.name,metadata.name);assert.deepEqual(token.attributes,metadata.attributes);});
 test('rejects malformed ABI and external media',()=>{assert.throws(()=>decodeToken('0x','1'));assert.throws(()=>decodeToken(encoded({...metadata,image:'https://example.com/a.gif'}),'1'));});
 test('invalid IDs cannot reach RPC',async()=>{let status;const res={status(n){status=n;return this;},json(){return this;}};await handler({method:'GET',query:{id:'../2'}},res);assert.equal(status,400);});
+
+test('unconfirmed deployment cannot perform an artwork RPC read',async()=>{let status;const res={status(n){status=n;return this;},json(){return this;}};await handler({method:'GET',query:{id:'13000000'}},res);assert.equal(status,503);});

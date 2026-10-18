@@ -1,4 +1,5 @@
-const COLLECTION='0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825';
+import deployment from '../dist/config.json' with {type:'json'};
+const COLLECTION=deployment.collectionAddress;
 export function decodeToken(result,id){
  if(!/^0x(?:[a-f0-9]{2})+$/i.test(result??''))throw Error('Invalid contract response');
  const raw=Buffer.from(result.slice(2),'hex');
@@ -18,13 +19,14 @@ export function decodeToken(result,id){
 export default async function handler(req,res){
  if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({error:'Use GET'});}
  const id=req.query.id;
- if(typeof id!=='string'||!/^\d{1,18}$/.test(id))return res.status(400).json({error:'Enter a valid epoch number'});
+ if(typeof id!=='string'||!/^\d{1,18}$/.test(id))return res.status(400).json({error:'Enter a valid block number'});
+ if(!deployment.deployed||!COLLECTION)return res.status(503).json({error:'The single-block edition is not open yet.'});
  const rpc=process.env.SEPOLIA_RPC_URL;
  if(!rpc)return res.status(503).json({error:'Artwork reads are temporarily unavailable. Try again shortly.'});
  try{
   const response=await fetch(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to:COLLECTION,data:'0xc87b56dd'+BigInt(id).toString(16).padStart(64,'0'),gas:'0x1dcd6500'},'latest']}),signal:AbortSignal.timeout(50000)});
   if(!response.ok)throw Error('RPC unavailable');const body=await response.json();
-  if(body.error){const missing=/nonexistent|0x7e273289|ERC721NonexistentToken/i.test(JSON.stringify(body.error));return res.status(missing?404:502).setHeader('Cache-Control','no-store').json({error:missing?'That epoch has not been minted.':'Could not read the artwork. Try again shortly.'});}
+  if(body.error){const missing=/nonexistent|0x7e273289|ERC721NonexistentToken/i.test(JSON.stringify(body.error));return res.status(missing?404:502).setHeader('Cache-Control','no-store').json({error:missing?'That block has not been minted.':'Could not read the artwork. Try again shortly.'});}
   const token=decodeToken(body.result,id);return res.status(200).setHeader('Cache-Control','public, max-age=86400, s-maxage=31536000, immutable').json(token);
  }catch{return res.status(502).setHeader('Cache-Control','no-store').json({error:'Could not render the artwork. Try again shortly.'});}
 }

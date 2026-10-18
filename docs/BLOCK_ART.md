@@ -184,3 +184,37 @@ The NFT source is available at
 Foundry's `--verify` also attempted Etherscan; its verifier currently rejects the
 Amsterdam EVM target (and initially had indexing errors for two scenes). This
 explorer limitation did not affect deployment or the successful Sourcify checks.
+
+### Single-block revision (`BLOCKS_SINGLE_V1`)
+
+The requested replacement uses **one NFT per execution block**, selected by
+`mint()` without arguments. `SingleBlockNFT` captures that block's number,
+timestamp, gas limit, base fee, prevrandao, beneficiary and chain ID. There are no
+supplied headers, no previous-block hash, no caller seed and no epoch lookup.
+The current block's final hash, state root, gas used and bloom are not exposed by
+the EVM; this recipe does not claim to capture them.
+
+The exact single-block record is stored immutably in a STOP-prefixed data contract.
+Its seed feeds ten **visual channels** in the existing immutable eight-scene
+renderer. These are generated drawing parameters, not ten historical blocks or
+fabricated block measurements. Every displayed block number is the actual mint
+block, and public traits expose real captured fields. The new recipe name keeps
+this data model separate from `NEO_TOKYO_BLOCKS_V1`.
+
+`seedOf`, `blockData`, `sceneOf`, `gif`, `avi`, `tokenURI` and `latestTokenId` expose
+the result. The first successful mint per block wins; a receiver callback cannot
+mint it again. Transfers and future blocks do not change the stored data.
+
+All eight scenes pass capped metadata/GIF/AVI checks and independent decoding of
+720 RGB frames with the new data model. Measurements are in
+`previews/blocks-single/validation.json`; run `scripts/validate_single_block.py`
+after the Foundry tests to reproduce them. Metadata costs in the measured set
+range from 234,255,355 to 448,416,431 gas.
+
+Ethereum Sepolia preparation reuses the already verified scene router. Rehearse
+with `python3 scripts/deploy_single_block_sepolia.py --env-file /path/to/.env`.
+Only after explicit authorization, add `--broadcast` to deploy the new collection
+and mint its first block. The two-transaction rehearsal estimates 20,611,765 gas
+including Foundry's margin, with a 1,000-wei/gas fee cap. No revised deployment has
+been broadcast; automatic approval review requires explicit authorization for
+this replacement. The epoch prototype's receipts and manifest remain intact.

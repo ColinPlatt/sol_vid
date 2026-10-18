@@ -22,3 +22,8 @@ previews/blockart-*.gif
 
 # Full live token metadata embeds megabytes of media; retain the original GIF/AVI and compact manifest.
 previews/blocks-sepolia/*.metadata.json
+
+previews/blocks-single/*.raw
+previews/blocks-single/*.palette
+previews/blocks-single/*.uri
+previews/blocks-single/*.metadata.json

@@ -1,46 +1,33 @@
 import {rpc,friendlyError,mintedToken,isAddress} from './wallet.mjs';
-import {latestEpoch,loadProof,mintEpoch} from './epoch.mjs';
-const $=id=>document.getElementById(id);
-const names=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama'];
-let network,account,busy=false,reading=false;
-function render(){ $('mint').disabled=busy||!network?.mintEnabled||!network?.deployed; $('connect').disabled=busy; $('refresh').disabled=busy; $('epoch').disabled=busy; $('mint').textContent=busy?'Minting…':'Mint epoch'; }
-for(const name of names){const card=document.createElement('button');const image=document.createElement('img');image.src=`assets/${name}.gif`;image.loading='lazy';image.alt=`${name} example animation`;const label=document.createElement('span');label.textContent=name.toUpperCase();card.append(image,label);card.onclick=()=>{$('hero').src=image.src;$('hero').alt=image.alt;$('caption').textContent=name.toUpperCase()+' · Example animation';};$('scenes').append(card);}
-async function refresh(){if(!network)return;try{$('epoch').value=latestEpoch(await rpc(network,'eth_blockNumber',[])).toString();}catch(error){$('status').textContent=friendlyError(error);}}
-async function viewToken(id){
+import {mintBlock} from './mint.mjs';
+const $=id=>document.getElementById(id),names=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama'];
+let network,busy=false,reading=false;
+function render(){ $('mint').disabled=busy||!network?.mintEnabled||!network?.deployed;if(!busy)$('mint').innerHTML=network?.mintEnabled?'Mint a night <span>↗</span>':'Minting opens soon <span>↗</span>'; }
+function traits(items){$('traits').replaceChildren();for(const item of items){const div=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=item.trait_type;dd.textContent=String(item.value);div.append(dt,dd);$('traits').append(div);}}
+function selectScene(name){for(const button of $('scenes').children)button.setAttribute('aria-pressed',String(button.dataset.scene===name));}
+for(const [i,name] of names.entries()){const button=document.createElement('button');button.type='button';button.dataset.scene=name;button.setAttribute('aria-pressed','false');const number=document.createElement('span'),label=document.createElement('span');number.textContent=String(i+1).padStart(2,'0');label.textContent=name==='nighttrain'?'NIGHT TRAIN':name.toUpperCase();button.append(number,label);button.onclick=()=>{const source=`assets/${name}.gif`;$('hero').src=source;$('hero').alt=name+' example animation';$('art-name').textContent=name==='nighttrain'?'Night train.':name[0].toUpperCase()+name.slice(1)+'.';$('caption').textContent='SCENE STUDY / '+label.textContent;$('art-label').textContent='EXAMPLE ARTWORK';$('edition').textContent='SCENE '+number.textContent+' / 08';$('art-description').textContent='An example from the onchain scene library. Your mint’s block determines its own scene and details.';$('download').href=source;$('download').download=`blocks-${name}-study.gif`;$('read-status').textContent='';traits([]);selectScene(name);};$('scenes').append(button);}
+async function viewToken(id,scroll=false){
  if(reading)return;
- if(!/^\d+$/.test(String(id))){$('read-status').textContent='Enter a minted epoch number.';return;}
- reading=true;$('view').disabled=true;$('read-status').textContent='Rendering the artwork from Ethereum Sepolia…';
+ if(!/^\d{1,18}$/.test(String(id))){$('read-status').textContent='Enter a minted block number.';return;}
+ reading=true;$('view').disabled=true;$('read-status').textContent='Drawing this block’s night from the contract…';
  try{
-  const response=await fetch('/api/token?id='+encodeURIComponent(id));
-  const token=await response.json();if(!response.ok)throw Error(token.error||'Artwork could not be read.');
-  if(!/^data:image\/gif;base64,[A-Za-z0-9+/=]+$/.test(token.image)||!Array.isArray(token.attributes))throw Error('Unexpected artwork response');
-  $('hero').src=token.image;$('hero').alt=token.name;$('caption').textContent=token.name+' · Ethereum Sepolia';
-  $('download').href=token.image;$('download').download=`blocks-${id}.gif`;$('traits').replaceChildren();
-  for(const trait of token.attributes){const pair=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=trait.trait_type;dd.textContent=String(trait.value);pair.append(dt,dd);$('traits').append(pair);}
-  $('read-status').textContent='Original onchain GIF loaded.';
+  const response=await fetch('/api/token?id='+encodeURIComponent(id)),token=await response.json();if(!response.ok)throw Error(token.error||'This block could not be read.');
+  if(!/^data:image\/gif;base64,[A-Za-z0-9+/=]+$/.test(token.image)||!Array.isArray(token.attributes))throw Error('Unexpected artwork response.');
+  $('hero').src=token.image;$('hero').alt=token.name;$('caption').textContent=token.name+' / ETHEREUM SEPOLIA';$('art-name').textContent=(token.name.split('#')[0].replace(/[^a-zA-Z ]/g,'').trim()||'Your night')+'.';$('art-label').textContent='MINTED BLOCK #'+id;$('edition').textContent='ONE BLOCK / ONE EDITION';$('art-description').textContent='This is the original GIF from the contract, generated from the block your mint landed in.';$('download').href=token.image;$('download').download=`blocks-${id}.gif`;traits(token.attributes);selectScene('');$('read-status').textContent='';if(scroll)$('collection').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
  }catch(error){$('read-status').textContent=friendlyError(error);}finally{reading=false;$('view').disabled=false;}
 }
-$('view').onclick=()=>viewToken($('view-epoch').value);
-$('refresh').onclick=refresh;
-$('connect').onclick=async()=>{try{if(!window.ethereum)throw Error('Open this page in a wallet-enabled browser');const accounts=await window.ethereum.request({method:'eth_requestAccounts'});if(!isAddress(accounts?.[0]))throw Error('No wallet account selected');account=accounts[0];$('connect').textContent=account.slice(0,6)+'…'+account.slice(-4);}catch(error){$('status').textContent=friendlyError(error);}};
-window.ethereum?.on?.('accountsChanged',()=>{account=null;$('connect').textContent='Connect wallet';});
+$('lookup').onsubmit=event=>{event.preventDefault();viewToken($('view-block').value);};
 $('mint').onclick=async()=>{
- if(busy)return;
- busy=true;render();$('transaction').hidden=true;
+ if(busy||!network)return;busy=true;render();$('transaction').hidden=true;
  try{
-  if(!account)throw Error('Connect your wallet first');
-  if(!/^\d+$/.test($('epoch').value))throw Error('Enter an epoch number');
-  const recipient=account,epoch=BigInt($('epoch').value);$('status').textContent='Reading the ten Sepolia block headers…';
-  const headers=await loadProof(network,epoch,(method,params)=>rpc(network,method,params));
-  $('status').textContent='Checking the epoch and requesting your wallet…';
-  const hash=await mintEpoch(window.ethereum,network,recipient,epoch,headers);
-  $('transaction').href=network.explorerUrl+'/tx/'+hash;$('transaction').hidden=false;$('status').textContent='Transaction sent; waiting for confirmation…';
-  let receipt;
-  for(let i=0;i<90;i++){receipt=await rpc(network,'eth_getTransactionReceipt',[hash]);if(receipt)break;await new Promise(resolve=>setTimeout(resolve,2000));}
-  if(!receipt)throw Error('Still pending; check your transaction link before trying again');
-  const token=mintedToken(receipt,network,recipient);if(BigInt(token)!==epoch)throw Error('Unexpected minted epoch');
-  $('status').textContent=`Epoch ${token} minted. Its block data is stored onchain.`;$('view-epoch').value=token;
-  await viewToken(token);
- }catch(error){$('status').textContent=friendlyError(error);}finally{busy=false;render();}
+  if(!window.ethereum)throw Error('Open this page in a wallet-enabled browser to mint.');
+  const messages={connect:['Connect wallet…','Approve the connection in your wallet.'],checking:['Checking…','Getting your mint ready on Ethereum Sepolia.'],wallet:['Approve mint…','Confirm the free mint in your wallet. Network gas applies.']};
+  const {hash,account}=await mintBlock(window.ethereum,network,stage=>{$('mint').textContent=messages[stage][0];$('status').textContent=messages[stage][1];});
+  $('transaction').href=network.explorerUrl+'/tx/'+hash;$('transaction').hidden=false;$('mint').textContent='Finding your night…';$('status').textContent='Mint sent. Waiting for the block to be confirmed…';
+  let receipt;for(let i=0;i<90;i++){receipt=await rpc(network,'eth_getTransactionReceipt',[hash]);if(receipt)break;await new Promise(resolve=>setTimeout(resolve,2000));}
+  if(!receipt)throw Error('Still pending. Check the transaction link before minting again.');
+  const token=mintedToken(receipt,network,account);if(BigInt(token)!==BigInt(receipt.blockNumber))throw Error('The mint event does not match its block.');
+  $('status').textContent=`Block ${Number(token).toLocaleString()} is yours.`;$('view-block').value=token;await viewToken(token,true);
+ }catch(error){$('status').textContent=/AlreadyMinted|0xddefae28/i.test(error?.message??'')?'Someone claimed this block. Try again for the next one.':friendlyError(error);}finally{busy=false;render();}
 };
-try{const response=await fetch('config.json',{cache:'no-store'});if(!response.ok)throw Error('Settings unavailable');network=await response.json();if(network.chainId!==11155111||network.chainHex!=='0xaa36a7'||!isAddress(network.collectionAddress)||!isAddress(network.rendererAddress))throw Error('Invalid Ethereum Sepolia settings');$('contract').href=network.explorerUrl+'/address/'+network.collectionAddress;render();$('status').textContent='Connect your wallet to mint on Ethereum Sepolia.';if(network.deployed)await refresh();}catch(error){network=null;render();$('status').textContent=friendlyError(error);}
+try{const response=await fetch('config.json',{cache:'no-store'});if(!response.ok)throw Error('Settings unavailable.');network=await response.json();if(network.chainId!==11155111||network.artVersion!=='BLOCKS_SINGLE_V1'||!isAddress(network.rendererAddress)||(network.deployed&&!isAddress(network.collectionAddress)))throw Error('Single-block mint settings are not ready.');if(network.deployed)$('contract').href=network.explorerUrl+'/address/'+network.collectionAddress;else $('contract').hidden=true;$('status').textContent=network.mintEnabled?'No inputs. Just the block your mint lands in.':'A new single-block edition. Opening soon.';render();if(network.firstTokenId){$('view-block').value=network.firstTokenId;$('hero').src=`assets/block-${network.firstTokenId}.gif`;$('art-label').textContent='FIRST MINT / BLOCK #'+network.firstTokenId;$('caption').textContent='BLOCK #'+network.firstTokenId+' / ORIGINAL ONCHAIN GIF';$('download').href=$('hero').src;$('download').download=`blocks-${network.firstTokenId}.gif`;if(network.firstScene)$('art-name').textContent=network.firstScene+'.';traits([{trait_type:'Block',value:network.firstTokenId},{trait_type:'Duration',value:'6 seconds'}]);}}catch(error){network=null;render();$('status').textContent=friendlyError(error);}
