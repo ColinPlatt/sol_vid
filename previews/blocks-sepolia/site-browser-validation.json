@@ -5,7 +5,7 @@
   "wallet": "mocked only; no real transactions",
   "closed_release": true,
   "zero_argument_mint": true,
-  "threejs": "WebGL rendered, pause and reduced-motion verified; no-WebGL fallback preserves mint",
+  "threejs": "Eye-level infinite street, live planar reflections, enter/escape, paused-frame stability and mobile touch look verified; reduced-motion and no-WebGL fallback preserve mint",
   "scenes": 8,
   "mobile": true,
   "narrow_mobile_320": true,

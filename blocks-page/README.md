@@ -12,11 +12,18 @@ is owned by the deployment wallet. Receipts, exact bytecode checks and original
 media hashes are in `deployments/blocks-single-sepolia.json`. Sourcify verified
 exact creation and runtime matches. The prior epoch prototype remains separate.
 
-The full-screen Three.js city has a street-level camera, neon signs drawn locally,
-instanced towers and windows, wet-road reflections, rain, moving traffic, an
-elevated train and pointer parallax. A single readable mint panel sits over the
-city. Pause, reduced-motion preferences, background-tab suspension and a no-WebGL
-fallback are supported. This browser atmosphere is labelled separately from the
+The Three.js scene is a Tokyo-inspired modernist night walk at 1.72m eye height.
+Eight street segments recycle behind the walker: glass and concrete facades,
+covered pavements, lit shops, trees, vending machines and overhead bridges.
+A low-resolution planar reflection pass gives the wet pavement actual reflections
+of the buildings; rain, a passing train and gentle head movement add motion.
+
+“Walk the street” clears the overview and pins a compact mint dock over the walk.
+Move the pointer or drag on mobile to look around; Escape or “Back to overview”
+returns to the page. Entering the street is optional: the same one-action mint is
+available in both views. A confirmed mint returns to the artwork viewer.
+Pause, reduced-motion preferences, background-tab/offscreen suspension and a
+no-WebGL fallback are supported. This browser illustration is separate from the
 original onchain GIF in the collection viewer.
 
 The tab icon is a locally drawn neon city block with animated windows. Like

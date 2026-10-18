@@ -43,7 +43,7 @@ try {
     let timer, frame = 0;
     const update = () => {
       clearInterval(timer); link.href = frames[0]; frame = 0;
-      if (!reduced.matches && !document.hidden) timer = setInterval(() => { frame = (frame+1)%frames.length; link.href = frames[frame]; },125);
+      if (!reduced.matches && !document.hidden) timer = setInterval(() => { if(reduced.matches || document.hidden){update();return;} frame = (frame+1)%frames.length; link.href = frames[frame]; },125);
     };
     update(); reduced.addEventListener('change',update); document.addEventListener('visibilitychange',update);
     window.addEventListener('pagehide',() => { clearInterval(timer); reduced.removeEventListener('change',update); document.removeEventListener('visibilitychange',update); },{once:true});

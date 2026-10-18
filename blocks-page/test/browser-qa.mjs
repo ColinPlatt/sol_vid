@@ -43,6 +43,18 @@ try{
  const iconPNG=await evaluate("(async()=>{const {drawIcon}=await import('./favicon.mjs');const c=document.createElement('canvas');c.width=c.height=64;drawIcon(c.getContext('2d'),0);return c.toDataURL('image/png').split(',')[1];})()");
  await writeFile(path.join(root,'previews/blocks-sepolia/tab-icon.png'),Buffer.from(iconPNG,'base64'));
 
+ await evaluate("document.querySelector('#explore').click()");
+ await until("document.body.classList.contains('exploring')&&!document.querySelector('#leave-street').hidden");
+ assert.equal(await evaluate("document.querySelector('.topbar').inert&&!document.querySelector('#mint').disabled"),true);
+ await delay(600);const streetBefore=(await cdp('Page.captureScreenshot',{format:'png'})).data;await delay(450);
+ assert.notEqual((await cdp('Page.captureScreenshot',{format:'png'})).data,streetBefore,'Street must move while walking');
+ await evaluate("document.querySelector('#motion').click()");await delay(500);
+ const streetPaused=(await cdp('Page.captureScreenshot',{format:'png'})).data;await delay(250);
+ assert.equal((await cdp('Page.captureScreenshot',{format:'png'})).data,streetPaused,'Pause must freeze the street and reflections');
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-street-desktop.png'),Buffer.from(streetPaused,'base64'));
+ await evaluate("document.querySelector('#motion').click()");
+ await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+ await until("!document.body.classList.contains('exploring')&&!document.querySelector('.topbar').inert");
  await evaluate("document.querySelector('#motion').click()");assert.equal(await evaluate("document.querySelector('#motion').getAttribute('aria-pressed')"),'true');
  await evaluate("document.querySelector('#mint').click()");await until("document.querySelector('#status').textContent.includes('is yours')");
  assert.equal(await evaluate("window.__sends[0].data"),'0x1249c58b');
@@ -53,6 +65,16 @@ try{
  assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth'),true);
  assert.equal(await evaluate("document.querySelector('#mint').getBoundingClientRect().top<window.innerHeight"),true);
  await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-mobile-mocked.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await evaluate("document.querySelector('#explore').click();document.querySelector('#motion').click()");
+ await until("document.body.classList.contains('exploring')");
+ await cdp('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:110,y:300}]});
+ await cdp('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:215,y:330}]});
+ await cdp('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(450);
+ assert.equal(await evaluate("document.querySelector('#mint').getBoundingClientRect().bottom<innerHeight"),true);
+ assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-street-mobile.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await evaluate("document.querySelector('#leave-street').click()");
+ await until("!document.body.classList.contains('exploring')");
  await cdp('Emulation.setDeviceMetricsOverride',{width:320,height:740,deviceScaleFactor:1,mobile:true});await delay(100);
  assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth'),true);
  assert.equal(await evaluate("document.querySelector('.hero-copy').getBoundingClientRect().bottom+16<document.querySelector('.mint-panel').getBoundingClientRect().top"),true);
@@ -64,6 +86,6 @@ try{
 
  await cdp('Page.addScriptToEvaluateOnNewDocument',{source:"const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:originalContext.call(this,type,...args);};"});
  await cdp('Page.navigate',{url:origin+'/?qa=live'});await until("document.documentElement.dataset.scene==='fallback' && !document.querySelector('#mint').disabled");
- await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,zero_argument_mint:true,threejs:'WebGL rendered, pause and reduced-motion verified; no-WebGL fallback preserves mint',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,zero_argument_mint:true,threejs:'Eye-level infinite street, live planar reflections, enter/escape, paused-frame stability and mobile touch look verified; reduced-motion and no-WebGL fallback preserve mint',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
  console.log('PASS single-block site: WebGL city, pause, one-action zero-argument mint, receipt, scene selection, mobile');
 }finally{ws?.close();chrome?.kill();server.close();await delay(100);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:100});}
