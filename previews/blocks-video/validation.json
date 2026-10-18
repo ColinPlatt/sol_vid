@@ -1,0 +1,105 @@
+{
+  "profile": "default",
+  "compiler": "0.8.37",
+  "evm": "amsterdam",
+  "status": "passed",
+  "scenes": [
+    {
+      "name": "canyon",
+      "metadata_gas": 367269064,
+      "avi_bytes": 1477976,
+      "svg_bytes": 50245,
+      "token_uri_bytes": 2731681,
+      "first_frame_rgb_sha256": "2d0fbc0a450748910785dc7f2d47f7462b2dd677ce9131ba5b5e8e3ccdc52c33"
+    },
+    {
+      "name": "descent",
+      "metadata_gas": 311248802,
+      "avi_bytes": 1477976,
+      "svg_bytes": 34445,
+      "token_uri_bytes": 2703585,
+      "first_frame_rgb_sha256": "9854238b2f85396ab9110ba71c734034f2dfc1fc1412293eb7d507ce8a75b820"
+    },
+    {
+      "name": "monorail",
+      "metadata_gas": 412843225,
+      "avi_bytes": 1477976,
+      "svg_bytes": 41633,
+      "token_uri_bytes": 2716373,
+      "first_frame_rgb_sha256": "977af27968a8551855e9204bef3b9fab771f218b822e1bfa02f8a63b67244421"
+    },
+    {
+      "name": "spire",
+      "metadata_gas": 363022961,
+      "avi_bytes": 1477976,
+      "svg_bytes": 76009,
+      "token_uri_bytes": 2777485,
+      "first_frame_rgb_sha256": "842a8397cc216233ba1fe210170efa09423f015150bad35fcd1f1fcfc6c040a7"
+    },
+    {
+      "name": "skyline",
+      "metadata_gas": 417474627,
+      "avi_bytes": 1477976,
+      "svg_bytes": 81264,
+      "token_uri_bytes": 2786821,
+      "first_frame_rgb_sha256": "525d517159dc5fe187d339071bf0ee92b77e4bb5858ee12dfaa5042fdba403c4"
+    },
+    {
+      "name": "alley",
+      "metadata_gas": 290783660,
+      "avi_bytes": 1477976,
+      "svg_bytes": 31960,
+      "token_uri_bytes": 2699165,
+      "first_frame_rgb_sha256": "83f06bc59ae49a52ff96525f48f1fb2a54c37d6c50cfa14ddae5a6e4c8d4f0de"
+    },
+    {
+      "name": "nighttrain",
+      "metadata_gas": 347050342,
+      "avi_bytes": 1477976,
+      "svg_bytes": 35707,
+      "token_uri_bytes": 2705849,
+      "first_frame_rgb_sha256": "7fcbe9ecc56424583ec01c5fdd9edaebf8562274e16346b43f1dc3a6ac77d886"
+    },
+    {
+      "name": "satoyama",
+      "metadata_gas": 203099814,
+      "avi_bytes": 1477976,
+      "svg_bytes": 52961,
+      "token_uri_bytes": 2736509,
+      "first_frame_rgb_sha256": "f94b507d4911c6f766f81c5c2bb8222f1930eaf52291d9a862c5a104df865f9d"
+    }
+  ],
+  "variation": {
+    "samples": 256,
+    "distinct_rgb_first_frames": 256,
+    "distinct_per_scene": {
+      "canyon": 32,
+      "descent": 32,
+      "monorail": 32,
+      "spire": 32,
+      "skyline": 32,
+      "alley": 32,
+      "nighttrain": 32,
+      "satoyama": 32
+    },
+    "colourways": {
+      "2": 46,
+      "0": 45,
+      "3": 43,
+      "5": 43,
+      "4": 39,
+      "1": 40
+    },
+    "lights": {
+      "0": 90,
+      "1": 87,
+      "2": 79
+    },
+    "directions": {
+      "True": 132,
+      "False": 124
+    },
+    "distinct_phases": 84,
+    "methodology": "32 independently rendered entropy samples per scene, holding block number and timestamp fixed; not a guarantee of future uniqueness"
+  }
+}

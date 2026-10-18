@@ -352,3 +352,15 @@ The existing GIF mint remains unchanged. The new `/video/` route enables minting
 actual OpenSea playback. Both gates passed for the deployed AVI edition at
 [`0x318761bb4cac5fb8eea16fe7af3176f4915a83f9`](https://basescan.org/address/0x318761bb4cac5fb8eea16fe7af3176f4915a83f9). See [video implementation and rollout](docs/VIDEO.md), including exact
 profile measurements, candidate deployment and reproducible validation commands.
+
+### Prepared blocks video revision
+
+`BLOCKS_VIDEO_V2` replaces GIF metadata with a native SVG first-frame poster and
+one fully embedded AVI animation/player. It adds six colourways, three light
+levels and forward/reverse motion to the eight generative scene families.
+The 256-image variation audit holds block labels constant; all sampled images
+differ. Complete metadata in eight measured cases costs 203.1M–417.5M gas.
+See [the implementation and release gates](docs/BLOCK_VIDEO.md),
+[poster examples](previews/blocks-video/posters.png) and
+[256 variation studies](previews/blocks-video/variation-256.png).
+This revision is **not deployed**; the existing collection and mint site are intact.

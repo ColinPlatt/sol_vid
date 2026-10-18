@@ -77,3 +77,10 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   this collection; its zero-argument mint captures one current execution block.
   Further deployments still need their own authorization.
 - The user requested working directly on `main`; do not create routine feature branches.
+
+- `BlockVideoNFT` / `BlockVideoRenderer` are the prepared `BLOCKS_VIDEO_V2`
+  revision: native SVG first-frame poster plus a self-contained AVI player,
+  without GIF metadata. Do not replace the deployed V1 page/config until a new
+  deployment is authorized, confirmed and its own marketplace gate passes.
+  Run `scripts/validate_blocks_video.py` and
+  `scripts/blocks_video_browser_qa.mjs` after video-revision media changes.

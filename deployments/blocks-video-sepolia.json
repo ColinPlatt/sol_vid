@@ -1,0 +1,55 @@
+{
+  "status": "prepared_not_deployed",
+  "network": "Ethereum Sepolia",
+  "chain_id": 11155111,
+  "collection_name": "blocks",
+  "collection_symbol": "blocks",
+  "art_version": "BLOCKS_VIDEO_V2",
+  "collection": null,
+  "renderer": null,
+  "existing_scene_router": "0xedf6937b047c1ad9d2fe4c7203b5c54f4eadad46",
+  "mint_signature": "mint()",
+  "token_id": "execution block number",
+  "image": "native SVG of final AVI frame 0",
+  "animation_url": "self-contained HTML data URI embedding AVI and decoder",
+  "gif_in_metadata": false,
+  "format": "AVI BI_RGB",
+  "width": 128,
+  "height": 128,
+  "frames": 90,
+  "fps": 15,
+  "duration_seconds": 6,
+  "compiler": "0.8.37+commit.f401782d",
+  "evm_version": "amsterdam",
+  "profile": "default",
+  "contracts": {
+    "BlockVideoNFT": {
+      "runtime_bytes": 5499,
+      "creation_bytecode_sha256": "46b8bbd9178028bd2138cec3ef3301960fd26ac026a243f71433f7710b516b59"
+    },
+    "BlockVideoRenderer": {
+      "runtime_bytes": 21539,
+      "creation_bytecode_sha256": "bc6d686d617bd540d0f6dc8e2d3a80272537dedf10389d01aee81fe5c4fd4fcc"
+    }
+  },
+  "measured_metadata_gas": {
+    "canyon": 367269064,
+    "descent": 311248802,
+    "monorail": 412843225,
+    "spire": 363022961,
+    "skyline": 417474627,
+    "alley": 290783660,
+    "nighttrain": 347050342,
+    "satoyama": 203099814
+  },
+  "validation": "previews/blocks-video/validation.json",
+  "mint_enabled": false,
+  "broadcast_authorization": "not_requested_for_this_revision",
+  "remaining_release_gates": [
+    "broader full-metadata stress sampling across seeds",
+    "Base/Cancun measurement if targeting Base",
+    "actual deployed candidate retrieval and playback on OpenSea",
+    "Safari playback",
+    "new deployment authorization and confirmed release configuration"
+  ]
+}

@@ -30,3 +30,8 @@ previews/blocks-single/*.raw
 previews/blocks-single/*.palette
 previews/blocks-single/*.uri
 previews/blocks-single/*.metadata.json
+
+# Reproducible video-revision reference exports.
+previews/blocks-video/*.uri
+previews/blocks-video/*.reference.avi
+previews/blocks-video/samples/
