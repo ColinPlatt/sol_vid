@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neo-Tokyo block art</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+JP:wght@400;700;900&family=Orbitron:wght@700&display=block">
+<style>
+  :root { --bg: #07040f; --ink: #f2e9ff; --dim: #8b7aa8; --line: #2a1d40; --pink: #ff2e88; --cyan: #00e5ff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: radial-gradient(circle at 50% 0, #1a0b2e, var(--bg) 60%) fixed; color: var(--ink); font: 14px/1.6 "Noto Sans JP", system-ui, sans-serif; }
+  main { max-width: 1120px; margin: 0 auto; padding: 22px 16px 40px; }
+  h1 { font: 700 20px "Orbitron", sans-serif; letter-spacing: 4px; margin: 0; color: var(--pink); text-shadow: 0 0 14px #ff2e8888; }
+  h1 span { color: var(--cyan); font-family: "Noto Sans JP"; letter-spacing: 2px; margin-left: 10px; }
+  p { margin: 6px 0 12px; color: var(--dim); max-width: 780px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 14px 0; }
+  button, select { font: inherit; background: #120a22; color: var(--ink); border: 1px solid var(--line); padding: 6px 12px; cursor: pointer; border-radius: 4px; }
+  button[aria-pressed="true"] { border-color: var(--pink); box-shadow: 0 0 10px #ff2e8855; }
+  .stage { display: grid; grid-template-columns: minmax(0, 512px) minmax(0, 1fr); gap: 22px; align-items: start; }
+  canvas { width: 100%; aspect-ratio: 1; display: block; border-radius: 6px; border: 1px solid var(--line); background: #000; }
+  #meta { white-space: pre-wrap; color: var(--dim); font: 12px/1.6 ui-monospace, monospace; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 24px; }
+  .grid figure { margin: 0; cursor: pointer; } .grid figcaption { color: var(--dim); font-size: 12px; padding-top: 4px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>NEO-TOKYO<span>ブロック夜景</span></h1>
+  <p>Concept renders in plain JavaScript, not onchain code. An epoch of 10 consecutive Base blocks becomes the city;
+     the loop moves through it at 15fps, 9 frames per block: a 6-second loop (90 frames), sized to render as a 128px onchain AVI under a 500M-gas read. Minting would open once per epoch.</p>
+  <div class="bar" id="scenes"></div>
+  <p id="minted" style="color:var(--ink);margin:0"></p>
+  <div class="bar">
+    <select id="source" aria-label="Blocks">
+      <option value="epoch">Snapshot: 10 consecutive blocks</option>
+      <option value="live">Live: latest 10 Base blocks</option>
+    </select>
+    <button id="play" type="button" aria-pressed="true">PAUSE</button>
+    <input id="scrub" type="range" min="0" max="49" value="0" aria-label="Frame" style="flex:1;min-width:160px">
+    <span id="frame">01/50</span>
+  </div>
+  <div class="stage">
+    <canvas id="view" width="640" height="640"></canvas>
+    <div><p id="about" style="color:var(--ink)"></p><div id="meta"></div></div>
+  </div>
+  <div class="grid" id="thumbs"></div>
+</main>
+<script type="module">
+import { SIZE, FONTS, FONT_TEXT, SCENES, drawScene, frameCount } from "./city.js";
+import { EPOCH as SNAPSHOT } from "../block-art/blocks.js";
+const EPOCH = SNAPSHOT.slice(-10);   // 10-block epochs
+
+const params = new URLSearchParams(location.search);
+let scene = SCENES.find(s => s.id === params.get("scene")) ?? SCENES[0];
+let epoch = EPOCH, frame = Number(params.get("frame") ?? 0), playing = !params.has("frame");
+const $ = id => document.getElementById(id);
+await Promise.all(FONTS.map(f => document.fonts.load(f, FONT_TEXT + "ABC#0123456789")));
+
+const paint = (canvas, s, f) => drawScene(canvas.getContext("2d", { willReadFrequently: true }), s, epoch, f);
+function draw() {
+  paint($("view"), scene, frame);
+  const frames = frameCount(scene, epoch);
+  $("scrub").max = frames - 1; $("scrub").value = frame;
+  $("frame").textContent = `${frame + 1}/${frames} · ${(frames / 15).toFixed(1)}s`;
+  const b = epoch[Math.floor(frame / scene.perBlock) % epoch.length];
+  $("meta").textContent = `block   ${Number(BigInt(b.number))}\nhash    ${b.hash}\ngas     ${(Number(BigInt(b.gasUsed)) / Number(BigInt(b.gasLimit)) * 100).toFixed(2)}%\ntxs     ${b.txCount}`;
+}
+// A mint draws its scene from the epoch: the last block's hash picks it, so the same epoch always mints the same scene
+// and every scene is possible. Rare scenes come first, on about 1 in 64 epochs (hash byte 5 below 4); otherwise
+// the first four bytes pick a regular scene.
+const REGULAR = SCENES.filter(s => !s.rare), RARE = SCENES.filter(s => s.rare);
+const mintedScene = ep => {
+  const h = ep[ep.length - 1].hash, v = parseInt(h.slice(2, 10), 16);
+  return RARE.length && parseInt(h.slice(10, 12), 16) < 4 ? RARE[v % RARE.length] : REGULAR[v % REGULAR.length];
+};
+function showMinted() {
+  const s = mintedScene(epoch), last = Number(BigInt(epoch[epoch.length - 1].number));
+  $("minted").innerHTML = "";
+  const label = document.createElement("span"); label.textContent = `Minted from blocks ${last - epoch.length + 1}–${last}, this epoch would be `;
+  const link = document.createElement("button"); link.type = "button"; link.textContent = s.name; link.addEventListener("click", () => choose(s));
+  $("minted").append(label, link);
+}
+function choose(s) {
+  frame = Math.floor(frame / scene.perBlock) * s.perBlock; scene = s; $("about").textContent = s.about;
+  for (const b of $("scenes").children) b.setAttribute("aria-pressed", String(b.dataset.id === s.id));
+  draw();
+}
+for (const s of SCENES) { const b = document.createElement("button"); b.type = "button"; b.textContent = s.rare ? `${s.name} ★` : s.name; b.dataset.id = s.id; b.addEventListener("click", () => choose(s)); $("scenes").append(b); }
+function thumbs() {
+  $("thumbs").replaceChildren(...SCENES.map(s => {
+    const fig = document.createElement("figure"), cv = document.createElement("canvas"), cap = document.createElement("figcaption");
+    cv.width = cv.height = SIZE; paint(cv, s, Math.floor(frameCount(s, epoch) / 2)); cap.textContent = s.rare ? `${s.name} · RARE` : s.name;
+    fig.append(cv, cap); fig.addEventListener("click", () => choose(s)); return fig;
+  }));
+}
+async function loadLive() {
+  // Batch JSON-RPC; Base answers a one-call batch with a bare object, so normalise to a list.
+  const rpc = async calls => {
+    const reply = await (await fetch("https://mainnet.base.org", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(calls.map(([method, params], id) => ({ jsonrpc: "2.0", id, method, params }))) })).json();
+    const list = (Array.isArray(reply) ? reply : [reply]).sort((a, b) => a.id - b.id);
+    if (list.some(r => r.error || r.result == null)) throw new Error(list.find(r => r.error)?.error?.message ?? "missing result");
+    return list.map(r => r.result);
+  };
+  const [latestHex] = await rpc([["eth_blockNumber", []]]), latest = Number(BigInt(latestHex)), blocks = [];
+  // Base's public RPC allows 25 requests a second and counts each call in a batch: 10 blocks, then a pause,
+  // retrying a batch that hits the limit.
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  for (let s = latest - 9; s <= latest; s += 10) {
+    const calls = Array.from({ length: Math.min(10, latest - s + 1) }, (_, i) => ["eth_getBlockByNumber", ["0x" + (s + i).toString(16), false]]);
+    for (let attempt = 0; ; ++attempt) {
+      try { blocks.push(...await rpc(calls)); break; }
+      catch (error) { if (attempt === 4 || !/limit|rate|429/i.test(error.message)) throw error; await wait(800 * (attempt + 1)); }
+    }
+    await wait(450);
+  }
+  return blocks.map(b => ({ ...b, txCount: b.transactions.length }));
+}
+$("source").addEventListener("change", async () => {
+  if ($("source").value === "live") { try { epoch = await loadLive(); } catch (e) { alert("Could not load live blocks: " + e.message); $("source").value = "epoch"; epoch = EPOCH; } }
+  else epoch = EPOCH;
+  frame = 0; thumbs(); showMinted(); choose(mintedScene(epoch));
+});
+$("play").addEventListener("click", () => { playing = !playing; $("play").textContent = playing ? "PAUSE" : "PLAY"; $("play").setAttribute("aria-pressed", String(playing)); });
+$("scrub").addEventListener("input", () => { frame = Number($("scrub").value); draw(); });
+let last = 0;
+(function tick(now) { if (playing && now - last >= 1000 / 15) { last = now; frame = (frame + 1) % frameCount(scene, epoch); draw(); } requestAnimationFrame(tick); })(0);
+if (!playing) { $("play").textContent = "PLAY"; $("play").setAttribute("aria-pressed", "false"); }
+choose(params.has("scene") ? scene : mintedScene(epoch)); thumbs(); showMinted();
+// For headless capture: render any scene/frame to a PNG data URL.
+window.capture = (id, f, size = 640) => { const cv = document.createElement("canvas"); cv.width = cv.height = size; paint(cv, SCENES.find(s => s.id === id), f); return cv.toDataURL("image/png"); };
+window.frames = id => frameCount(SCENES.find(s => s.id === id), epoch);
+window.ready = true;
+</script>
+</body>
+</html>
