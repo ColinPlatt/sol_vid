@@ -5,8 +5,16 @@ import {VideoNFT} from "../src/VideoNFT.sol";
 import {VmNFT} from "./SolVideoNFT.t.sol";
 import {IERC721Receiver} from "../vendor/openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
+interface VmMatrix is VmNFT {
+    function createDir(string calldata path, bool recursive) external;
+}
+
 contract VideoMatrixTest is IERC721Receiver {
-    VmNFT constant vm = VmNFT(address(uint160(uint256(keccak256("hevm cheat code")))));
+    VmMatrix constant vm = VmMatrix(address(uint160(uint256(keccak256("hevm cheat code")))));
+
+    function setUp() public {
+        vm.createDir("previews/video/matrix", true);
+    }
 
     function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
         return IERC721Receiver.onERC721Received.selector;
