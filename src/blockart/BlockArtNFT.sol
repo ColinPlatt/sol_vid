@@ -8,7 +8,7 @@ import {DataURI} from "./DataURI.sol";
 import {Epoch} from "./Epoch.sol";
 import {InPlace} from "./InPlace.sol";
 
-/// @notice One token per 10-block Base epoch, first come first served. The minter supplies the epoch's ten block
+/// @notice One token per 10-block epoch on the deployment chain, first come first served. The minter supplies the epoch's ten block
 ///         headers; the contract verifies them against the chain's own block hashes and keeps the fields the art
 ///         reads. The artwork is a 6-second, 128x128 animated GIF rendered from those blocks in one read-only call.
 /// @dev Token id = epoch number e (blocks 10e .. 10e+9). An epoch is mintable once its last block is in the past and
@@ -89,7 +89,7 @@ contract BlockArtNFT is ERC721 {
             renderer.sceneName(s),
             " #",
             tokenId.toString(),
-            '","description":"Ten Base blocks (',
+            '","description":"Ten consecutive blocks (',
             Epoch.number(e, 0).toString(),
             "-",
             Epoch.number(e, 9).toString(),

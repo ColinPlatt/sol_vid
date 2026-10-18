@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.30;
-import {DeployBlockArt, DeployBlockArtBase, DeployBlockArtBaseSepolia} from "../../script/DeployBlockArt.s.sol";
+import {
+    DeployBlockArt,
+    DeployBlockArtBase,
+    DeployBlockArtBaseSepolia,
+    DeployBlockArtSepolia
+} from "../../script/DeployBlockArt.s.sol";
 import {BlockArtRenderer} from "../../src/blockart/BlockArtRenderer.sol";
 import {BlockArtNFT} from "../../src/blockart/BlockArtNFT.sol";
 import {BaseEpochs} from "./BaseEpochs.sol";
@@ -61,6 +66,17 @@ contract BlocksDeployTest {
         vm.chainId(84532);
         (BlockArtRenderer renderer, BlockArtNFT nft) = new DeployBlockArtBaseSepolia().run();
         validate(renderer, nft);
+    }
+
+    function testEthereumSepoliaDeploymentRehearsal() public {
+        prepare();
+        vm.chainId(11155111);
+        // Public test-only key; no real deployment credentials are used in tests.
+        vm.setEnv("DEPLOYER_PRIVATE_KEY", "1");
+        vm.setEnv("DEPLOYER_ADDRESS", "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf");
+        (BlockArtRenderer renderer, BlockArtNFT nft) = new DeployBlockArtSepolia().run();
+        validate(renderer, nft);
+        require(nft.ownerOf(5254696) == 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf, "Wrong signer");
     }
 
     function testDeploymentRejectsOtherChainBeforeReadingEnvironment() public {
