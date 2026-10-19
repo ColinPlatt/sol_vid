@@ -78,6 +78,13 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   Further deployments still need their own authorization.
 - The user requested working directly on `main`; do not create routine feature branches.
 
+- The user requested cheaper-model subagent delegation when useful. For substantial
+  work with independent subtasks, read
+  `.agents/skills/cost-aware-delegation/SKILL.md` and use its assignment, model,
+  ownership and verification workflow. Prefer GPT-6 Luna for bounded tasks;
+  keep small or tightly coupled work local. This does not authorize deployments
+  or edits outside the user's task, and workers must preserve concurrent work.
+
 - `BlockVideoNFT` / `BlockVideoRenderer` are the prepared `BLOCKS_VIDEO_V2`
   revision: native SVG first-frame poster plus a self-contained AVI player,
   without GIF metadata. Do not replace the deployed V1 page/config until a new
