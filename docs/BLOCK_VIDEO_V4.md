@@ -108,3 +108,7 @@ estimated about 12.0M gas (≈0.00013 ETH).
   the independent reference, and `tokenURI` needs about 273M gas.
 - **Site:** the site and lab mint and render from this collection
   (`deployments/blocks-video-v4-base.json`).
+- **OpenSea:** the playback check passed on 2026-10-19 (`scripts/observe_blocks_opensea.mjs`).
+  OpenSea ingested the metadata and plays the onchain player in an iframe, the frames move,
+  and the player it hosts is byte-identical to the onchain `animation_url`. Evidence is in
+  `previews/blocks-video-v4-base-live/opensea/`.

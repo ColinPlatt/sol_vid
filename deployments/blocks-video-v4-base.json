@@ -206,7 +206,12 @@
   },
   "mint_enabled": true,
   "marketplace_playback": {
-    "status": "not_checked"
+    "status": "passed",
+    "marketplace": "OpenSea",
+    "evidence_url": "https://opensea.io/item/base/0x87076cb1f55b7fb6c1febbffa1d45f4f4bd39cac/52814599",
+    "checked_at_utc": "2026-10-19T15:07:27.968Z",
+    "observations": "previews/blocks-video-v4-base-live/opensea/observations.json",
+    "html_sha256": "8f1d6a27e252b1387d3a8e14c13de7bbb159ca2d6bd37d2c604a16862118cebf"
   },
   "checked_at_utc": "2026-10-19T14:09:43+00:00",
   "source_verification": {

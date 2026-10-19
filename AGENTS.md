@@ -127,4 +127,5 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   `scripts/blocks_hud_font.py`. The user broadcast the Base deployment on 2026-10-19; it is
   verified on Basescan and Sourcify and audited frame-by-frame in
   `deployments/blocks-video-v4-base.json` (`scripts/record_blocks_v4_base.py`). The live
-  `blocks-page/` site and lab now use V4 on Base. Its OpenSea playback check is still to be recorded.
+  `blocks-page/` site and lab now use V4 on Base. Its OpenSea playback check passed on 2026-10-19
+  (`scripts/observe_blocks_opensea.mjs`; evidence in `previews/blocks-video-v4-base-live/opensea/`).

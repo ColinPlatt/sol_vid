@@ -10,6 +10,7 @@ and authorizations.
 `0x650d…b1e9`, bands `0x9423…ff04`, V3 scene router reused). The user broadcast and verified it
 on 2026-10-19. First token #52814599 (ALLEY). It is audited by `scripts/record_blocks_v4_base.py`;
 see `docs/BLOCK_VIDEO_V4.md` and `deployments/blocks-video-v4-base.json`. The site and lab use it.
+OpenSea playback passed (`scripts/observe_blocks_opensea.mjs`).
 The V3 row below is the previous Base collection.
 
 | What | Where | Notes |
@@ -96,7 +97,6 @@ the lab simulates Base blocks (chain ID 8453) and renders through `mainnet.base.
 1. **`deployments/blocks-site.json` is stale.** It still records the `67fd74e` deploy and
    the V1 collection. Update it with the current deployment id, source commit and Base
    collection.
-1. **OpenSea playback on Base** for #52810370 is not yet recorded in the Base manifest.
 2. **Preview JSON drift.** A plain `forge test --offline` rewrites about 35 tracked files
    (`previews/ARCHIVE/blockart/*.json`, `previews/ARCHIVE/blocks-video/*.json`,
    `previews/ARCHIVE/blocks-single/nighttrain.json`, `previews/ARCHIVE/blocks-video-v3/nighttrain.json`,
