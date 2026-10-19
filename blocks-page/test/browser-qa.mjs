@@ -107,8 +107,9 @@ try{
  await evaluate("window.__requested=false;document.querySelector('#wallet').dataset.connected='false';__blocks.walker.gate=false;__blocks.walker.placeAt('station',18,0)");await delay(600);
  assert.equal(await evaluate("__blocks.walker.gate"),false);
  await evaluate("__blocks.interact('gate')");await wait("__blocks.walker.gate&&window.__requested&&document.querySelector('#wallet').dataset.connected==='true'");
- // The ramen shop's ticket machine connects the wallet too.
- await evaluate("window.__requested=false;document.querySelector('#wallet').dataset.connected='false';window.dispatchEvent(new CustomEvent('blocks:wallet',{detail:{state:'none'}}));__blocks.interact('ticket')");await wait("window.__requested&&document.querySelector('#wallet').dataset.connected==='true'");
+ // The ramen ticket machine offers free food without connecting a wallet.
+ await evaluate("window.__requested=false;__blocks.interact('ticket')");await wait("document.querySelector('#ramen-menu').open");
+ assert.equal(await evaluate('window.__requested'),false);await evaluate("document.querySelector('#ramen-menu').close()");
  await evaluate("__blocks.walker.placeAt('station',25,-4,Math.PI/2)");await delay(900);await shot('site-station-desktop');
  await evaluate("__blocks.timeScale=8;__blocks.interact('train')");
  await wait("__blocks.ride?.phase==='journey'",120);await wait("__blocks.ride?.phase==='journey'&&__blocks.ride.t>20",150);

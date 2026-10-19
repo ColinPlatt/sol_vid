@@ -35,7 +35,18 @@ minimap with the three places give visual hints; the `?` button explains the
 controls and can guide you to any place. `#gallery`, `#ramen` and `#station`
 deep-link straight inside.
 
-**Places.** A ramen shop (ラーメン) with a robot chef. The gallery (ギャラリー),
+**Places.** A ramen shop (ラーメン) with a robot chef and a playable free menu:
+choose midnight shoyu, neon miso or a plant-based sakura garden bowl. The chef
+cooks, the matching 3D bowl appears on the counter, and three bites (or finishing
+early) produce a paper receipt. No wallet or payment is needed to eat. The bill
+offers an entirely optional native ETH tip to the confirmed deployer on the
+configured network, with preset/custom amounts, an explicit recipient and a
+wallet confirmation. Base uses real ETH; Sepolia uses test ETH. The transfer is
+direct, with no new contract, token approval or mint call. Pending and unknown
+wallet results survive a tab reload; receipts are checked before showing thanks.
+The same menu is accessible through Help when WebGL is unavailable.
+
+The gallery (ギャラリー),
 whose walls show minted originals and whose central terminal
 (鋳造) is the only place to mint; the one-action `mint()` flow is unchanged. A fresh
 mint pops up full-screen as *your night*, then floats inside the terminal's hologram
@@ -57,8 +68,9 @@ background-tab suspension and a no-WebGL fallback (mint panel always shown) are
 supported. The city is a browser illustration; the artwork is the onchain
 `BLOCKS_VIDEO_V3` AVI. V1 Sepolia settings remain in `config.json` under `previous`
 for the lab, which still renders from Sepolia. A wallet can be connected from the
-top bar, any subway ticket gate or the ramen shop's ticket machine; none sends a
-transaction. `/api/token?id=` returns the onchain name, traits and SVG
+top bar or any subway ticket gate; connecting sends no transaction. The ramen
+ticket machine opens the free menu. Only choosing and confirming a tip requests
+an ETH transfer. `/api/token?id=` returns the onchain name, traits and SVG
 poster; `&as=avi` the lossless AVI and `&as=player` the sandboxed onchain player.
 `dist/avi.mjs` decodes the AVI so gallery frames and the mint reveal animate it.
 
@@ -92,6 +104,9 @@ Checks from the repo root:
 
 - `npm test --prefix blocks-page`
 - `npm run check --prefix blocks-page`
+- `node blocks-page/test/ramen-browser-qa.mjs` (Chromium; mocked wallet/RPC only;
+  menu, physical servings, receipt, tipping, reload recovery, mobile and fallback;
+  evidence in `previews/ramen/`)
 - `node blocks-page/test/browser-qa.mjs` (Chromium; mocked wallet only; walks, mints in the gallery, connects at the gate and rides to Sakuragawa and back — several minutes under SwiftShader)
 
 The separate Vercel project is `blocks`, root directory `blocks-page`, production

@@ -73,7 +73,10 @@ try{
   paintChain();showChain=(labels,status)=>{paintChain(labels,status);paintTerminal();if(paused)render(true);};
   const streets=createStreets(kit,{scene,keep,telemetry:telemetryMaterial,interactive:register('city')});
   const journey=createJourney(kit,{keep,interactive:register('journey')});
-  const {gallery,station}=streets.places;
+  const {gallery,station,ramen}=streets.places;
+  window.addEventListener('blocks:ramen-state',event=>{ramen.serving.setMeal(event.detail);if(paused)render(true);});
+  window.addEventListener('blocks:ramen-thanks',()=>{ramen.serving.thank();pulse=1;toast2('ありがとう · The chef bows. Thanks for keeping the lights on.');if(paused)render(true);});
+  window.dispatchEvent(new Event('blocks:ramen-ready'));
   walker=new Walker();
   // Wet ground with a planar reflection, centred on the camera. A hole opens over the subway stairs.
   const reflection=keep(new THREE.WebGLRenderTarget(512,512,{depthBuffer:true})),reflectedMatrix=new THREE.Matrix4();
@@ -236,9 +239,9 @@ try{
     if(place.id==='ramen'){
       const machine=interactive.find(e=>e.id==='ticket');machine.object.getWorldPosition(worldPosition);
       // Near the door the ticket machine is offered first; deeper in, the chef.
-      if(Math.hypot(worldPosition.x-walker.x,worldPosition.z-walker.z)<3.4||(a<FACADE+4&&wallet.state!=='connected'))return wallet.state==='connected'?{id:'ticket',jp:'食券機',en:'Wallet connected'}:{id:'ticket',jp:'食券機',en:'Connect your wallet'};
+      if(Math.hypot(worldPosition.x-walker.x,worldPosition.z-walker.z)<3.4||a<FACADE+4)return {id:'ticket',jp:'食券機',en:'Choose a free bowl'};
     }
-    if(place.id==='ramen'&&a>FACADE+4)return {id:'chef',jp:'いらっしゃいませ',en:'Say hello to the chef'};
+    if(place.id==='ramen'&&a>FACADE+4)return {id:'chef',jp:'いらっしゃいませ',en:ramen.serving.phase==='served'?'Enjoy your bowl':ramen.serving.phase==='receipt'?'Your bill is ready':'Order a free bowl'};
     return null;
   }
   function interact(id){
@@ -249,8 +252,7 @@ try{
     if(id.startsWith('art:')){const content=boardContent[Number(id.slice(4))];if(content)window.dispatchEvent(new CustomEvent('blocks:inspect',{detail:content}));else toast2('空 · This frame is waiting for a block. Mint at the terminal to fill it.');return;}
     if(id==='train'){if(!walker.gate){toast2('改札 · Tap a ticket gate first.');return;}if(walker.place?.id==='station'&&walker.mode==='inside')startRide('out');return;}
     if(id==='train-home'){if(walker.place?.remote&&walker.mode==='inside')startRide('back');return;}
-    if(id==='ticket'){if(wallet.state==='connected')toast2('食券 · Your wallet is connected. Mint your block at the gallery terminal.');else window.dispatchEvent(new Event('blocks:connect-request'));return;}
-    if(id==='chef')toast2('いらっしゃいませ！ Welcome in — one shoyu ramen, coming right up.');
+    if(id==='ticket'||id==='chef')window.dispatchEvent(new Event('blocks:ramen-request'));
   }
   // Prompts, place names and the action button.
   const prompt=$('prompt'),action=$('action'),placeJp=$('place-jp'),placeEn=$('place-en');let lastPrompt='',lastPlace='',current=null;
@@ -270,7 +272,7 @@ try{
     if(ride)html=ride.direction==='out'?'<b>次は 桜川</b>Next stop: Sakuragawa':'<b>次は 中央</b>Next stop: Chuo Station';
     else if(walker.mode==='inside'){
       const id=walker.place.id,{a}=frameOf(walker.place).local(walker.x,walker.z);
-      html={ramen:'<b>ラーメン</b>Pull up a stool. ↓ or Esc to leave.',gallery:'<b>ギャラリー</b>Mint at the terminal in the centre. Minted blocks hang on the walls.',
+      html={ramen:'<b>ラーメン</b>Use the ticket machine or chef for a free bowl. ↓ or Esc to leave.',gallery:'<b>ギャラリー</b>Mint at the terminal in the centre. Minted blocks hang on the walls.',
         remote:'<b>桜川</b>Explore the platform and the river deck. Walk back to the train to return.',
         station:walker.gate?(a>22?'<b>乗車</b>Walk onto the train, or tap it, to ride to Sakuragawa.':'<b>改札</b>The gates are open. Go through to the platform.'):'<b>改札</b>Tap a ticket gate to connect your wallet and go through.'}[id];
     }else if(walker.mode==='street'){
@@ -426,6 +428,7 @@ try{
   else walker.wander();
   // A small hook for automated browser QA.
   window.__blocks={walker,startRide,interact,get ride(){return ride;},set timeScale(v){timeScale=v;},gallery:()=>({centre:gallery.terminal.centre.visible,mine:myToken?.tokenId??null,minted:mintedArt.map(t=>t.tokenId),boards:boardContent.map(c=>c?.tokenId??null),animated:[...artSources.values()].filter(e=>e.movie&&e.frame>=0).length}),stats:()=>({...renderer.info.render,programs:renderer.info.programs.length,segments:[...streets.cache.values()].filter(e=>e.group.parent).length,cached:streets.cache.size})};
+  window.__blocks.ramen=()=>({phase:ramen.serving.phase,meal:ramen.serving.meal,visible:ramen.serving.visible,receiptVisible:ramen.serving.receiptVisible});
   document.documentElement.dataset.scene='webgl';resize();visibility();
 }catch(error){
   console.error(error);

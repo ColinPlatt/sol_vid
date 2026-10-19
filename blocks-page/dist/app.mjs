@@ -3,6 +3,7 @@ import {mintBlock,connectWallet,ART_VERSION} from './mint.mjs';
 import {decodeAvi,drawFrame} from './avi.mjs';
 import {validToken} from './world.mjs';
 import {networkOf} from './networks.mjs';
+import {mountRamen} from './ramen.mjs';
 const $=id=>document.getElementById(id);
 let network,busy=false,reading=false,connecting=false;
 // The 3D city mirrors the mint and wallet state on the terminal screen and ticket gates.
@@ -19,6 +20,7 @@ for(const dialog of document.querySelectorAll('dialog')){
  dialog.addEventListener('close',()=>emit('blocks:panel',{id:dialog.id,open:false}));
 }
 for(const button of document.querySelectorAll('[data-guide]'))button.onclick=()=>{$('help').close();emit('blocks:guide',{place:button.dataset.guide});};
+mountRamen({openPanel,getNetwork:()=>network,onWallet:account=>{showAccount(account);emit('blocks:wallet',{state:'connected',account});}});
 function traits(items){$('traits').replaceChildren();for(const item of items){const div=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=item.trait_type;dd.textContent=String(item.value);div.append(dt,dd);$('traits').append(div);}}
 // The reveal plays the contract's own AVI over its SVG poster (frame one) until the panel closes.
 const motionless=matchMedia('(prefers-reduced-motion: reduce)');let playing=0;
@@ -66,7 +68,7 @@ async function viewToken(id,{mine=false,hash=null}={}){
 $('lookup').onsubmit=event=>{event.preventDefault();viewToken($('view-block').value);};
 // Clicking an artwork in the gallery opens it in the collection panel.
 window.addEventListener('blocks:inspect',event=>{const tokenId=event.detail?.tokenId;if(tokenId)viewToken(tokenId);});
-// The wallet button is always in the top bar; the ticket gates and the ramen shop's ticket machine do the same.
+// The top-bar wallet button and subway ticket gates connect a wallet; ramen is free to play.
 let connected=null;
 function showAccount(account){connected=account||null;$('wallet').dataset.connected=String(Boolean(account));$('wallet-label').textContent=account?account.slice(0,6)+'…'+account.slice(-4):'Connect wallet';}
 $('wallet').onclick=()=>{if(connected)toast('財布 · Connected as '+connected.slice(0,6)+'…'+connected.slice(-4)+'. Mint at the terminal in the gallery.');else emit('blocks:connect-request');};

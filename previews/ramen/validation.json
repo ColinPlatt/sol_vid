@@ -1,0 +1,21 @@
+{
+  "chromium": "passed",
+  "wallet": "mocked only; no real transactions",
+  "meals": 3,
+  "free_meal_without_wallet": true,
+  "live_3d_serving": true,
+  "bill": true,
+  "exact_base_tip": true,
+  "rejection": true,
+  "double_click_guard": true,
+  "pending_guard": true,
+  "pending_reload": true,
+  "ambiguous_send_reload": true,
+  "reverted_tip": true,
+  "mobile": true,
+  "reduced_motion": true,
+  "no_webgl": true,
+  "no_wallet": true,
+  "firefox": "not_checked",
+  "safari": "not_checked"
+}

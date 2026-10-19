@@ -1,6 +1,7 @@
 // Walk-in places built into their street segments: a ramen shop, the gallery (mint) and the subway station (wallet).
 // Segment space: x=s*a is depth from the street centre, z=ZC+b runs along the street.
 import {PITCH,FACADE} from './walker.mjs';
+import {createRamenServing} from './ramen-scene.mjs';
 const H=FACADE,ZC=-PITCH/2,LEN=PITCH-2*H-14;
 
 function shell(b,A,Z,{depth,width,height,floor,wall,ceiling,side}){
@@ -39,7 +40,8 @@ export function buildRamen(kit,b,g,s,{neonSide,r,animated,interactive,keep}){
   // Counter, stools, bowls, kitchen and a robot chef.
   b.part('matte',A(H+6.8),.55,ZC,.9,1.1,11,0x6b4128);b.part('matte',A(H+6.8),1.13,ZC,1.25,.07,11.4,0xc8955a);b.part('lit',A(H+6.32),.18,ZC,.03,.05,11,0xff9a3c);
   for(let bb=-4.5;bb<=4.6;bb+=1.5){b.cylinder(A(H+5.7),.74,Z(bb),.26,.08,.26,0xd23a3a);b.cylinder(A(H+5.7),.36,Z(bb),.04,.72,.04,0x9aa6b0);}
-  for(const bb of [-3,0,3]){b.ball(A(H+6.8),1.22,Z(bb),.2,.09,.2,0xf2efe6);b.ball(A(H+6.8),1.27,Z(bb),.16,.02,.16,0xd88a3a,true);steam(kit,g,animated,keep,A(H+6.8),1.4,Z(bb));}
+  for(const bb of [-3,3]){b.ball(A(H+6.8),1.22,Z(bb),.2,.09,.2,0xf2efe6);b.ball(A(H+6.8),1.27,Z(bb),.16,.02,.16,0xd88a3a,true);steam(kit,g,animated,keep,A(H+6.8),1.4,Z(bb));}
+  const serving=createRamenServing(kit,g,animated,keep,{x:A(H+6.8),y:1.18,z:Z(0)});
   b.part('solid',A(H+9.35),.5,ZC,1.1,1,13,0x8a99a6);b.part('lit',A(H+9.35),1.01,ZC,.9,.02,12,0xff5a1f);
   for(const bb of [-4,-1.5,1.5,4]){b.cylinder(A(H+9.35),1.25,Z(bb),.34,.5,.34,0x9aa6b0);steam(kit,g,animated,keep,A(H+9.35),1.6,Z(bb));}
   const chef=new THREE.Group();chef.position.set(A(H+8.2),0,Z(1.2));chef.rotation.y=ry;g.add(chef);
@@ -47,22 +49,22 @@ export function buildRamen(kit,b,g,s,{neonSide,r,animated,interactive,keep}){
   const head=new THREE.Group();head.position.y=2.2;chef.add(head);
   kit.batch(head,kit.box,kit.materials.solid,[{x:0,y:0,z:0,w:.46,h:.4,d:.42,colour:0xeef2f6},{x:0,y:.38,z:0,w:.36,h:.32,d:.36,colour:0xffffff}]);
   kit.batch(head,kit.box,kit.materials.lit,[{x:0,y:.02,z:.215,w:.34,h:.09,d:.02,colour:0x46f5ff}]);
-  animated.custom.push(time=>{head.rotation.y=Math.sin(time*.7)*.45;chef.position.y=Math.abs(Math.sin(time*1.4))*.03;});
-  interactive({id:'chef',object:chef,jp:'いらっしゃいませ',en:'Say hello to the chef'});
-  [['醤油 ¥980','SHOYU RAMEN'],['味噌 ¥1080','MISO RAMEN'],['豚骨 ¥1180','TONKOTSU'],['餃子 ¥480','GYOZA']].forEach((pair,k)=>kit.sign(g,A(H+depth-.02),3.25,Z(-5.2+k*3.47),pair,'#ffb51b',2.9,.95,ry));
+  animated.custom.push(time=>{head.rotation.y=Math.sin(time*(serving.phase==='cooking'?2:.7))*.45;head.rotation.z=serving.phase==='cooking'?Math.sin(time*6)*.12:0;head.rotation.x=serving.bowing ? .45 : 0;chef.position.y=Math.abs(Math.sin(time*1.4))*.03;});
+  interactive({id:'chef',object:chef,jp:'いらっしゃいませ',en:'Order a free bowl'});
+  [['醤油','SHOYU RAMEN'],['辛味噌','NEON MISO'],['野菜','SAKURA GARDEN'],['無料','ON THE HOUSE']].forEach((pair,k)=>kit.sign(g,A(H+depth-.02),3.25,Z(-5.2+k*3.47),pair,'#ffb51b',2.9,.95,ry));
   kit.sign(g,A(H+5),3.2,Z(width/2-.06),['ラーメン','RAMEN'],'#ff32b5',3.8,1.2,Math.PI);
   kit.sign(g,A(H+5),3.2,Z(-width/2+.06),['替玉無料','FREE NOODLE REFILLS'],'#46f5ff',3.8,1.2,0);
   for(const a of [2.5,5])for(const bb of [-5,-2,1,4]){b.ball(A(H+a),3.75,Z(bb),.3,.4,.3,0xffa94d,true);}
   kit.halo(g,A(H+4),3.6,ZC,9,'#ffa94d',.35);
-  // The ticket machine by the door connects a wallet, like the station's ticket gates.
+  // The ticket machine opens the free virtual menu; no wallet is needed to eat.
   const machine=new THREE.Group();machine.position.set(A(H+1.1),0,Z(-6.2));g.add(machine);
   kit.batch(machine,kit.box,kit.materials.solid,[{x:0,y:.9,z:0,w:.8,h:1.8,d:.9,colour:0xd9dde3}]);
   kit.batch(machine,kit.box,kit.materials.lit,[{x:0,y:1.2,z:.46,w:.6,h:.7,d:.02,colour:0x7fd6ff},{x:0,y:.62,z:.46,w:.5,h:.06,d:.02,colour:0xffb51b}]);
   kit.halo(machine,0,1.3,.6,2.2,'#46f5ff',.45);
-  kit.sign(g,A(H+1.1),2.3,Z(-5.72),['食券機','TICKETS · CONNECT WALLET'],'#46f5ff',2.2,.72,0);
-  interactive({id:'ticket',object:machine,jp:'食券機',en:'Connect your wallet'});
+  kit.sign(g,A(H+1.1),2.3,Z(-5.72),['食券機','MENU · FREE BOWLS'],'#46f5ff',2.2,.72,0);
+  interactive({id:'ticket',object:machine,jp:'食券機',en:'Choose a free bowl'});
   light(kit,g,0xffa860,18,14,A(H+5),3.7,ZC);
-  return {id:'ramen'};
+  return {id:'ramen',serving};
 }
 buildRamen.id='ramen';
 
