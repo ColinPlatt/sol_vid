@@ -14,8 +14,8 @@ export async function mintBlock(provider,network,onStage=()=>{}){
  if(decodeString(name)!=='blocks'||decodeString(symbol)!=='blocks'||decodeString(version)!==ART_VERSION||!/^0x[0-9a-f]{64}$/i.test(renderer)||'0x'+renderer.slice(-40).toLowerCase()!==network.rendererAddress.toLowerCase()||!/^0x[0-9a-f]+$/i.test(code)||/^0x0*$/.test(code))throw Error('The collection does not match its settings.');
  const transaction={from:account,to:network.collectionAddress,data:'0x1249c58b',value:'0x0',chainId:network.chainHex};
  const estimate=BigInt(await request('eth_estimateGas',[transaction]));if(estimate<21000n||estimate>5000000n)throw Error('Unexpected mint estimate. No transaction was sent.');
- const price=BigInt(await request('eth_gasPrice'));if(price>1000000n)throw Error('Gas prices changed. Please try again later.');
- transaction.gas='0x'+((estimate*120n+99n)/100n).toString(16);transaction.maxFeePerGas='0x'+(price*4n>1000n?price*4n:1000n).toString(16);transaction.maxPriorityFeePerGas='0x1';
+ const net=networkOf(network),price=BigInt(await request('eth_gasPrice'));if(price>net.maxGasPrice)throw Error('Network gas is unusually high right now. Please try again shortly.');
+ transaction.gas='0x'+((estimate*120n+99n)/100n).toString(16);transaction.maxFeePerGas='0x'+(price*4n+net.tip>1000n?price*4n+net.tip:1000n).toString(16);transaction.maxPriorityFeePerGas='0x'+net.tip.toString(16);
  const [chain,current]=await Promise.all([request('eth_chainId'),request('eth_accounts')]);if(BigInt(chain)!==BigInt(network.chainId)||current?.[0]?.toLowerCase()!==account.toLowerCase())throw Error('Wallet changed. Please try again.');
  onStage('wallet');const hash=await request('eth_sendTransaction',[transaction]);if(!/^0x[0-9a-f]{64}$/i.test(hash??''))throw Error('Invalid transaction hash.');return {hash,account};
 }
