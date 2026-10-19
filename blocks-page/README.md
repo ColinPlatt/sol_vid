@@ -50,8 +50,12 @@ plucks by the river. It starts only when Sound is switched on.
 
 Pause, reduced-motion preferences (the scene starts still and never auto-walks),
 background-tab suspension and a no-WebGL fallback (mint panel always shown) are
-supported. The city is a browser illustration; the artwork is the original onchain
-GIF. WebCodecs-capable browsers animate the gallery's GIF textures.
+supported. The city is a browser illustration; the artwork is the onchain
+`BLOCKS_VIDEO_V3` AVI. The site mints the V3 collection
+`0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f` (V1 remains in `config.json` under
+`previous` for the lab). `/api/token?id=` returns the onchain name, traits and SVG
+poster; `&as=avi` the lossless AVI and `&as=player` the sandboxed onchain player.
+`dist/avi.mjs` decodes the AVI so gallery frames and the mint reveal animate it.
 
 **Art lab.** `/lab/` (unlisted, `noindex`) is a workshop for reviewing the NFTs,
 like the ghoul lab. Its renders are real: `api/lab.js` builds the 3,520-byte input

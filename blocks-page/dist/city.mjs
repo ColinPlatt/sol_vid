@@ -1,5 +1,6 @@
 import * as THREE from './vendor/three.module.min.js';
 import {watchWorld} from './world.mjs';
+import {decodeAvi,drawFrame} from './avi.mjs';
 import {Walker,PLACES,frameOf,streetName,EYE,PITCH,FACADE,REMOTE_Z} from './walker.mjs';
 import {createKit} from './kit.mjs';
 import {createStreets} from './streets.mjs';
@@ -109,18 +110,18 @@ try{
   const markerCanvas=document.createElement('canvas');markerCanvas.width=markerCanvas.height=64;const mc=markerCanvas.getContext('2d');
   mc.fillStyle='#ff32b5';mc.shadowColor='#ff32b5';mc.shadowBlur=12;mc.beginPath();mc.moveTo(14,16);mc.lineTo(50,16);mc.lineTo(32,46);mc.closePath();mc.fill();
   const marker=new THREE.Sprite(keep(new THREE.SpriteMaterial({map:keep(new THREE.CanvasTexture(markerCanvas)),transparent:true,depthTest:false,toneMapped:false})));marker.scale.set(.5,.5,1);marker.visible=false;marker.renderOrder=10;
-  // Gallery artworks: minted originals, newest first. WebCodecs animates GIF textures.
+  // Gallery artworks: minted originals, newest first. The onchain SVG poster shows first; its AVI then animates the texture.
   const mintedArt=[],artSources=new Map(),boardContent=[];let artStamp=-1;
-  function artwork(source){
-    if(artSources.has(source))return artSources.get(source);
+  function artwork(token){
+    const source=token.video;if(artSources.has(source))return artSources.get(source);
     const image=new Image(),c=document.createElement('canvas');c.width=c.height=128;const ctx=c.getContext('2d');ctx.fillStyle='#100b26';ctx.fillRect(0,0,128,128);
     const texture=keep(new THREE.CanvasTexture(c));texture.colorSpace=THREE.SRGBColorSpace;texture.magFilter=THREE.NearestFilter;texture.minFilter=THREE.LinearFilter;texture.generateMipmaps=false;
-    const entry={image,ctx,texture,decoder:null,decoding:false,frame:-1,removed:false};artSources.set(source,entry);
-    if('ImageDecoder' in window)fetch(source).then(response=>response.arrayBuffer()).then(async data=>{
-      if(disposed||entry.removed)return;const decoder=new ImageDecoder({data,type:'image/gif',preferAnimation:true});
-      try{await decoder.completed;if(disposed||entry.removed){decoder.close();return;}entry.decoder=decoder;}catch{decoder.close();}
-    }).catch(()=>{});
-    image.onload=()=>{if(disposed)return;ctx.drawImage(image,0,0,128,128);texture.needsUpdate=true;if(paused)render(true);};image.src=source;
+    const entry={image,ctx,texture,movie:null,pixels:null,frame:-1,removed:false};artSources.set(source,entry);
+    fetch(source).then(response=>response.ok?response.arrayBuffer():Promise.reject(Error('Unavailable'))).then(data=>{
+      if(disposed||entry.removed)return;const movie=decodeAvi(data);if(movie.width!==128||movie.height!==128)return;
+      entry.pixels=ctx.createImageData(128,128);entry.movie=movie;
+    }).catch(()=>{/* The poster stays up when the video cannot be read. */});
+    image.onload=()=>{if(disposed||entry.frame>=0)return;ctx.drawImage(image,0,0,128,128);texture.needsUpdate=true;if(paused)render(true);};image.src=token.image;
     return entry;
   }
   // Frames without a minted block wait for one; the gallery shows no demo artwork.
@@ -133,16 +134,16 @@ try{
     gallery.boards.forEach((board,i)=>{
       const token=mintedArt[i]??null,mine=token&&token.tokenId===myToken?.tokenId;
       boardContent[i]=token?{tokenId:token.tokenId}:null;
-      board.picture.material.map=token?artwork(token.image).texture:emptyTexture;board.picture.material.color.set(0xffffff);board.picture.material.needsUpdate=true;
+      board.picture.material.map=token?artwork(token).texture:emptyTexture;board.picture.material.color.set(0xffffff);board.picture.material.needsUpdate=true;
       const ctx=board.ctx;ctx.fillStyle='#080c21';ctx.fillRect(0,0,512,96);ctx.textAlign='center';
       ctx.fillStyle=mine?'#ff75d0':token?'#66ffce':'#7c8aa0';ctx.font='bold 24px "Noto Sans CJK JP",monospace';
       ctx.fillText(mine?'あなたの夜 · YOURS #'+token.tokenId:token?'鋳造済 MINTED / #'+token.tokenId:'空 · AWAITING A BLOCK',256,40);
       ctx.font='15px monospace';ctx.fillStyle='#b1d0e1';ctx.fillText(token?'BLOCKS · ONCHAIN ORIGINAL':'MINT AT THE TERMINAL',256,72);board.texture.needsUpdate=true;
     });
     const {centre,centreArt}=gallery.terminal;
-    if(myToken){centreArt.material.map=artwork(myToken.image).texture;centreArt.material.needsUpdate=true;centre.visible=true;}
+    if(myToken){centreArt.material.map=artwork(myToken).texture;centreArt.material.needsUpdate=true;centre.visible=true;}
     const used=new Set([...gallery.boards.map(board=>board.picture.material.map),myToken?centreArt.material.map:null]);
-    for(const [source,entry] of artSources)if(!used.has(entry.texture)){entry.removed=true;entry.decoder?.close();entry.image.onload=null;entry.image.src='';entry.texture.dispose();resources.delete(entry.texture);artSources.delete(source);}
+    for(const [source,entry] of artSources)if(!used.has(entry.texture)){entry.removed=true;entry.movie=null;entry.image.onload=null;entry.image.src='';entry.texture.dispose();resources.delete(entry.texture);artSources.delete(source);}
   }
   showToken=token=>{if(disposed)return;const i=mintedArt.findIndex(item=>item.tokenId===token.tokenId);if(i>=0)mintedArt.splice(i,1);mintedArt.unshift(token);mintedArt.length=Math.min(mintedArt.length,gallery.boards.length);galleryLabels();if(paused)render(true);};
   window.addEventListener('blocks:mine',event=>{myToken=event.detail;showToken(myToken);pulse=1;});
@@ -300,9 +301,9 @@ try{
   render=(forceMirror=false)=>{
     placeCamera();
     if(!paused&&!reduced.matches&&elapsed-artStamp>1/12&&walker.place?.id==='gallery'){
-      for(const entry of artSources.values())if(entry.decoder&&!entry.decoding){
-        const index=Math.floor(elapsed*15)%entry.decoder.tracks.selectedTrack.frameCount;if(index===entry.frame)continue;entry.decoding=true;
-        entry.decoder.decode({frameIndex:index}).then(({image:frame})=>{if(!disposed&&!entry.removed){entry.ctx.drawImage(frame,0,0,128,128);entry.texture.needsUpdate=true;entry.frame=index;}frame.close();}).catch(()=>{}).finally(()=>{entry.decoding=false;});
+      for(const entry of artSources.values())if(entry.movie){
+        const index=Math.floor(elapsed*entry.movie.fps)%entry.movie.frames.length;if(index===entry.frame)continue;
+        entry.ctx.putImageData(drawFrame(entry.movie,index,entry.pixels),0,0);entry.texture.needsUpdate=true;entry.frame=index;
       }
       artStamp=elapsed;
     }
@@ -407,14 +408,14 @@ try{
   window.addEventListener('blocks:minted',()=>{pulse=1;});
   const observer=new ResizeObserver(resize);observer.observe(stage);
   document.documentElement.addEventListener('pointerleave',leave);document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',preference);
-  window.addEventListener('pagehide',()=>{disposed=true;renderer.setAnimationLoop(null);observer.disconnect();soundtrack.dispose();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',preference);artSources.forEach(entry=>{entry.removed=true;entry.decoder?.close();entry.image.onload=null;entry.image.src='';});resources.forEach(resource=>resource.dispose());renderer.dispose();},{once:true});
+  window.addEventListener('pagehide',()=>{disposed=true;renderer.setAnimationLoop(null);observer.disconnect();soundtrack.dispose();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',preference);artSources.forEach(entry=>{entry.removed=true;entry.movie=null;entry.image.onload=null;entry.image.src='';});resources.forEach(resource=>resource.dispose());renderer.dispose();},{once:true});
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();renderer.setAnimationLoop(null);document.documentElement.dataset.scene='fallback';motion.hidden=true;explore(false,false);enter.hidden=true;});
   // Deep links: #gallery, #ramen and #station start inside; otherwise the overview wanders.
   const link=location.hash.slice(1);
   if(['gallery','ramen','station'].includes(link)){walker.placeAt(link,PLACES[link].id==='station'?18:FACADE+2,0);explore(true,false);}
   else walker.wander();
   // A small hook for automated browser QA.
-  window.__blocks={walker,startRide,interact,get ride(){return ride;},set timeScale(v){timeScale=v;},gallery:()=>({centre:gallery.terminal.centre.visible,mine:myToken?.tokenId??null,minted:mintedArt.map(t=>t.tokenId),boards:boardContent.map(c=>c?.tokenId??null)}),stats:()=>({...renderer.info.render,programs:renderer.info.programs.length,segments:[...streets.cache.values()].filter(e=>e.group.parent).length,cached:streets.cache.size})};
+  window.__blocks={walker,startRide,interact,get ride(){return ride;},set timeScale(v){timeScale=v;},gallery:()=>({centre:gallery.terminal.centre.visible,mine:myToken?.tokenId??null,minted:mintedArt.map(t=>t.tokenId),boards:boardContent.map(c=>c?.tokenId??null),animated:[...artSources.values()].filter(e=>e.movie&&e.frame>=0).length}),stats:()=>({...renderer.info.render,programs:renderer.info.programs.length,segments:[...streets.cache.values()].filter(e=>e.group.parent).length,cached:streets.cache.size})};
   document.documentElement.dataset.scene='webgl';resize();visibility();
 }catch(error){
   console.error(error);

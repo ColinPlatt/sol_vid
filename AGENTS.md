@@ -110,5 +110,6 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
 - The user authorized the `BLOCKS_VIDEO_V3` Ethereum Sepolia deployment on 2026-10-19.
   It is confirmed and Sourcify-verified in `deployments/blocks-video-v3-sepolia.json`.
   OpenSea no longer supports testnets, so its marketplace gate cannot pass on Sepolia;
-  the live `blocks-page/` mint stays on V1 unless the user explicitly asks to switch.
+  on 2026-10-19 the user explicitly asked to switch the live `blocks-page/` mint to V3
+  anyway; it now mints V3 (V1 stays deployed and readable).
   This does not authorize Base, mainnet or other redeployments.

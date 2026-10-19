@@ -10,7 +10,8 @@ const root=fileURLToPath(new URL('../../',import.meta.url)),dist=path.join(root,
 const server=createServer(async(req,res)=>{try{let name=new URL(req.url,'http://localhost').pathname;if(name.endsWith('/'))name+='index.html';const file=path.resolve(dist,'.'+name);if(!file.startsWith(dist+path.sep))throw Error('path');const data=await readFile(file);res.setHeader('Content-Type',({'.html':'text/html','.mjs':'text/javascript','.js':'text/javascript','.css':'text/css','.json':'application/json','.gif':'image/gif'})[path.extname(file)]??'application/octet-stream');res.end(data);}catch{res.writeHead(404).end();}});
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin=`http://127.0.0.1:${server.address().port}`;
-const galleryGIF=(await readFile(path.join(dist,'assets/block-11941801.gif'))).toString('base64');
+// The first V3 token's onchain poster and AVI, as read from the deployed contract.
+const livePoster=(await readFile(path.join(root,'previews/blocks-video-v3-sepolia/11947754.svg'))).toString('base64'),liveAVI=(await readFile(path.join(root,'previews/blocks-video-v3-sepolia/11947754.avi'))).toString('base64');
 const profile=await mkdtemp(path.join(tmpdir(),'blocks-browser-'));const delay=ms=>new Promise(r=>setTimeout(r,ms));let chrome,ws;
 try{
  chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
@@ -27,12 +28,14 @@ try{
  const native=window.fetch.bind(window);window.fetch=async(url,options)=>{
   if(String(url)==='/api/world'&&window.__worldOffline)return new Response('{}',{status:503});
   if(String(url)==='/api/world')return new Response(JSON.stringify({chainId:11155111,blockNumber:'13000000',timestamp:Math.floor(Date.now()/1000),baseFeeWei:'123456789',gasUsed:'15000000',gasLimit:'60000000',transactions:72,totalSupply:'2',tokenIds:['13000000','11941801'],observedAt:Date.now()}));
-  if(String(url).startsWith('/api/token'))return new Response(JSON.stringify({name:'ALLEY #13000000',attributes:[{trait_type:'Block',value:13000000}],tokenId:'13000000',image:'data:image/gif;base64,${galleryGIF}'}));
-  if(String(url).endsWith('config.json'))return new Response(JSON.stringify({artVersion:'BLOCKS_SINGLE_V1',name:'Ethereum Sepolia',chainId:11155111,chainHex:'0xaa36a7',rpcUrl:'https://mainnet.base.org',explorerUrl:'https://basescan.org',deployed:true,mintEnabled:live,collectionAddress:collection,rendererAddress:renderer}));
+  if(String(url).startsWith('/api/token')){const id=new URL(url,location.href).searchParams.get('id');window.__tokenReads=(window.__tokenReads??0)+1;
+   if(String(url).includes('&as=avi'))return new Response(Uint8Array.from(atob('${liveAVI}'),c=>c.charCodeAt(0)),{headers:{'Content-Type':'video/x-msvideo'}});
+   return new Response(JSON.stringify({name:'夜景 SKYLINE #'+id,attributes:[{trait_type:'Art Version',value:'BLOCKS_VIDEO_V3'}],tokenId:id,image:'data:image/svg+xml;base64,${livePoster}',video:'/api/token?id='+id+'&as=avi'}));}
+  if(String(url).endsWith('config.json'))return new Response(JSON.stringify({artVersion:'BLOCKS_VIDEO_V3',name:'Ethereum Sepolia',chainId:11155111,chainHex:'0xaa36a7',rpcUrl:'https://mainnet.base.org',explorerUrl:'https://basescan.org',deployed:true,mintEnabled:live,collectionAddress:collection,rendererAddress:renderer}));
   if(options?.body){const req=JSON.parse(options.body);let result;if(req.method==='eth_getTransactionReceipt')result={status:'0x1',blockNumber:'0xc65d40',logs:[{address:collection,topics:['0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef','0x'+'0'.repeat(64),'0x'+account.slice(2).padStart(64,'0'),'0x'+(13000000n).toString(16).padStart(64,'0')]}]};else throw Error('Unexpected RPC '+req.method);return new Response(JSON.stringify({jsonrpc:'2.0',id:req.id,result}));}
   return native(url,options);
  };
- window.ethereum={on(){},async request({method,params}){if(method==='eth_requestAccounts'){window.__requested=true;return[account];}if(method==='eth_accounts')return window.__requested?[account]:[];if(method==='eth_chainId')return'0xaa36a7';if(method==='eth_blockNumber')return'0x'+(52546970n).toString(16);if(method==='eth_getCode')return'0x6000';if(method==='eth_call')return params[0].data==='0x8ada6b0f'?'0x'+renderer.slice(2).padStart(64,'0'):abi(params[0].data==='0xacaaa87e'?'BLOCKS_SINGLE_V1':'blocks');if(method==='eth_gasPrice')return'0x13';if(method==='eth_estimateGas')return'0x100000';if(method==='eth_sendTransaction'){window.__sends.push(params[0]);return hash;}throw Error(method);}};
+ window.ethereum={on(){},async request({method,params}){if(method==='eth_requestAccounts'){window.__requested=true;return[account];}if(method==='eth_accounts')return window.__requested?[account]:[];if(method==='eth_chainId')return'0xaa36a7';if(method==='eth_blockNumber')return'0x'+(52546970n).toString(16);if(method==='eth_getCode')return'0x6000';if(method==='eth_call')return params[0].data==='0x8ada6b0f'?'0x'+renderer.slice(2).padStart(64,'0'):abi(params[0].data==='0xacaaa87e'?'BLOCKS_VIDEO_V3':'blocks');if(method==='eth_gasPrice')return'0x13';if(method==='eth_estimateGas')return'0x100000';if(method==='eth_sendTransaction'){window.__sends.push(params[0]);return hash;}throw Error(method);}};
  `});
  const wait=async(expression,seconds=60)=>{for(let i=0;i<seconds*4;++i){if(await evaluate(expression).catch(()=>false))return;await delay(250);}throw Error('Timed out: '+expression);};
  const shot=async name=>writeFile(path.join(root,'previews/blocks-sepolia/'+name+'.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
@@ -81,10 +84,16 @@ try{
  await evaluate("document.querySelector('#action').click()");await wait("document.querySelector('#status').textContent.includes('is yours')",60);
  assert.equal(await evaluate("window.__sends.length"),1);assert.equal(await evaluate("window.__sends[0].data"),'0x1249c58b');assert.equal(await evaluate("window.__sends[0].value"),'0x0');
  // The new token pops up centre stage, and then floats in the gallery's terminal.
- await wait("document.querySelector('#reveal').open&&document.querySelector('#reveal').classList.contains('mine')&&document.querySelector('#reveal-image').naturalWidth===128");
+ await wait("document.querySelector('#reveal').open&&document.querySelector('#reveal').classList.contains('mine')&&document.querySelector('#reveal-image').naturalWidth>0&&!document.querySelector('#reveal-video').hidden");
+ // The reveal plays the token's own AVI and offers that file.
+ const revealFrame="(()=>{const c=document.querySelector('#reveal-video');return c.width===128?Array.from(c.getContext('2d').getImageData(0,0,128,128).data.filter((v,i)=>i%97===0)).join(','):''})()";
+ const firstFrame=await evaluate(revealFrame);await delay(1500);assert.notEqual(await evaluate(revealFrame),firstFrame,'reveal video is not animating');
+ assert.equal(await evaluate("document.querySelector('#download').getAttribute('href')==='/api/token?id=13000000&as=avi'&&document.querySelector('#download').download==='blocks-13000000.avi'"),true);
  assert.equal(await evaluate("document.querySelector('#reveal-block').textContent.includes('13,000,000')&&!document.querySelector('#reveal-tx').hidden"),true);
  await delay(900);await shot('site-browser-desktop-mocked');
  await evaluate("document.querySelector('#reveal').close()");await delay(1200);await shot('site-gallery-minted-desktop');
+ // Gallery frames animate from the decoded AVI, not just the poster.
+ await wait("window.__blocks.gallery().animated>0");
  // Leaving with Escape returns to the street.
  await key('Escape');await wait("__blocks.walker.mode==='street'",60);
  // The subway: the ticket gate connects the wallet, then the train rides out to Sakuragawa and back.

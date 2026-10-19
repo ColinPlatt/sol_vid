@@ -32,9 +32,13 @@ test('restricted logs keep canonical mints; failed RPC never returns invented ch
   const failed=response();await createHandler(settings,async()=>{throw Error('offline');})({method:'GET'},failed);assert.equal(failed.code,502);assert.equal(failed.headers['Cache-Control'],'no-store');assert.equal(failed.body.blockNumber,undefined);
  }finally{if(before===undefined)delete process.env.SEPOLIA_RPC_URL;else process.env.SEPOLIA_RPC_URL=before;}
 });
-test('chain labels preserve tiny fees and reject other networks; gallery accepts only embedded GIFs',()=>{
+test('chain labels preserve tiny fees and reject other networks; gallery accepts only onchain posters with their own video path',()=>{
  assert.equal(chainLabels({chainId:11155111,blockNumber:'123',baseFeeWei:'1',totalSupply:'2',timestamp:1}).fee,'1.00e-9 GWEI');
  assert.throws(()=>chainLabels({chainId:8453}));
- assert.equal(validToken({tokenId:'123',image:'https://example.com/a.gif'}),false);
- assert.equal(validToken({tokenId:'123',image:'data:image/gif;base64,R0lGODlh'}),true);
+ const image='data:image/svg+xml;base64,PHN2Zy8+';
+ assert.equal(validToken({tokenId:'123',image:'https://example.com/a.svg',video:'/api/token?id=123&as=avi'}),false);
+ assert.equal(validToken({tokenId:'123',image:'data:image/gif;base64,R0lGODlh',video:'/api/token?id=123&as=avi'}),false);
+ assert.equal(validToken({tokenId:'123',image,video:'https://example.com/a.avi'}),false);
+ assert.equal(validToken({tokenId:'123',image,video:'/api/token?id=124&as=avi'}),false);
+ assert.equal(validToken({tokenId:'123',image,video:'/api/token?id=123&as=avi'}),true);
 });

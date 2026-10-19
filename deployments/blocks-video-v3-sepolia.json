@@ -203,7 +203,7 @@
     "independent_reference": "seed, recipe and scene input rebuilt in Python; all 90 frames, palette, FFmpeg decode and SVG poster match scripts/blocks_diversity_reference.py transforms of the router AVI",
     "files": "previews/blocks-video-v3-sepolia/11947754.*"
   },
-  "mint_enabled": false,
+  "mint_enabled": true,
   "marketplace_playback": {
     "status": "not_possible_on_testnet",
     "checked_at_utc": "2026-10-19",
@@ -238,5 +238,11 @@
     "safari": "not_tested_requires_macOS",
     "evidence": "previews/blocks-video-v3-sepolia/browser-validation.json",
     "checks": "native SVG matches AVI frame 0 pixel-for-pixel in Chromium; embedded AVI loops, pauses and resumes in Chromium and Firefox; sandboxed iframe playback"
+  },
+  "site": {
+    "url": "https://blocks-eight-pi.vercel.app",
+    "config": "blocks-page/dist/config.json",
+    "switched_on": "2026-10-19",
+    "authorization": "explicit user request to mint V3 on Sepolia despite the unavailable testnet OpenSea gate"
   }
 }

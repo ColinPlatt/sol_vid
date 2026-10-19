@@ -1,5 +1,7 @@
 import {rpc,friendlyError,mintedToken,isAddress} from './wallet.mjs';
-import {mintBlock,connectWallet} from './mint.mjs';
+import {mintBlock,connectWallet,ART_VERSION} from './mint.mjs';
+import {decodeAvi,drawFrame} from './avi.mjs';
+import {validToken} from './world.mjs';
 const $=id=>document.getElementById(id);
 let network,busy=false,reading=false,connecting=false;
 // The 3D city mirrors the mint and wallet state on the terminal screen and ticket gates.
@@ -17,6 +19,21 @@ for(const dialog of document.querySelectorAll('dialog')){
 }
 for(const button of document.querySelectorAll('[data-guide]'))button.onclick=()=>{$('help').close();emit('blocks:guide',{place:button.dataset.guide});};
 function traits(items){$('traits').replaceChildren();for(const item of items){const div=document.createElement('div'),dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=item.trait_type;dd.textContent=String(item.value);div.append(dt,dd);$('traits').append(div);}}
+// The reveal plays the contract's own AVI over its SVG poster (frame one) until the panel closes.
+const motionless=matchMedia('(prefers-reduced-motion: reduce)');let playing=0;
+async function play(token){
+ const run=++playing,canvas=$('reveal-video');canvas.hidden=true;
+ try{
+  const response=await fetch(token.video);if(!response.ok)return;const movie=decodeAvi(await response.arrayBuffer());
+  if(run!==playing||!$('reveal').open)return;
+  canvas.width=movie.width;canvas.height=movie.height;const ctx=canvas.getContext('2d'),pixels=ctx.createImageData(movie.width,movie.height);
+  let frame=-1;const start=performance.now();
+  const tick=now=>{if(run!==playing||!$('reveal').open)return;const next=motionless.matches?0:Math.floor((now-start)/1000*movie.fps)%movie.frames.length;
+   if(next!==frame){frame=next;ctx.putImageData(drawFrame(movie,frame,pixels),0,0);canvas.hidden=false;}requestAnimationFrame(tick);};
+  requestAnimationFrame(tick);
+ }catch{/* The poster remains. */}
+}
+$('reveal').addEventListener('close',()=>{playing++;$('reveal-video').hidden=true;});
 // The reveal puts one token centre stage: your fresh mint, or a minted block you looked up.
 function reveal(token,{mine=false,hash=null}={}){
  const id=String(token.tokenId),scene=(token.name.split('#')[0].replace(/[^a-zA-Z ]/g,'').trim()||'Your night');
@@ -24,9 +41,9 @@ function reveal(token,{mine=false,hash=null}={}){
  $('reveal-eyebrow').textContent=mine?'鋳造完了 / MINTED · YOURS':'作品 / MINTED BLOCK';
  $('reveal-title').innerHTML='';$('reveal-title').append(mine?'Your night: ':'',Object.assign(document.createElement('em'),{textContent:scene[0]+scene.slice(1).toLowerCase()+'.'}));
  $('reveal-block').textContent='Block #'+Number(id).toLocaleString('en-US')+' · Ethereum Sepolia';
- $('download').href=token.image;$('download').download=`blocks-${id}.gif`;traits(token.attributes);
+ $('download').href=token.video;$('download').download=`blocks-${id}.avi`;traits(token.attributes);
  $('reveal-tx').hidden=!hash;if(hash)$('reveal-tx').href=network.explorerUrl+'/tx/'+hash;
- $('reveal').classList.toggle('mine',mine);openPanel('reveal');
+ $('reveal').classList.toggle('mine',mine);openPanel('reveal');play(token);
 }
 async function viewToken(id,{mine=false,hash=null}={}){
  if(reading)return;
@@ -34,8 +51,7 @@ async function viewToken(id,{mine=false,hash=null}={}){
  reading=true;$('view').disabled=true;$('read-status').textContent='Drawing this block’s night from the contract…';
  try{
   const response=await fetch('/api/token?id='+encodeURIComponent(id)),token=await response.json();if(!response.ok)throw Error(token.error||'This block could not be read.');
-  if(!/^data:image\/gif;base64,[A-Za-z0-9+/=]+$/.test(token.image)||!Array.isArray(token.attributes))throw Error('Unexpected artwork response.');
-  token.tokenId=String(id);emit('blocks:artwork',token);if(mine)emit('blocks:mine',token);
+  token.tokenId=String(id);if(!validToken(token)||!Array.isArray(token.attributes))throw Error('Unexpected artwork response.');emit('blocks:artwork',token);if(mine)emit('blocks:mine',token);
   $('read-status').textContent='';reveal(token,{mine,hash});
  }catch(error){$('read-status').textContent=friendlyError(error);if(mine)status(friendlyError(error),'error');}finally{reading=false;$('view').disabled=false;}
 }
@@ -69,7 +85,7 @@ async function mint(){
 $('mint').onclick=mint;window.addEventListener('blocks:mint-request',mint);
 try{
  const response=await fetch('config.json',{cache:'no-store'});if(!response.ok)throw Error('Settings unavailable.');network=await response.json();
- if(network.chainId!==11155111||network.artVersion!=='BLOCKS_SINGLE_V1'||!isAddress(network.rendererAddress)||(network.deployed&&!isAddress(network.collectionAddress)))throw Error('Single-block mint settings are not ready.');
+ if(network.chainId!==11155111||network.artVersion!==ART_VERSION||!isAddress(network.rendererAddress)||(network.deployed&&!isAddress(network.collectionAddress)))throw Error('Single-block mint settings are not ready.');
  if(network.deployed)$('contract').href=network.explorerUrl+'/address/'+network.collectionAddress;else $('contract').hidden=true;
  status(network.mintEnabled?'No inputs. Just the block your mint lands in.':'A new single-block edition. Opening soon.',network.mintEnabled?'ready':'closed');render();
  if(network.firstTokenId)$('view-block').value=network.firstTokenId;

@@ -1,7 +1,8 @@
 import {ensureChain,isAddress,decodeString} from './wallet.mjs';
+export const ART_VERSION='BLOCKS_VIDEO_V3';
 export async function mintBlock(provider,network,onStage=()=>{}){
  if(!network?.deployed||!network.mintEnabled)throw Error('Minting is not open yet.');
- if(network.chainId!==11155111||network.chainHex!=='0xaa36a7'||network.artVersion!=='BLOCKS_SINGLE_V1'||!isAddress(network.collectionAddress)||!isAddress(network.rendererAddress))throw Error('Invalid single-block collection settings.');
+ if(network.chainId!==11155111||network.chainHex!=='0xaa36a7'||network.artVersion!==ART_VERSION||!isAddress(network.collectionAddress)||!isAddress(network.rendererAddress))throw Error('Invalid single-block collection settings.');
  onStage('connect');
  const accounts=await provider.request({method:'eth_requestAccounts'}),account=accounts?.[0];
  if(!isAddress(account))throw Error('No wallet account selected.');
@@ -9,7 +10,7 @@ export async function mintBlock(provider,network,onStage=()=>{}){
  onStage('checking');
  const call=data=>request('eth_call',[{to:network.collectionAddress,data,gas:'0x186a0'},'latest']);
  const [name,symbol,renderer,version,code]=await Promise.all([call('0x06fdde03'),call('0x95d89b41'),call('0x8ada6b0f'),call('0xacaaa87e'),request('eth_getCode',[network.collectionAddress,'latest'])]);
- if(decodeString(name)!=='blocks'||decodeString(symbol)!=='blocks'||decodeString(version)!=='BLOCKS_SINGLE_V1'||!/^0x[0-9a-f]{64}$/i.test(renderer)||'0x'+renderer.slice(-40).toLowerCase()!==network.rendererAddress.toLowerCase()||!/^0x[0-9a-f]+$/i.test(code)||/^0x0*$/.test(code))throw Error('The collection does not match its settings.');
+ if(decodeString(name)!=='blocks'||decodeString(symbol)!=='blocks'||decodeString(version)!==ART_VERSION||!/^0x[0-9a-f]{64}$/i.test(renderer)||'0x'+renderer.slice(-40).toLowerCase()!==network.rendererAddress.toLowerCase()||!/^0x[0-9a-f]+$/i.test(code)||/^0x0*$/.test(code))throw Error('The collection does not match its settings.');
  const transaction={from:account,to:network.collectionAddress,data:'0x1249c58b',value:'0x0',chainId:network.chainHex};
  const estimate=BigInt(await request('eth_estimateGas',[transaction]));if(estimate<21000n||estimate>5000000n)throw Error('Unexpected mint estimate. No transaction was sent.');
  const price=BigInt(await request('eth_gasPrice'));if(price>1000000n)throw Error('Gas prices changed. Please try again later.');

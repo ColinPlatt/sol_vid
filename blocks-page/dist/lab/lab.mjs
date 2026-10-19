@@ -8,7 +8,7 @@ const TABS=[
   {id:'rares',jp:'稀',label:'Rare',note:'Satoyama appears when one byte of the seed hash is below four: about 1 in 64. These are the next six rare seeds.'},
   {id:'versions',jp:'版',label:'Versions',note:'V1 (GIF) and V3 (AVI) are both deployed on Sepolia and render live here. V2 is a prepared, undeployed revision shown by its first-frame poster.'},
   {id:'checks',jp:'試験',label:'Checks',note:'Scene distribution measured from seeds in your browser, capped-call gas per scene, and the V3 100,000-render diversity audit.'},
-  {id:'minted',jp:'鋳造済',label:'Minted',note:'Actual tokens: the V3 collection\'s first mint, then the live V1 collection read through tokenURI.'}
+  {id:'minted',jp:'鋳造済',label:'Minted',note:'Actual tokens from the live V3 collection, read through tokenURI. Open one to play its AVI.'}
 ];
 const params=new URLSearchParams(location.search);
 const state={v:params.get('v')==='1'?'1':'3',tab:TABS.find(t=>t.id===params.get('tab'))?.id??'nights',seed:Math.min(9999999,Math.max(0,Number(params.get('seed'))||1)),scene:Math.min(7,Math.max(0,Number(params.get('scene'))||0))};
@@ -87,19 +87,17 @@ const studies={
     return out;
   },
   minted(){
-    $('study-title').textContent='Minted tokens';const section=grid([]),status=el('p',{className:'small'},'Reading the live V1 collection…');const token=run;
-    const live=data?.v3_live,r=live?.first_recipe;
-    const first=live?el('div',{},el('h3',{className:'study-title'},'V3 collection'),grid([card({src:live.poster,scene:SCENES.indexOf(live.first_scene),caption:live.first_scene,tag:'BLOCK #'+live.first_token_id.toLocaleString('en-US')+' · V3',download:false,
-      facts:[['Collection',live.collection],['Token',live.first_token_id],['Hue / saturation',r.hue+'° / '+r.saturation],['Height band · density · layout',[r.heightBand,r.density,r.layout].join(' · ')],['Crop · pan · mirror',[r.crop,r.pan,yes(r.mirror)].join(' · ')],['tokenURI gas',live.token_uri_gas.toLocaleString('en-US')],['Poster','native SVG of AVI frame 0, read from tokenURI']]})]),el('h3',{className:'study-title'},'V1 collection')):null;
+    $('study-title').textContent='Minted tokens';const section=grid([]),status=el('p',{className:'small'},'Reading the live collection…');const token=run;
     fetch('/api/world',{cache:'no-store'}).then(r=>r.json()).then(async world=>{
       if(token!==run)return;const ids=(world.tokenIds??[]).filter(id=>/^\d{1,18}$/.test(id));status.textContent=Number(world.totalSupply).toLocaleString('en-US')+' minted · showing '+ids.length+' recent';
       for(const id of ids){
         const response=await fetch('/api/token?id='+id);if(token!==run)return;if(!response.ok)continue;const t=await response.json();
         const scene=SCENES.findIndex(name=>t.name.startsWith(name));
-        section.append(card({src:t.image,scene:scene>=0?scene:undefined,caption:t.name,tag:'BLOCK #'+Number(id).toLocaleString('en-US'),facts:t.attributes.map(a=>[a.trait_type,a.value])}));
+        section.append(card({src:t.image,scene:scene>=0?scene:undefined,caption:t.name,tag:'BLOCK #'+Number(id).toLocaleString('en-US')+' · ▶',facts:t.attributes.map(a=>[a.trait_type,a.value]),
+          player:{src:'/api/token?as=player&id='+id,download:t.video}}));
       }
     }).catch(()=>{status.textContent='The chain feed is unavailable right now.';});
-    return el('div',{},first,status,section);
+    return el('div',{},status,section);
   }
 };
 function show(){

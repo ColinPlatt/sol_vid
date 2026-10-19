@@ -34,7 +34,9 @@ export function createHandler(settings,v3=lab?.v3_live,fetcher=fetch){
   if(typeof n!=='string'||!/^\d{1,7}$/.test(n))return res.status(400).json({error:'Seed must be an integer from 0 to 9,999,999'});
   if(v!=='1'&&v!=='3')return res.status(400).json({error:'Version must be 1 or 3'});
   if(v==='3'&&!Object.hasOwn(V3,as))return res.status(400).json({error:'V3 output must be poster, player or avi'});
-  const rpc=process.env.SEPOLIA_RPC_URL,to=v==='3'?v3?.renderer:settings.rendererAddress;
+  // The site now mints V3; V1 renders use the previous collection's router.
+  const v1=settings.previous?.artVersion==='BLOCKS_SINGLE_V1'?settings.previous.rendererAddress:settings.rendererAddress;
+  const rpc=process.env.SEPOLIA_RPC_URL,to=v==='3'?v3?.renderer:v1;
   if(!rpc||!to)return res.status(503).json({error:'Lab renders are unavailable.'});
   try{
    const data=v==='3'?calldataV3(Number(n),as):calldata(Number(n));

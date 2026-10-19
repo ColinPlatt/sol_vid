@@ -43,7 +43,7 @@
   },
   "broadcast_authorization": "explicit_user_approval_2026-10-18",
   "first_token_id": 11941801,
-  "first_scene": "\u5730\u4e0b DESCENT",
+  "first_scene": "地下 DESCENT",
   "owner": "0xa59523b0eB18415151307b57D5675480A3DEca38",
   "transaction_hashes": [
     "0x76fb885f8c8a733215f17c8e2e362185ad8506884405c96fe9c03d0d8e946a72",
@@ -121,5 +121,6 @@
     "infinite_gif_loop": true,
     "gif_avi_rgb_match": true,
     "decoded_rgb_sha256": "f54f3e364149cb5ecbc8b2eb57d9015bb84cb161bd5c38e3662fe1d4921d85e0"
-  }
+  },
+  "site_status": "superseded on the site by BLOCKS_VIDEO_V3 (deployments/blocks-video-v3-sepolia.json) on 2026-10-19; the contract stays open to direct mint() calls"
 }
