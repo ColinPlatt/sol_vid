@@ -16,7 +16,7 @@ from urllib.parse import unquote
 from PIL import Image, ImageDraw
 
 ROOT=Path(__file__).resolve().parents[1]
-OUT=ROOT/'previews/blockart'
+OUT=ROOT/'previews/ARCHIVE/blockart'
 SCENES=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama']
 
 def validate(name):

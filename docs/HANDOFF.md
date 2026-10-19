@@ -37,7 +37,7 @@ the lab simulates Base blocks (chain ID 8453) and renders through `mainnet.base.
   - all 90 AVI frames, the palette, the FFmpeg decode and the SVG poster, against
     `scripts/blocks_diversity_reference.py`.
 
-  It writes the manifest and `previews/blocks-video-v3-sepolia/`.
+  It writes the manifest and `previews/ARCHIVE/blocks-video-v3-sepolia/`.
 - **Gas:** `tokenURI` needs about 420M gas, found by bisecting capped `eth_call`s.
   `eth_estimateGas` reverts because providers bound it by the 60M block gas limit.
 - **Playback:** `BLOCKS_VIDEO_FIXTURES=blocks-video-v3-sepolia node scripts/blocks_video_browser_qa.mjs`
@@ -92,8 +92,8 @@ the lab simulates Base blocks (chain ID 8453) and renders through `mainnet.base.
    collection.
 1. **OpenSea playback on Base** for #52810370 is not yet recorded in the Base manifest.
 2. **Preview JSON drift.** A plain `forge test --offline` rewrites about 35 tracked files
-   (`previews/blockart/*.json`, `previews/blocks-video/*.json`,
-   `previews/blocks-single/nighttrain.json`, `previews/blocks-video-v3/nighttrain.json`,
+   (`previews/ARCHIVE/blockart/*.json`, `previews/ARCHIVE/blocks-video/*.json`,
+   `previews/ARCHIVE/blocks-single/nighttrain.json`, `previews/ARCHIVE/blocks-video-v3/nighttrain.json`,
    `previews/mpeg-*`, `previews/mpg-*`). Never commit them as measurements. Stage files
    explicitly. Worth fixing: have tests write only when an env flag is set.
 3. **Performance unchecked.** Real-GPU and mobile performance of the city is not measured;

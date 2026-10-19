@@ -48,7 +48,7 @@ chips in the new video output; original renderer/deployed-token output is intact
 
 The variation audit renders 32 entropy samples per scene while keeping the block
 number and timestamp constant. This checks visual differences beyond a changing
-serial label. See `previews/blocks-video/variation-256.png`, `posters.png` and
+serial label. See `previews/ARCHIVE/blocks-video/variation-256.png`, `posters.png` and
 `validation.json`. Distinct sampled images are evidence of variation, not a
 mathematical guarantee that every future token looks different. The balanced
 scene sample does not measure natural rarity frequencies.

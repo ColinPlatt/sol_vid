@@ -157,7 +157,7 @@ contract BlockVideoV3MediaTest is VideoReceiver {
         uint256 id = nft.mint();
         b = nft.blockData(id);
         require(nft.sceneOf(id) == wanted, "Selected scene differs from measured scene");
-        string memory output = vm.envOr("BLOCKS_VIDEO_V3_OUTPUT", string("previews/blocks-video-v3"));
+        string memory output = vm.envOr("BLOCKS_VIDEO_V3_OUTPUT", string("previews/ARCHIVE/blocks-video-v3"));
         vm.createDir(output, true);
         string memory stem = string.concat(output, "/", name);
         uint256 before = gasleft();

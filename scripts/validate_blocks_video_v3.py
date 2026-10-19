@@ -6,7 +6,7 @@ from urllib.parse import unquote
 import numpy as np
 from PIL import Image
 from blocks_diversity_reference import palette,compose,badge
-ROOT=Path(__file__).resolve().parents[1];parser=argparse.ArgumentParser();parser.add_argument('--directory',default='blocks-video-v3');parser.add_argument('--profile',default='default');args=parser.parse_args();OUT=ROOT/'previews'/args.directory;NAMES=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama']
+ROOT=Path(__file__).resolve().parents[1];parser=argparse.ArgumentParser();parser.add_argument('--directory',default='ARCHIVE/blocks-video-v3');parser.add_argument('--profile',default='default');args=parser.parse_args();OUT=ROOT/'previews'/args.directory;NAMES=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama']
 rows=[];panels=[]
 cases=NAMES+sorted(f.stem for f in OUT.glob('stress-*.json'))
 for name in cases:

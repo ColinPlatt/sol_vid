@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { decodeAVI } from '../players/blocks-avi.mjs';
-const fixtures=process.env.BLOCKS_VIDEO_FIXTURES??'blocks-video';
+const fixtures=process.env.BLOCKS_VIDEO_FIXTURES??'ARCHIVE/blocks-video';
 const names=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama',...readdirSync(`previews/${fixtures}`).filter(name=>/^stress-\d+\.json$/.test(name)).map(name=>name.slice(0,-5))];
 for (const name of names) {
   const size=128,stem=`previews/${fixtures}/${name}`;

@@ -75,8 +75,8 @@ contract VideoDiversityStressTest {
             SingleBlockData.Info(13000000, 1800000000, 60000000, 20, index + 1, address(0xBEEF), 11155111);
         VideoRecipeV3.Recipe memory r = VideoRecipeV3.recipe(info);
         uint256 scene = VideoRecipeV3.artwork(info).scene();
-        string memory stem = string.concat("previews/blocks-video-v3/stress-", vm.toString(slot));
-        vm.createDir("previews/blocks-video-v3", true);
+        string memory stem = string.concat("previews/ARCHIVE/blocks-video-v3/stress-", vm.toString(slot));
+        vm.createDir("previews/ARCHIVE/blocks-video-v3", true);
         uint256 before = gasleft();
         (bool ok, bytes memory result) =
             address(proxy).staticcall{gas: 500000000}(abi.encodeCall(proxy.tokenURI, (info)));

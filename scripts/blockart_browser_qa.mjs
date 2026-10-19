@@ -47,10 +47,10 @@ try{
  await evaluate("document.querySelector('#mint').click()");await until("document.querySelector('#status').textContent.includes('5254696 minted')");
  assert.equal(await evaluate('window.__sends.length'),1);assert.equal(await evaluate('window.__sends[0].value'),'0x0');
  await evaluate("document.querySelectorAll('#scenes button')[7].click()");await until("document.querySelector('#hero').complete&&document.querySelector('#hero').naturalWidth===128");
- const desktop=(await cdp('Page.captureScreenshot',{format:'png'})).data;await writeFile(path.join(root,'previews/blockart/browser-desktop-mocked.png'),Buffer.from(desktop,'base64'));
+ const desktop=(await cdp('Page.captureScreenshot',{format:'png'})).data;await writeFile(path.join(root,'previews/ARCHIVE/blockart/browser-desktop-mocked.png'),Buffer.from(desktop,'base64'));
  await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(100);
  assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth'),true);
- await writeFile(path.join(root,'previews/blockart/browser-mobile-mocked.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
- await writeFile(path.join(root,'previews/blockart/browser-validation.json'),JSON.stringify({chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,header_mint:true,scenes:8,mobile:true,firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
+ await writeFile(path.join(root,'previews/ARCHIVE/blockart/browser-mobile-mocked.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await writeFile(path.join(root,'previews/ARCHIVE/blockart/browser-validation.json'),JSON.stringify({chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,header_mint:true,scenes:8,mobile:true,firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
  console.log('PASS blocks: disabled release, eight real GIF previews, mocked proof mint and receipt, scene selection, mobile layout');
 }finally{ws?.close();chrome?.kill();server.close();await delay(100);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:100});}

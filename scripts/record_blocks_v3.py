@@ -206,7 +206,7 @@ movie = base64.b64decode(encoded, validate=True)
 assert movie == dynamic(call(collection, 'video(uint256)', tid))
 assert len(movie) == len(reference) == 1477976 and movie[:4] == b'RIFF' and movie[8:12] == b'AVI '
 
-out = ROOT / f'previews/blocks-video-v3-{KEY}-live' if KEY == 'base' else ROOT / 'previews/blocks-video-v3-sepolia'
+out = ROOT / f'previews/blocks-video-v3-{KEY}-live' if KEY == 'base' else ROOT / 'previews/ARCHIVE/blocks-video-v3-sepolia'
 out.mkdir(exist_ok=True)
 avi_path = out / f'{token}.avi'; avi_path.write_bytes(movie)
 original = np.array([list(reference[212 + i * 4:215 + i * 4][::-1]) for i in range(256)], np.uint8)

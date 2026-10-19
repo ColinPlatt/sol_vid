@@ -156,8 +156,8 @@ contract BlockVideoMediaTest is VideoReceiver {
         uint256 id = nft.mint();
         b = nft.blockData(id);
         require(nft.sceneOf(id) == wanted, "Selected scene differs from measured scene");
-        vm.createDir("previews/blocks-video", true);
-        string memory stem = string.concat("previews/blocks-video/", name);
+        vm.createDir("previews/ARCHIVE/blocks-video", true);
+        string memory stem = string.concat("previews/ARCHIVE/blocks-video/", name);
         uint256 before = gasleft();
         (bool ok, bytes memory result) = address(nft).staticcall{gas: 500000000}(abi.encodeCall(nft.tokenURI, (id)));
         uint256 used = before - gasleft();
@@ -192,7 +192,7 @@ contract BlockVideoMediaTest is VideoReceiver {
     }
 
     function _samples(address scene, uint256 wanted) private {
-        string memory dir = string.concat("previews/blocks-video/samples/", vm.toString(wanted), "/");
+        string memory dir = string.concat("previews/ARCHIVE/blocks-video/samples/", vm.toString(wanted), "/");
         vm.createDir(dir, true);
         uint256 nonce = 1;
         for (uint256 k; k < 32; ++k) {

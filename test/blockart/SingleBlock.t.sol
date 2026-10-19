@@ -147,8 +147,8 @@ contract SingleBlockMediaTest is SingleReceiver {
         SingleBlockNFT nft = new SingleBlockNFT(new BlockArtRenderer(slots));
         uint256 id = nft.mint();
         require(nft.sceneOf(id) == wanted);
-        string memory stem = string.concat("previews/blocks-single/", name);
-        vm.createDir("previews/blocks-single", true);
+        string memory stem = string.concat("previews/ARCHIVE/blocks-single/", name);
+        vm.createDir("previews/ARCHIVE/blocks-single", true);
         if (frames) {
             bool ok;
             bytes memory ret;

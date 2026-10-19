@@ -26,16 +26,16 @@ def main():
         (assets / sub).mkdir(parents=True, exist_ok=True)
     data = {"scenes": SCENES, "v1": {}, "v2": {}, "v3": {}, "stress": [], "audit": None}
     for scene in SCENES:
-        v1 = read(PREVIEWS / "blocks-single" / f"{scene}.json")
+        v1 = read(PREVIEWS / "ARCHIVE" / "blocks-single" / f"{scene}.json")
         if v1:
             data["v1"][scene] = {"metadata_gas": v1["metadata_gas"], "block": v1.get("block")}
-        for version, folder in (("v2", "blocks-video"), ("v3", "blocks-video-v3")):
+        for version, folder in (("v2", "ARCHIVE/blocks-video"), ("v3", "ARCHIVE/blocks-video-v3")):
             meta = read(PREVIEWS / folder / f"{scene}.json")
             poster = PREVIEWS / folder / f"{scene}.svg"
             if meta and poster.exists():
                 shutil.copyfile(poster, assets / version / f"{scene}.svg")
                 data[version][scene] = {k: v for k, v in meta.items() if k != "tint"}
-    for meta_path in sorted(PREVIEWS.glob("blocks-video-v3/stress-*.json"), key=lambda p: int(p.stem.split("-")[1])):
+    for meta_path in sorted(PREVIEWS.glob("ARCHIVE/blocks-video-v3/stress-*.json"), key=lambda p: int(p.stem.split("-")[1])):
         poster = meta_path.with_suffix(".svg")
         if not poster.exists():
             continue

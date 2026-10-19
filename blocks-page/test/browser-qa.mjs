@@ -11,7 +11,7 @@ const server=createServer(async(req,res)=>{try{let name=new URL(req.url,'http://
 await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));
 const origin=`http://127.0.0.1:${server.address().port}`;
 // The first V3 token's onchain poster and AVI, as read from the deployed contract.
-const livePoster=(await readFile(path.join(root,'previews/blocks-video-v3-sepolia/11947754.svg'))).toString('base64'),liveAVI=(await readFile(path.join(root,'previews/blocks-video-v3-sepolia/11947754.avi'))).toString('base64');
+const livePoster=(await readFile(path.join(root,'previews/blocks-video-v3-base-live/52810370.svg'))).toString('base64'),liveAVI=(await readFile(path.join(root,'previews/blocks-video-v3-base-live/52810370.avi'))).toString('base64');
 const profile=await mkdtemp(path.join(tmpdir(),'blocks-browser-'));const delay=ms=>new Promise(r=>setTimeout(r,ms));let chrome,ws;
 try{
  chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-dev-shm-usage','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});

@@ -201,7 +201,7 @@
     "svg_sha256": "68d8dfb72a9f90d8925ffb7bb739ed1376dd9cb9db77c19107b7e22fa33f986b",
     "block_fields_match_mint_block": true,
     "independent_reference": "seed, recipe and scene input rebuilt in Python; all 90 frames, palette, FFmpeg decode and SVG poster match scripts/blocks_diversity_reference.py transforms of the router AVI",
-    "files": "previews/blocks-video-v3-sepolia/11947754.*"
+    "files": "previews/ARCHIVE/blocks-video-v3-sepolia/11947754.*"
   },
   "mint_enabled": true,
   "marketplace_playback": {
@@ -236,7 +236,7 @@
     "chromium": true,
     "firefox": true,
     "safari": "not_tested_requires_macOS",
-    "evidence": "previews/blocks-video-v3-sepolia/browser-validation.json",
+    "evidence": "previews/ARCHIVE/blocks-video-v3-sepolia/browser-validation.json",
     "checks": "native SVG matches AVI frame 0 pixel-for-pixel in Chromium; embedded AVI loops, pauses and resumes in Chromium and Firefox; sandboxed iframe playback"
   },
   "site": {

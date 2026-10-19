@@ -11,5 +11,5 @@ cards=[]
 for name in names:
  cards.append(f'<article><img loading="lazy" src="{name}.gif" alt="{escape(name.upper())} animation"><h2>{escape(name.upper())}</h2><a download href="{name}.gif">GIF</a><a download href="{name}.avi">AVI</a></article>')
 html=head+'\n'.join(cards)+'</main><footer><p>Local test epoch 5254696 · 90 frames · GIF delays 7/7/6cs · AVI 15fps<br>Collection name and symbol: blocks. Canvas concepts and Solidity translations differ. Nothing on this page mints or sends a transaction.</p></footer></html>'
-out=ROOT/'previews/blockart';out.mkdir(parents=True,exist_ok=True);(out/'index.html').write_text(html)
-print('Built previews/blockart/index.html')
+out=ROOT/'previews/ARCHIVE/blockart';out.mkdir(parents=True,exist_ok=True);(out/'index.html').write_text(html)
+print('Built previews/ARCHIVE/blockart/index.html')

@@ -42,7 +42,7 @@
     "nighttrain": 347050342,
     "satoyama": 203099814
   },
-  "validation": "previews/blocks-video/validation.json",
+  "validation": "previews/ARCHIVE/blocks-video/validation.json",
   "mint_enabled": false,
   "broadcast_authorization": "not_requested_for_this_revision",
   "remaining_release_gates": [

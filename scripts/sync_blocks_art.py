@@ -2,7 +2,7 @@
 """Copy only validated Solidity-rendered block-art previews into the separate page."""
 import json,shutil
 from pathlib import Path
-ROOT=Path(__file__).resolve().parents[1];source=ROOT/'previews/blockart';dest=ROOT/'mint-page/dist/blocks/assets'
+ROOT=Path(__file__).resolve().parents[1];source=ROOT/'previews/ARCHIVE/blockart';dest=ROOT/'mint-page/dist/blocks/assets'
 report=json.loads((source/'validation-blocks_base.json').read_text())
 if report['profile']!='blocks_base' or len(report['scenes'])!=8:raise SystemExit('Validate all Base scenes first')
 dest.mkdir(parents=True,exist_ok=True)

@@ -59,12 +59,12 @@ not an authenticated Base epoch or a worst-case proof over all possible headers.
 Every GIF is **1,675,161 bytes**, AVI **1,477,976 bytes**, and sample metadata
 approximately **2.98MB**. The default/Amsterdam and Cancun exports are byte-identical
 for all eight GIFs, AVIs, raw rasters, palettes and metadata responses. Profile
-reports are [Cancun](../previews/blockart/validation-blocks_base.json) and
-[Amsterdam](../previews/blockart/validation-default.json).
+reports are [Cancun](../previews/ARCHIVE/blockart/validation-blocks_base.json) and
+[Amsterdam](../previews/ARCHIVE/blockart/validation-default.json).
 
-![Eight Solidity-rendered scenes](../previews/blockart/contact-sheet.png)
+![Eight Solidity-rendered scenes](../previews/ARCHIVE/blockart/contact-sheet.png)
 
-The [local preview gallery](../previews/blockart/index.html) provides original
+The [local preview gallery](../previews/ARCHIVE/blockart/index.html) provides original
 GIF and AVI downloads. The images are exact Solidity output; the contact sheet is
 an offchain montage.
 
@@ -78,7 +78,7 @@ and local blockhash mocks; they send no transactions.
 FOUNDRY_PROFILE=blocks_base forge test --offline --match-path 'test/blockart/*' -vv
 python3 scripts/validate_blockart.py --profile blocks_base
 # Human review of the actual Solidity output:
-python3 -m http.server 4173 --directory previews/blockart
+python3 -m http.server 4173 --directory previews/ARCHIVE/blockart
 # Open http://localhost:4173/
 ```
 
@@ -207,7 +207,7 @@ mint it again. Transfers and future blocks do not change the stored data.
 
 All eight scenes pass capped metadata/GIF/AVI checks and independent decoding of
 720 RGB frames with the new data model. Measurements are in
-`previews/blocks-single/validation.json`; run `scripts/validate_single_block.py`
+`previews/ARCHIVE/blocks-single/validation.json`; run `scripts/validate_single_block.py`
 after the Foundry tests to reproduce them. Metadata costs in the measured set
 range from 234,255,355 to 448,416,431 gas.
 

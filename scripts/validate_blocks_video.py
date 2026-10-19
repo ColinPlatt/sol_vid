@@ -11,7 +11,7 @@ import subprocess
 import xml.etree.ElementTree as ET
 from PIL import Image, ImageDraw
 
-ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'previews/blocks-video'
+ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'previews/ARCHIVE/blocks-video'
 NAMES=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama']
 
 def recolour(palette,r):

@@ -5,7 +5,7 @@ Source and ongoing development: [ColinPlatt/sol_vid](https://github.com/ColinPla
 New development: [**blocks — Neo-Tokyo block art**](docs/BLOCK_ART.md), a separate
 collection derived from ten verified Base blocks per token. Eight 128px scenes,
 six-second loops, native GIF and AVI, with a separate disabled `/blocks/` mint page.
-[Preview sheet](previews/blockart/contact-sheet.png) · [local gallery](previews/blockart/index.html).
+[Preview sheet](previews/ARCHIVE/blockart/contact-sheet.png) · [local gallery](previews/ARCHIVE/blockart/index.html).
 This collection is not deployed; the live ghoulballs collection below is unchanged.
 
 
@@ -361,8 +361,8 @@ levels and forward/reverse motion to the eight generative scene families.
 The 256-image variation audit holds block labels constant; all sampled images
 differ. Complete metadata in eight measured cases costs 203.1M–417.5M gas.
 See [the implementation and release gates](docs/BLOCK_VIDEO.md),
-[poster examples](previews/blocks-video/posters.png) and
-[256 variation studies](previews/blocks-video/variation-256.png).
+[poster examples](previews/ARCHIVE/blocks-video/posters.png) and
+[256 variation studies](previews/ARCHIVE/blocks-video/variation-256.png).
 This revision is **not deployed**; the existing collection and mint site are intact.
 
 ### blocks V3 diversity experiment

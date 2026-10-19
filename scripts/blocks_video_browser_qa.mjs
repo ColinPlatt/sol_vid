@@ -7,7 +7,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 const root=fileURLToPath(new URL('../',import.meta.url)),dist=path.join(root,'mint-page/dist');
-const fixtures=path.join(root,'previews',process.env.BLOCKS_VIDEO_FIXTURES??'blocks-video');
+const fixtures=path.join(root,'previews',process.env.BLOCKS_VIDEO_FIXTURES??'ARCHIVE/blocks-video');
 const uri=await readFile(path.join(fixtures,'skyline.uri'),'utf8');
 const metadata=JSON.parse(Buffer.from(uri.split(',')[1],'base64'));
 const config=JSON.parse(await readFile(path.join(dist,'video-config.json'),'utf8'));

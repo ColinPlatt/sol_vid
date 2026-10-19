@@ -82,7 +82,7 @@ gif = base64.b64decode(image.split(',',1)[1], validate=True)
 assert gif[:6] in [b'GIF89a', b'GIF87a'] and 'animation_url' not in metadata
 assert gif == dynamic(call('gif(uint256)', token))
 avi = dynamic(call('avi(uint256)', token)); assert avi[:4] == b'RIFF' and avi[8:12] == b'AVI '
-out = ROOT / 'previews/blocks-single-sepolia'; out.mkdir(exist_ok=True)
+out = ROOT / 'previews/ARCHIVE/blocks-single-sepolia'; out.mkdir(exist_ok=True)
 (out / f'{token}.gif').write_bytes(gif); (out / f'{token}.avi').write_bytes(avi)
 (ROOT / f'blocks-page/dist/assets/block-{token}.gif').write_bytes(gif)
 manifest_path = ROOT / 'deployments/blocks-single-sepolia.json'

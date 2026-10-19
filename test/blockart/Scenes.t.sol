@@ -38,7 +38,7 @@ abstract contract BlockArtScenesTest {
     event log_named_uint(string key, uint256 val);
 
     function setUp() public {
-        vm.createDir("previews/blockart", true);
+        vm.createDir("previews/ARCHIVE/blockart", true);
     }
 
     function _measure(address scene, string memory name) internal {
@@ -47,7 +47,7 @@ abstract contract BlockArtScenesTest {
         vm.setBlockhash(52546969, BaseEpochs.LAST_HASH_5254696);
         bytes[] memory headers = BaseEpochs.epoch5254696();
         bytes memory e = BlockHeaders.verifyEpoch(5254696, headers);
-        string memory stem = string.concat("previews/blockart/", name);
+        string memory stem = string.concat("previews/ARCHIVE/blockart/", name);
         uint256 g = gasleft();
         (bool ok, bytes memory ret) = scene.staticcall{gas: BUDGET}(abi.encodeCall(IBlockScene.gif, (e)));
         uint256 gifGas = g - gasleft();
@@ -123,7 +123,7 @@ abstract contract BlockArtScenesTest {
         require(ok && used <= BUDGET, "Dense synthetic metadata exceeds budget");
         emit log_named_uint(string.concat(name, " dense metadata gas"), used);
         vm.writeFile(
-            string.concat("previews/blockart/", name, ".stress.json"),
+            string.concat("previews/ARCHIVE/blockart/", name, ".stress.json"),
             string.concat(
                 '{"data_kind":"synthetic full bloom/hash/state and full gas usage","profile":"',
                 vm.envOr("FOUNDRY_PROFILE", string("default")),
@@ -140,7 +140,7 @@ abstract contract BlockArtScenesTest {
         vm.roll(52546970);
         vm.setBlockhash(52546969, BaseEpochs.LAST_HASH_5254696);
         bytes memory e = BlockHeaders.verifyEpoch(5254696, BaseEpochs.epoch5254696());
-        string memory stem = string.concat("previews/blockart/", name);
+        string memory stem = string.concat("previews/ARCHIVE/blockart/", name);
         bool ok;
         bytes memory ret;
         bytes memory all = new bytes(90 * 16384);

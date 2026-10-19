@@ -15,9 +15,9 @@ docs/research/
 previews/video/matrix/
 
 # Reproducible block-art decoder/reference fixtures (retain compact validation reports).
-previews/blockart/*.raw
-previews/blockart/*.palette
-previews/blockart/*.uri
+previews/ARCHIVE/blockart/*.raw
+previews/ARCHIVE/blockart/*.palette
+previews/ARCHIVE/blockart/*.uri
 # Earlier diagnostic filenames are superseded by the blockart/ exports above.
 previews/blockart-*.raw
 previews/blockart-*.uri
@@ -26,27 +26,27 @@ previews/blockart-*.gif
 # Full live token metadata embeds megabytes of media; retain the original GIF/AVI and compact manifest.
 previews/blocks-sepolia/*.metadata.json
 
-previews/blocks-single/*.raw
-previews/blocks-single/*.palette
-previews/blocks-single/*.uri
-previews/blocks-single/*.metadata.json
+previews/ARCHIVE/blocks-single/*.raw
+previews/ARCHIVE/blocks-single/*.palette
+previews/ARCHIVE/blocks-single/*.uri
+previews/ARCHIVE/blocks-single/*.metadata.json
 
 # Reproducible video-revision reference exports.
-previews/blocks-video/*.uri
-previews/blocks-video/*.reference.avi
-previews/blocks-video/samples/
+previews/ARCHIVE/blocks-video/*.uri
+previews/ARCHIVE/blocks-video/*.reference.avi
+previews/ARCHIVE/blocks-video/samples/
 
 # Opt-in 100k native-frame diversity corpus; keep reports and contact sheets.
 previews/blocks-diversity-v3/raw/
-previews/blocks-video-v3/*.uri
-previews/blocks-video-v3/*.reference.avi
+previews/ARCHIVE/blocks-video-v3/*.uri
+previews/ARCHIVE/blocks-video-v3/*.reference.avi
 test/blockart/GeneratedDiversityAudit.t.sol
-previews/blocks-video-v3/stress-*.avi
-previews/blocks-video-v3-base/*.uri
-previews/blocks-video-v3-base/*.reference.avi
-previews/blocks-video-v3-base/*.avi
-previews/blocks-video-v3-sepolia/*.uri
-previews/blocks-video-v3-sepolia/skyline.avi
+previews/ARCHIVE/blocks-video-v3/stress-*.avi
+previews/ARCHIVE/blocks-video-v3-base/*.uri
+previews/ARCHIVE/blocks-video-v3-base/*.reference.avi
+previews/ARCHIVE/blocks-video-v3-base/*.avi
+previews/ARCHIVE/blocks-video-v3-sepolia/*.uri
+previews/ARCHIVE/blocks-video-v3-sepolia/skyline.avi
 previews/blocks-video-v4/*.uri
 previews/blocks-video-v4/*.reference.avi
 previews/blocks-video-v4/stress-*.avi

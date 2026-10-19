@@ -118,7 +118,7 @@ also passed. These are local validation results, not deployed marketplace proof.
 
 ## Media, gas and release checks
 
-`previews/blocks-video-v3/validation.json` records independent Python palette,
+`previews/ARCHIVE/blocks-video-v3/validation.json` records independent Python palette,
 composition and SVG reconstruction against every frame decoded by FFmpeg.
 The eight baseline examples use actual NFT `tokenURI` calls capped at 500M gas.
 The 16 corpus-selected stress cases use a proxy reproducing the NFT's metadata
@@ -135,8 +135,8 @@ python scripts/export_blocks_diversity.py --count 100000 --threads 8
 python scripts/audit_blocks_diversity.py --count 100000
 BLOCKS_DIVERSITY_STRESS=true forge test --offline -vv --threads 8
 python scripts/validate_blocks_video_v3.py
-BLOCKS_VIDEO_FIXTURES=blocks-video-v3 node scripts/validate_blocks_video_player.mjs
-BLOCKS_VIDEO_FIXTURES=blocks-video-v3 node scripts/blocks_video_browser_qa.mjs
+BLOCKS_VIDEO_FIXTURES=ARCHIVE/blocks-video-v3 node scripts/validate_blocks_video_player.mjs
+BLOCKS_VIDEO_FIXTURES=ARCHIVE/blocks-video-v3 node scripts/blocks_video_browser_qa.mjs
 ```
 
 The ~1.7GB raw corpus and multi-megabyte metadata/reference fixtures are ignored;

@@ -5,7 +5,7 @@ from pathlib import Path
 from urllib.parse import unquote
 import xml.etree.ElementTree as ET
 from PIL import Image
-ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'previews/blocks-single';rows=[]
+ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'previews/ARCHIVE/blocks-single';rows=[]
 for name in ['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama']:
  stem=OUT/name;record=json.loads(stem.with_suffix('.json').read_text());assert record['metadata_gas']<=500000000
  palette=stem.with_suffix('.palette').read_bytes();raw=stem.with_suffix('.raw').read_bytes();assert len(palette)==768 and len(raw)==90*128*128
