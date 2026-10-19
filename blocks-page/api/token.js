@@ -1,4 +1,4 @@
-// BLOCKS_VIDEO_V3 token reads. The JSON keeps the onchain name, traits and native SVG poster; the lossless AVI
+// BLOCKS_VIDEO_V4 token reads. The JSON keeps the onchain name, traits and native SVG poster; the lossless AVI
 // is a separate immutable response so the street can animate it. Only a block number reaches the fixed contract.
 import deployment from '../dist/config.json' with {type:'json'};
 import {serverRpc} from './_rpc.js';

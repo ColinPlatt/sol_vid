@@ -6,6 +6,12 @@ and authorizations.
 
 ## Live on Base (the site's chain)
 
+**Current: `BLOCKS_VIDEO_V4`** — collection `0x87076cb1f55b7fb6c1febbffa1d45f4f4bd39cac` (renderer
+`0x650d…b1e9`, bands `0x9423…ff04`, V3 scene router reused). The user broadcast and verified it
+on 2026-10-19. First token #52814599 (ALLEY). It is audited by `scripts/record_blocks_v4_base.py`;
+see `docs/BLOCK_VIDEO_V4.md` and `deployments/blocks-video-v4-base.json`. The site and lab use it.
+The V3 row below is the previous Base collection.
+
 | What | Where | Notes |
 |---|---|---|
 | `blocks` video, `BLOCKS_VIDEO_V3` | collection `0x555261be0c7b9c3decb85016c23777f53fa61b77` | Deployed 2026-10-19 by the user with `scripts/broadcast_blocks_v3_base.sh --broadcast` (keystore `ghoulballs_base`, `FOUNDRY_PROFILE=blocks_base`, Cancun). All eight scenes, router `0xff9a…fb9f`, renderer `0x72c7…8d1b`, collection and first mint (#52810370, 夜行 NIGHT TRAIN) in one broadcast; ~41M gas, 0.00022 ETH. All 11 contracts are verified on Basescan and Sourcify (exact). `scripts/record_blocks_v3.py base` passed: bytecode, mint block, recipe, all 90 frames vs the reference; `tokenURI` ≈357M gas through `mainnet.base.org`. Manifest: `deployments/blocks-video-v3-base.json`. **OpenSea playback on Base not yet recorded.** |

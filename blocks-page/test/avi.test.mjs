@@ -2,9 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {decodeAvi,drawFrame} from '../dist/avi.mjs';
-// NIGHT TRAIN #52810370, the first Base BLOCKS_VIDEO_V3 token, as read from the deployed contract.
-const live=name=>new URL('../../previews/blocks-video-v3-base-live/52810370.'+name,import.meta.url);
-test('decodes the live V3 AVI and frame 0 matches its onchain SVG poster',async()=>{
+// ALLEY #52814599, the first Base BLOCKS_VIDEO_V4 token, as read from the deployed contract.
+const live=name=>new URL('../../previews/blocks-video-v4-base-live/52814599.'+name,import.meta.url);
+test('decodes the live V4 AVI and frame 0 matches its onchain SVG poster',async()=>{
   const movie=decodeAvi((await readFile(live('avi'))).buffer);
   assert.equal(movie.width,128);assert.equal(movie.height,128);assert.equal(movie.fps,15);assert.equal(movie.frames.length,90);
   const image=drawFrame(movie,0,{data:new Uint8ClampedArray(128*128*4)}),svg=await readFile(live('svg'),'utf8');let covered=0;

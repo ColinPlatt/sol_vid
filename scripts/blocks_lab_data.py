@@ -54,18 +54,18 @@ def main():
             source = PREVIEWS / "blocks-diversity-v3" / name
             if source.exists():
                 shutil.copyfile(source, assets / "audit" / name)
-    live = read(ROOT / "deployments" / "blocks-video-v3-base.json")
+    live = read(ROOT / "deployments" / "blocks-video-v4-base.json")
     if live and live.get("status") == "deployed":
         token = live["first_token_id"]
-        poster = PREVIEWS / "blocks-video-v3-base-live" / f"{token}.svg"
+        poster = PREVIEWS / "blocks-video-v4-base-live" / f"{token}.svg"
         (assets / "live").mkdir(exist_ok=True)
-        shutil.copyfile(poster, assets / "live" / f"v3-{token}.svg")
-        data["v3_live"] = {"collection": live["collection"], "renderer": live["renderer"], "router": live["scene_router"],
-                           "first_token_id": token, "first_scene": live["first_scene"], "first_recipe": live["first_recipe"],
+        shutil.copyfile(poster, assets / "live" / f"v4-{token}.svg")
+        data["live"] = {"version": live["art_version"], "collection": live["collection"], "renderer": live["renderer"], "router": live["scene_router"],
+                           "first_token_id": token, "first_scene": live["first_scene"],
                            "token_uri_gas": live["live_media_validation"]["token_uri_min_passing_call_gas"],
-                           "poster": f"assets/live/v3-{token}.svg"}
+                           "poster": f"assets/live/v4-{token}.svg"}
     (LAB / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
-    print(f"lab data: {len(data['v1'])} V1, {len(data['v2'])} V2, {len(data['v3'])} V3 scenes, {len(data['stress'])} stress cases, V3 live: {bool(data.get('v3_live'))}")
+    print(f"lab data: {len(data['v1'])} V1, {len(data['v2'])} V2, {len(data['v3'])} V3 scenes, {len(data['stress'])} stress cases, live: {data.get('live', {}).get('version')}")
 
 
 if __name__ == "__main__":

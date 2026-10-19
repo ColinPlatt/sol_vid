@@ -1,0 +1,102 @@
+{
+ "name": "路地 ALLEY #52814599",
+ "description": "One block. A six-second onchain city with the block's own data across the top and bottom. Native SVG first-frame poster and a fully embedded lossless AVI player.",
+ "attributes": [
+  {
+   "trait_type": "Art Version",
+   "value": "BLOCKS_VIDEO_V4"
+  },
+  {
+   "trait_type": "Scene",
+   "value": "路地 ALLEY"
+  },
+  {
+   "trait_type": "Rare",
+   "value": "No"
+  },
+  {
+   "trait_type": "Hue",
+   "value": 346
+  },
+  {
+   "trait_type": "Saturation",
+   "value": 86
+  },
+  {
+   "trait_type": "Height Band",
+   "value": 4
+  },
+  {
+   "trait_type": "Window Density",
+   "value": 0
+  },
+  {
+   "trait_type": "Street Layout",
+   "value": 3
+  },
+  {
+   "trait_type": "Direction",
+   "value": "Forward"
+  },
+  {
+   "trait_type": "Phase",
+   "value": 27
+  },
+  {
+   "trait_type": "Block",
+   "value": 52814599
+  },
+  {
+   "trait_type": "Timestamp",
+   "value": 1792418545
+  },
+  {
+   "trait_type": "Gas Limit",
+   "value": 400000000
+  },
+  {
+   "trait_type": "Base Fee (wei)",
+   "value": 5014583
+  },
+  {
+   "trait_type": "Chain ID",
+   "value": 8453
+  },
+  {
+   "trait_type": "Parent Hash",
+   "value": "0x15fd308daaf50b704974aa7e5c0c16d55ed5462c9f36dd328efaedecdc5f3184"
+  },
+  {
+   "trait_type": "L1 Block",
+   "value": 26227075
+  },
+  {
+   "trait_type": "L1 Base Fee (wei)",
+   "value": 220353566
+  },
+  {
+   "trait_type": "Blob Base Fee (wei)",
+   "value": 13113263
+  },
+  {
+   "trait_type": "Duration Seconds",
+   "value": 6
+  },
+  {
+   "trait_type": "FPS",
+   "value": 15
+  },
+  {
+   "trait_type": "Format",
+   "value": "AVI BI_RGB"
+  },
+  {
+   "trait_type": "Width",
+   "value": 128
+  },
+  {
+   "trait_type": "Height",
+   "value": 128
+  }
+ ]
+}

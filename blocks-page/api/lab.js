@@ -1,12 +1,12 @@
-// Art lab renders for a simulated Base block whose prevrandao is the study seed: the deployed BLOCKS_VIDEO_V3
-// renderer on Base returns its poster, player or AVI. Only an integer seed and fixed options are accepted; the input
-// is built here, so no caller calldata reaches the RPC.
+// Art lab renders for a simulated Base block whose prevrandao is the study seed: the deployed BLOCKS_VIDEO_V4
+// renderer on Base returns its poster, player or AVI, with simulated parent and L1 context for the data bands.
+// Only an integer seed and fixed options are accepted; the input is built here, so no caller calldata reaches the RPC.
 import lab from '../dist/lab/data.json' with {type:'json'};
-import {labInfo,infoWords,selector,hex} from '../dist/lab/blockseed.mjs';
+import {labInfo,labExtras,infoWords,extrasWords,selector,hex} from '../dist/lab/blockseed.mjs';
 import {serverRpc} from './_rpc.js';
-const INFO='((uint256,uint256,uint256,uint256,uint256,address,uint256))';
-// Each V3 output: renderer function, response type and a check of the decoded body.
-export const V3={
+const INFO='((uint256,uint256,uint256,uint256,uint256,address,uint256),(bytes32,uint256,uint256,bytes32,uint256))';
+// Each V4 output: renderer function, response type and a check of the decoded body.
+export const V4={
  poster:{fn:'imageURI'+INFO,type:'image/svg+xml',body:s=>{const p='data:image/svg+xml;base64,';if(!s.startsWith(p))throw Error('Not a poster');return Buffer.from(s.slice(p.length),'base64');}},
  player:{fn:'animationURI'+INFO,type:'text/html; charset=utf-8',body:s=>{const p='data:text/html,';if(!s.startsWith(p))throw Error('Not a player');return Buffer.from(decodeURIComponent(s.slice(p.length)));}},
  avi:{fn:'video'+INFO,type:'video/x-msvideo',body:b=>{if(b.subarray(0,4).toString('latin1')!=='RIFF'||b.subarray(8,12).toString('latin1')!=='AVI ')throw Error('Not an AVI');return b;}}
@@ -19,19 +19,19 @@ export function abiBytes(result){
  if(!Number.isSafeInteger(length)||length>4000000||offset+32+length>raw.length)throw Error('Invalid length');
  return raw.subarray(offset+32,offset+32+length);
 }
-export const calldataV3=(n,as)=>selector(V3[as].fn)+hex(infoWords(labInfo(n))).slice(2);
-export function createHandler(live=lab?.v3_live,fetcher=fetch,env=process.env){
+export const calldataV4=(n,as)=>selector(V4[as].fn)+hex(infoWords(labInfo(n))).slice(2)+hex(extrasWords(labExtras(n))).slice(2);
+export function createHandler(live=lab?.live,fetcher=fetch,env=process.env){
  return async function handler(req,res){
   if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({error:'Use GET'});}
   const {n,as='poster'}=req.query;
   if(typeof n!=='string'||!/^\d{1,7}$/.test(n))return res.status(400).json({error:'Seed must be an integer from 0 to 9,999,999'});
-  if(!Object.hasOwn(V3,as))return res.status(400).json({error:'Output must be poster, player or avi'});
+  if(!Object.hasOwn(V4,as))return res.status(400).json({error:'Output must be poster, player or avi'});
   const rpc=serverRpc({chainId:8453},env),to=live?.renderer;
   if(!rpc||!to)return res.status(503).json({error:'Lab renders are unavailable.'});
   try{
-   const response=await fetcher(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to,data:calldataV3(Number(n),as),gas:'0x1dcd6500'},'latest']}),signal:AbortSignal.timeout(55000)});
+   const response=await fetcher(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method:'eth_call',params:[{to,data:calldataV4(Number(n),as),gas:'0x1dcd6500'},'latest']}),signal:AbortSignal.timeout(55000)});
    if(!response.ok)throw Error('RPC unavailable');const body=await response.json();if(body.error)throw Error('Render failed');
-   const out=V3[as],raw=abiBytes(body.result);
+   const out=V4[as],raw=abiBytes(body.result);
    res.setHeader('Cache-Control','public, max-age=86400, s-maxage=31536000, immutable');
    res.setHeader('Content-Type',out.type);res.setHeader('X-Content-Type-Options','nosniff');
    // Opaque origin for anything opened directly; the onchain player alone may run its scripts, as on marketplaces.

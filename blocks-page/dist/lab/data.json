@@ -11,27 +11,27 @@
  ],
  "v1": {
   "canyon": {
-   "metadata_gas": 394879405,
+   "metadata_gas": 394879773,
    "block": 13000000
   },
   "descent": {
-   "metadata_gas": 347283759,
+   "metadata_gas": 347284126,
    "block": 13000001
   },
   "monorail": {
-   "metadata_gas": 448416431,
+   "metadata_gas": 448416799,
    "block": 13000002
   },
   "spire": {
-   "metadata_gas": 380581117,
+   "metadata_gas": 380581484,
    "block": 13000003
   },
   "skyline": {
-   "metadata_gas": 418141694,
+   "metadata_gas": 418142062,
    "block": 13000004
   },
   "alley": {
-   "metadata_gas": 331791821,
+   "metadata_gas": 331792188,
    "block": 13000005
   },
   "nighttrain": {
@@ -39,13 +39,13 @@
    "block": 13000006
   },
   "satoyama": {
-   "metadata_gas": 234255355,
+   "metadata_gas": 234255724,
    "block": 13000007
   }
  },
  "v2": {
   "canyon": {
-   "metadata_gas": 367269064,
+   "metadata_gas": 367269401,
    "scene": 0,
    "colourway": 2,
    "light": 0,
@@ -53,7 +53,7 @@
    "phase": 79
   },
   "descent": {
-   "metadata_gas": 311248802,
+   "metadata_gas": 311249136,
    "scene": 1,
    "colourway": 3,
    "light": 0,
@@ -61,7 +61,7 @@
    "phase": 64
   },
   "monorail": {
-   "metadata_gas": 412843225,
+   "metadata_gas": 412843560,
    "scene": 2,
    "colourway": 2,
    "light": 1,
@@ -69,7 +69,7 @@
    "phase": 26
   },
   "spire": {
-   "metadata_gas": 363022961,
+   "metadata_gas": 363023304,
    "scene": 3,
    "colourway": 5,
    "light": 0,
@@ -77,7 +77,7 @@
    "phase": 46
   },
   "skyline": {
-   "metadata_gas": 417474627,
+   "metadata_gas": 417474971,
    "scene": 4,
    "colourway": 3,
    "light": 1,
@@ -85,7 +85,7 @@
    "phase": 22
   },
   "alley": {
-   "metadata_gas": 290783660,
+   "metadata_gas": 290783994,
    "scene": 5,
    "colourway": 0,
    "light": 2,
@@ -93,7 +93,7 @@
    "phase": 9
   },
   "nighttrain": {
-   "metadata_gas": 347050342,
+   "metadata_gas": 346865696,
    "scene": 6,
    "colourway": 4,
    "light": 2,
@@ -101,7 +101,7 @@
    "phase": 1
   },
   "satoyama": {
-   "metadata_gas": 203099814,
+   "metadata_gas": 203100157,
    "scene": 7,
    "colourway": 3,
    "light": 0,
@@ -111,7 +111,7 @@
  },
  "v3": {
   "canyon": {
-   "metadata_gas": 368966314,
+   "metadata_gas": 368966649,
    "scene": 0,
    "hue": 158,
    "saturation": 79,
@@ -125,7 +125,7 @@
    "phase": 77
   },
   "descent": {
-   "metadata_gas": 326729265,
+   "metadata_gas": 326729598,
    "scene": 1,
    "hue": 16,
    "saturation": 73,
@@ -139,7 +139,7 @@
    "phase": 68
   },
   "monorail": {
-   "metadata_gas": 413994924,
+   "metadata_gas": 413994920,
    "scene": 2,
    "hue": 251,
    "saturation": 67,
@@ -153,7 +153,7 @@
    "phase": 59
   },
   "spire": {
-   "metadata_gas": 374704076,
+   "metadata_gas": 374704413,
    "scene": 3,
    "hue": 281,
    "saturation": 95,
@@ -167,7 +167,7 @@
    "phase": 84
   },
   "skyline": {
-   "metadata_gas": 413016341,
+   "metadata_gas": 413016680,
    "scene": 4,
    "hue": 141,
    "saturation": 79,
@@ -181,7 +181,7 @@
    "phase": 19
   },
   "alley": {
-   "metadata_gas": 323267903,
+   "metadata_gas": 323268233,
    "scene": 5,
    "hue": 333,
    "saturation": 77,
@@ -195,7 +195,7 @@
    "phase": 55
   },
   "nighttrain": {
-   "metadata_gas": 373307385,
+   "metadata_gas": 373307381,
    "scene": 6,
    "hue": 20,
    "saturation": 84,
@@ -209,7 +209,7 @@
    "phase": 11
   },
   "satoyama": {
-   "metadata_gas": 207635266,
+   "metadata_gas": 207635259,
    "scene": 7,
    "hue": 285,
    "saturation": 85,
@@ -503,26 +503,14 @@
   "exact_rgb_duplicates": 0,
   "exact_geometry_duplicates": 0
  },
- "v3_live": {
-  "collection": "0x555261be0c7b9c3decb85016c23777f53fa61b77",
-  "renderer": "0x72c77e3419986621922f7f96b317702602088d1b",
+ "live": {
+  "version": "BLOCKS_VIDEO_V4",
+  "collection": "0x87076cb1f55b7fb6c1febbffa1d45f4f4bd39cac",
+  "renderer": "0x650d3119d88b26d4dc662d4340acffb8e051b1e9",
   "router": "0xff9ab8556de392f84e82a31709fb58991cf1fb9f",
-  "first_token_id": 52810370,
-  "first_scene": "夜行 NIGHT TRAIN",
-  "first_recipe": {
-   "hue": 81,
-   "saturation": 69,
-   "heightBand": 5,
-   "density": 3,
-   "layout": 0,
-   "crop": 2,
-   "pan": 2,
-   "mirror": false,
-   "reverse": false,
-   "phase": 13,
-   "tint": "55526640630507595816785253991940117815531451492260807893217964290999868722844"
-  },
-  "token_uri_gas": 357238769,
-  "poster": "assets/live/v3-52810370.svg"
+  "first_token_id": 52814599,
+  "first_scene": "路地 ALLEY",
+  "token_uri_gas": 272827147,
+  "poster": "assets/live/v4-52814599.svg"
  }
 }

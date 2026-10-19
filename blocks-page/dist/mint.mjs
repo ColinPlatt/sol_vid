@@ -1,6 +1,6 @@
 import {ensureChain,isAddress,decodeString} from './wallet.mjs';
 import {networkOf} from './networks.mjs';
-export const ART_VERSION='BLOCKS_VIDEO_V3';
+export const ART_VERSION='BLOCKS_VIDEO_V4';
 export async function mintBlock(provider,network,onStage=()=>{}){
  if(!network?.deployed||!network.mintEnabled)throw Error('Minting is not open yet.');
  if(!networkOf(network)||network.artVersion!==ART_VERSION||!isAddress(network.collectionAddress)||!isAddress(network.rendererAddress))throw Error('Invalid single-block collection settings.');

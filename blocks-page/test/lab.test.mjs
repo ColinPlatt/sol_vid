@@ -1,7 +1,9 @@
 import test from 'node:test';
+import {selector} from '../dist/lab/blockseed.mjs';
+const SEL_POSTER=selector('imageURI((uint256,uint256,uint256,uint256,uint256,address,uint256),(bytes32,uint256,uint256,bytes32,uint256))');
 import assert from 'node:assert/strict';
 import {keccak256,seed,artwork,sceneOf,hex,labInfo,recipeV3} from '../dist/lab/blockseed.mjs';
-import {createHandler,calldataV3} from '../api/lab.js';
+import {createHandler,calldataV4} from '../api/lab.js';
 // DESCENT #11941801 on Ethereum Sepolia: blockData and seedOf read from the deployed collection.
 const minted={number:11941801n,timestamp:1792335288n,gasLimit:200000000n,baseFee:15n,prevrandao:71995491819252453186341901556748965843844316788138842243839516057809521824868n,beneficiary:'0xA214FD87626b00349F457154382c6eC6A2659D1c',chainId:11155111n};
 test('keccak256 matches the standard empty-input vector',()=>{
@@ -17,11 +19,11 @@ test('V3 seed, scene and recipe match the deployed V3 collection',()=>{
   const s=seed(v3,'BLOCKS_VIDEO_V3');assert.equal(hex(s),'0x5026c1a1f8989b0170b82fa7f4b7562f194a9ac61700885b760ab56a9196d377');assert.equal(sceneOf(s),4);
   assert.deepEqual(recipeV3(v3),{hue:63,saturation:68,heightBand:7,density:0,layout:2,crop:2,pan:7,mirror:true,reverse:false,phase:7});
 });
-test('V3 lab outputs call the deployed renderer with only the Info tuple',async()=>{
-  assert.equal(calldataV3(7,'poster').slice(0,10),'0x9ea3d4f8');assert.equal((calldataV3(7,'player').length-10)/2,7*32);
+test('V4 lab outputs call the deployed renderer with only the Info and Extras tuples',async()=>{
+  assert.equal(calldataV4(7,'poster').slice(0,10),SEL_POSTER);assert.equal((calldataV4(7,'player').length-10)/2,12*32);
     const abi=b=>'0x'+(32).toString(16).padStart(64,'0')+b.length.toString(16).padStart(64,'0')+b.toString('hex').padEnd(Math.ceil(b.length/32)*64,'0');
-  const replies={'0x9ea3d4f8':abi(Buffer.from('data:image/svg+xml;base64,'+Buffer.from('<svg/>').toString('base64'))),
-    [calldataV3(7,'player').slice(0,10)]:abi(Buffer.from('data:text/html,%3Cp%3Ehi')),[calldataV3(7,'avi').slice(0,10)]:abi(Buffer.concat([Buffer.from('RIFF\0\0\0\0AVI '),Buffer.alloc(8)]))};
+  const replies={[SEL_POSTER]:abi(Buffer.from('data:image/svg+xml;base64,'+Buffer.from('<svg/>').toString('base64'))),
+    [calldataV4(7,'player').slice(0,10)]:abi(Buffer.from('data:text/html,%3Cp%3Ehi')),[calldataV4(7,'avi').slice(0,10)]:abi(Buffer.concat([Buffer.from('RIFF\0\0\0\0AVI '),Buffer.alloc(8)]))};
   {
     let sent;const handler=createHandler({renderer:'0x'+'d'.repeat(40)},async(url,options)=>{sent=JSON.parse(options.body);return {ok:true,json:async()=>({result:replies[sent.params[0].data.slice(0,10)]})};});
     const res=()=>({h:{},code:0,setHeader(k,v){this.h[k]=v;return this;},status(c){this.code=c;return this;},send(b){this.body=b;return this;},json(j){this.body=j;return this;}});

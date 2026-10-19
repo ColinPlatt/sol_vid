@@ -91,3 +91,20 @@ formatter, the renderer and the collection, then mints the first token in the sa
 broadcast. Run `scripts/broadcast_blocks_v4_base.sh` to simulate, and add `--broadcast`
 to sign with the `ghoulballs_base` keystore. A dry run against Base on 2026-10-19
 estimated about 12.0M gas (≈0.00013 ETH).
+
+**Deployed 2026-10-19.** The user broadcast it on Base:
+
+| Contract | Address |
+|---|---|
+| Collection | `0x87076cb1f55b7fb6c1febbffa1d45f4f4bd39cac` |
+| Renderer | `0x650d3119d88b26d4dc662d4340acffb8e051b1e9` |
+| Bands | `0x94232541d249a6b6177ce4af2bcee2684144ff04` |
+
+- **First token:** #52814599 (路地 ALLEY). The deployment cost about 9.2M gas (0.000052 ETH).
+- **Verification:** all three contracts are verified on Basescan and Sourcify.
+- **Audit:** `scripts/record_blocks_v4_base.py` passed. It checked the runtime bytecode, the
+  stored block, the parent hash against the block header, and the L1 fields against
+  `L1Block` at the mint block. All 90 frames, the FFmpeg decode and the SVG poster match
+  the independent reference, and `tokenURI` needs about 273M gas.
+- **Site:** the site and lab mint and render from this collection
+  (`deployments/blocks-video-v4-base.json`).

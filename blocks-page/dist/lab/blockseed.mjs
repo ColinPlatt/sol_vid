@@ -68,4 +68,11 @@ export const SCENES=['峡谷 CANYON','地下 DESCENT','高架 MONORAIL','摩天�
 // The lab's simulated Base block: fixed fields, with prevrandao as the study seed (as in the V3 diversity audit).
 export const LAB_BLOCK={number:13000000n,timestamp:1792335288n,gasLimit:60000000n,baseFee:15n,beneficiary:'0x0000000000000000000000000000000000000000',chainId:8453n};
 export const labInfo=n=>({...LAB_BLOCK,prevrandao:BigInt(n)});
+/** Display-only BLOCKS_VIDEO_V4 context for a lab seed: a derived parent hash and L1 hash, Base-like fees. */
+export function labExtras(n){
+  const tag=t=>keccak256(concat(word(BigInt(n)),utf8(t)));
+  return {parentHash:tag('parent'),blobBaseFee:5365424n,l1Number:26226812n+BigInt(n%1000),l1Hash:tag('l1'),l1BaseFee:100256339n};
+}
+/** The static BlockExtras.Extras tuple, as five ABI words. */
+export const extrasWords=x=>concat(x.parentHash,word(x.blobBaseFee),word(x.l1Number),x.l1Hash,word(x.l1BaseFee));
 export const hex=b=>'0x'+[...b].map(x=>x.toString(16).padStart(2,'0')).join('');
