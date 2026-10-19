@@ -1,16 +1,20 @@
 # blocks — one block, one night
 
-The single-block redesign targets Ethereum Sepolia and uses `mint()` with **no
+The site mints `BLOCKS_VIDEO_V3` on **Base** with `mint()` and **no
 arguments**. One action connects the wallet, checks the deployed recipe/renderer,
 requests the free mint, waits for the receipt, then displays the token selected by
 the transaction's actual block. No epoch, seed or header inputs are presented.
 Only one token can be minted per block. Wallets can mint again in later blocks.
 
-The revised collection is deployed on **Ethereum Sepolia** at
-`0x4a37f71418870d89e192bc973626db8eb4ded06b`. The first NFT, **DESCENT #11941801**,
-is owned by the deployment wallet. Receipts, exact bytecode checks and original
-media hashes are in `deployments/blocks-single-sepolia.json`. Sourcify verified
-exact creation and runtime matches. The prior epoch prototype remains separate.
+The live collection is on **Base** at `0x555261be0c7b9c3decb85016c23777f53fa61b77`;
+its first NFT, **NIGHT TRAIN #52810370**, is owned by the deployment wallet. Receipts,
+exact bytecode checks, verification and live media hashes are in
+`deployments/blocks-video-v3-base.json`. Earlier collections remain on Ethereum
+Sepolia: V3 (`deployments/blocks-video-v3-sepolia.json`), V1 single-block
+(`deployments/blocks-single-sepolia.json`) and the epoch prototype. `dist/config.json`
+selects the chain; `dist/networks.mjs` lists the supported ones (Base, Sepolia), and
+`api/_rpc.js` picks the server RPC (`BASE_RPC_URL`, default `https://mainnet.base.org`,
+which grants the full 500M-gas static call).
 
 The whole site is a walkable Three.js city. The page has no scroll: the collection,
 the idea and a help guide open as panels over the street.
@@ -51,9 +55,10 @@ plucks by the river. It starts only when Sound is switched on.
 Pause, reduced-motion preferences (the scene starts still and never auto-walks),
 background-tab suspension and a no-WebGL fallback (mint panel always shown) are
 supported. The city is a browser illustration; the artwork is the onchain
-`BLOCKS_VIDEO_V3` AVI. The site mints the V3 collection
-`0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f` (V1 remains in `config.json` under
-`previous` for the lab). `/api/token?id=` returns the onchain name, traits and SVG
+`BLOCKS_VIDEO_V3` AVI. V1 Sepolia settings remain in `config.json` under `previous`
+for the lab, which still renders from Sepolia. A wallet can be connected from the
+top bar, any subway ticket gate or the ramen shop's ticket machine; none sends a
+transaction. `/api/token?id=` returns the onchain name, traits and SVG
 poster; `&as=avi` the lossless AVI and `&as=player` the sandboxed onchain player.
 `dist/avi.mjs` decodes the AVI so gallery frames and the mint reveal animate it.
 
@@ -72,7 +77,7 @@ distribution, capped gas, V3 diversity audit and stress cases) and minted tokens
 and the live V3 manifest.
 
 The read-only `/api/world` feed refreshes every 30 seconds and reports the latest
-Sepolia block, base fee and collection mint count in the HUD and overhead signs.
+block, base fee and collection mint count in the HUD and overhead signs.
 Delayed/offline readings are marked. Mint discovery uses the collection's
 `latestTokenId`, the known first mint and a bounded 2,000-block Transfer-log scan;
 this is a recent gallery, not a complete historical index. Metadata renders run

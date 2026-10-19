@@ -1,6 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import {watchWorld} from './world.mjs';
 import {decodeAvi,drawFrame} from './avi.mjs';
+import {NETWORKS} from './networks.mjs';
 import {Walker,PLACES,frameOf,streetName,EYE,PITCH,FACADE,REMOTE_Z} from './walker.mjs';
 import {createKit} from './kit.mjs';
 import {createStreets} from './streets.mjs';
@@ -30,15 +31,18 @@ label();
 try{if(!localStorage.getItem('blocks-help-seen'))document.body.dataset.firstVisit='true';}catch{}
 window.addEventListener('blocks:panel',event=>{if(event.detail.id==='help'&&event.detail.open){delete document.body.dataset.firstVisit;try{localStorage.setItem('blocks-help-seen','1');}catch{}}});
 
-let showChain=()=>{},showToken=()=>{},lastChainLabels;
+let showChain=()=>{},showToken=()=>{},lastChainLabels,lastStatus='connecting',chainLabel='CHAIN';
 const hud=document.querySelector('.chain-hud');
+// The chain's short name comes from the site settings, so the street reads BASE or SEPOLIA.
+fetch('config.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(settings=>{const label=NETWORKS[settings?.chainId]?.label;if(!label)return;chainLabel=label;
+  $('chain-status').textContent=chainLabel+' / '+({live:'LIVE',stale:'DELAYED',offline:'FEED OFFLINE',connecting:'CONNECTING'}[lastStatus]);showChain(lastChainLabels,lastStatus);}).catch(()=>{});
 const stopWorld=watchWorld({
   onState(state,labels){
     $('chain-head').textContent=labels.head;$('chain-fee').textContent=labels.fee;$('chain-supply').textContent=labels.minted;
     hud.title='Latest block: '+new Date(state.timestamp*1000).toLocaleTimeString()+' · '+state.transactions+' transactions · '+Math.round(Number(state.gasUsed)/Number(state.gasLimit)*100)+'% gas used';
     lastChainLabels=labels;showChain(labels);
   },
-  onStatus(status){hud.dataset.status=status;showChain(lastChainLabels,status);$('chain-status').textContent='SEPOLIA / '+({live:'LIVE',stale:'DELAYED',offline:'FEED OFFLINE'}[status]);},
+  onStatus(status){hud.dataset.status=status;lastStatus=status;showChain(lastChainLabels,status);$('chain-status').textContent=chainLabel+' / '+({live:'LIVE',stale:'DELAYED',offline:'FEED OFFLINE'}[status]);},
   onToken(token){showToken(token);}
 });
 window.addEventListener('pagehide',stopWorld,{once:true});
@@ -62,7 +66,7 @@ try{
   const telemetryMaterial=keep(new THREE.MeshBasicMaterial({map:telemetryTexture,toneMapped:false,side:THREE.DoubleSide}));
   function paintChain(labels,status='connecting'){
     telemetry.fillStyle='#080c21';telemetry.fillRect(0,0,1024,256);telemetry.strokeStyle='#00edff';telemetry.lineWidth=7;telemetry.strokeRect(5,5,1014,246);
-    telemetry.textAlign='center';telemetry.fillStyle='#ff45bd';telemetry.font='bold 34px monospace';telemetry.fillText('SEPOLIA / '+({live:'LIVE CHAIN',offline:'FEED OFFLINE',stale:'DELAYED FEED',connecting:'CHAIN FEED'}[status]),512,65);
+    telemetry.textAlign='center';telemetry.fillStyle='#ff45bd';telemetry.font='bold 34px monospace';telemetry.fillText(chainLabel+' / '+({live:'LIVE CHAIN',offline:'FEED OFFLINE',stale:'DELAYED FEED',connecting:'CHAIN FEED'}[status]),512,65);
     telemetry.fillStyle='#72faff';telemetry.font='bold 62px monospace';telemetry.fillText(labels?.head??'CONNECTING',512,145);
     telemetry.fillStyle='#b8e2f0';telemetry.font='25px monospace';telemetry.fillText(labels?labels.fee+'  /  '+labels.minted:'WAITING FOR LIVE CHAIN DATA',512,211);telemetryTexture.needsUpdate=true;
   }
@@ -225,9 +229,14 @@ try{
     if(place.id==='station'){if(!walker.gate&&a>15)return {id:'gate',jp:'改札',en:'Tap the ticket gate to connect a wallet'};if(walker.gate&&a>25)return {id:'train',jp:'乗車',en:'Board the train to Sakuragawa'};return null;}
     if(place.id==='gallery'){
       const t=gallery.terminal&&interactive.find(e=>e.id==='terminal');t.object.getWorldPosition(worldPosition);
-      if(Math.hypot(worldPosition.x-walker.x,worldPosition.z-walker.z)<5)return {id:'terminal',jp:'鋳造',en:'Mint your block'};
+      if(Math.hypot(worldPosition.x-walker.x,worldPosition.z-walker.z)<5)return {id:'terminal',jp:'鋳造',en:wallet.state==='connected'?'Mint your block':'Connect wallet & mint'};
       let best=null;for(const e of interactive)if(e.id.startsWith('art:')){e.object.getWorldPosition(worldPosition);const d=Math.hypot(worldPosition.x-walker.x,worldPosition.z-walker.z);if(d<3.2&&(!best||d<best.d))best={id:e.id,d,jp:'作品',en:'View this artwork'};}
       return best;
+    }
+    if(place.id==='ramen'){
+      const machine=interactive.find(e=>e.id==='ticket');machine.object.getWorldPosition(worldPosition);
+      // Near the door the ticket machine is offered first; deeper in, the chef.
+      if(Math.hypot(worldPosition.x-walker.x,worldPosition.z-walker.z)<3.4||(a<FACADE+4&&wallet.state!=='connected'))return wallet.state==='connected'?{id:'ticket',jp:'食券機',en:'Wallet connected'}:{id:'ticket',jp:'食券機',en:'Connect your wallet'};
     }
     if(place.id==='ramen'&&a>FACADE+4)return {id:'chef',jp:'いらっしゃいませ',en:'Say hello to the chef'};
     return null;
@@ -240,6 +249,7 @@ try{
     if(id.startsWith('art:')){const content=boardContent[Number(id.slice(4))];if(content)window.dispatchEvent(new CustomEvent('blocks:inspect',{detail:content}));else toast2('空 · This frame is waiting for a block. Mint at the terminal to fill it.');return;}
     if(id==='train'){if(!walker.gate){toast2('改札 · Tap a ticket gate first.');return;}if(walker.place?.id==='station'&&walker.mode==='inside')startRide('out');return;}
     if(id==='train-home'){if(walker.place?.remote&&walker.mode==='inside')startRide('back');return;}
+    if(id==='ticket'){if(wallet.state==='connected')toast2('食券 · Your wallet is connected. Mint your block at the gallery terminal.');else window.dispatchEvent(new Event('blocks:connect-request'));return;}
     if(id==='chef')toast2('いらっしゃいませ！ Welcome in — one shoyu ramen, coming right up.');
   }
   // Prompts, place names and the action button.
@@ -324,7 +334,7 @@ try{
     }else journey.tick(elapsed,camera,1/30);
     // The marker floats over the current interactive target.
     const target=current&&!current.id.startsWith('door:')?interactive.find(e=>e.id===current.id):null;
-    if(target&&(target.scene==='city')===(activeScene===scene)){target.object.getWorldPosition(worldPosition);activeScene.add(marker);marker.visible=true;marker.position.set(worldPosition.x,worldPosition.y+(current.id==='terminal'?3.9:current.id.startsWith('art')?4.3:current.id==='gate'?2.1:current.id==='chef'?3.1:4.2)+Math.sin(elapsed*3)*.08,worldPosition.z);}else marker.visible=false;
+    if(target&&(target.scene==='city')===(activeScene===scene)){target.object.getWorldPosition(worldPosition);activeScene.add(marker);marker.visible=true;marker.position.set(worldPosition.x,worldPosition.y+(current.id==='terminal'?3.9:current.id.startsWith('art')?4.3:current.id==='gate'?2.1:current.id==='ticket'?2.7:current.id==='chef'?3.1:4.2)+Math.sin(elapsed*3)*.08,worldPosition.z);}else marker.visible=false;
     renderer.render(activeScene,camera);
     if(++mapFrame%4===0||paused)drawMap();
   };

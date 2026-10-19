@@ -1,21 +1,21 @@
 {
-  "name": "Ethereum Sepolia",
-  "chainId": 11155111,
-  "chainHex": "0xaa36a7",
-  "rpcUrl": "https://ethereum-sepolia-rpc.publicnode.com",
-  "explorerUrl": "https://sepolia.etherscan.io",
+  "name": "Base",
+  "chainId": 8453,
+  "chainHex": "0x2105",
+  "rpcUrl": "https://mainnet.base.org",
+  "explorerUrl": "https://basescan.org",
   "deployed": true,
   "mintEnabled": true,
-  "collectionAddress": "0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f",
-  "rendererAddress": "0xfc1f1f4d790646b628acd9671df60b6ad929649b",
-  "firstTokenId": 11947754,
+  "collectionAddress": "0x555261be0c7b9c3decb85016c23777f53fa61b77",
+  "rendererAddress": "0x72c77e3419986621922f7f96b317702602088d1b",
+  "firstTokenId": 52810370,
   "artVersion": "BLOCKS_VIDEO_V3",
-  "firstScene": "\u591c\u666f SKYLINE",
+  "firstScene": "夜行 NIGHT TRAIN",
   "previous": {
     "artVersion": "BLOCKS_SINGLE_V1",
     "collectionAddress": "0x4a37f71418870d89e192bc973626db8eb4ded06b",
     "rendererAddress": "0xedf6937b047c1ad9d2fe4c7203b5c54f4eadad46",
     "firstTokenId": 11941801,
-    "firstScene": "\u5730\u4e0b DESCENT"
+    "firstScene": "地下 DESCENT"
   }
 }

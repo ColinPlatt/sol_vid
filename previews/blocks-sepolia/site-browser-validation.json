@@ -1,5 +1,5 @@
 {
-  "network": "Ethereum Sepolia",
+  "network": "Base (mocked settings; also runs on Ethereum Sepolia)",
   "site": "standalone blocks-page",
   "chromium": "passed",
   "wallet": "mocked only; no real transactions",

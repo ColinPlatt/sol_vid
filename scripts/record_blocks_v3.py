@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
-"""Read-only Sepolia audit of the authorized BLOCKS_VIDEO_V3 broadcast: receipts, runtime code, the stored mint
-block and every frame of the first token's live metadata against the independent Python composition reference."""
+"""Read-only audit of an authorized BLOCKS_VIDEO_V3 broadcast: receipts, runtime code, the stored mint block and every
+frame of the first token's live metadata against the independent Python composition reference.
+
+Usage: record_blocks_v3.py sepolia|base. Base must be checked against a `FOUNDRY_PROFILE=blocks_base` build in `out/`,
+Sepolia against the default (Amsterdam) build."""
+import argparse
 import base64
 import datetime
 import hashlib
@@ -16,6 +20,18 @@ from blocks_diversity_reference import kh, word, tagged, palette, compose, badge
 
 ROOT = Path(__file__).resolve().parents[1]
 CAP = 500_000_000
+NAMES = ['canyon', 'descent', 'monorail', 'spire', 'skyline', 'alley', 'nighttrain', 'satoyama']
+NETWORKS = {
+    'sepolia': dict(name='Ethereum Sepolia', chain_id=11155111, rpc_env='SEPOLIA_RPC_URL', deployer_env='DEPLOYER_ADDRESS',
+                    script='DeployBlocksV3.s.sol', evm='amsterdam', profile='default', authorized='2026-10-19',
+                    created=['DescentV3', 'BlockArtRenderer', 'BlockVideoRendererV3', 'BlockVideoNFTV3']),
+    'base': dict(name='Base', chain_id=8453, rpc='https://mainnet.base.org', deployer_env='BASE_DEPLOYER_ADDRESS',
+                 script='DeployBlocksV3Base.s.sol', evm='cancun', profile='blocks_base', authorized='2026-10-19',
+                 created=['Canyon', 'DescentV3', 'Monorail', 'Spire', 'Skyline', 'Alley', 'NightTrain', 'Satoyama',
+                          'BlockArtRenderer', 'BlockVideoRendererV3', 'BlockVideoNFTV3']),
+}
+parser = argparse.ArgumentParser(); parser.add_argument('network', choices=NETWORKS)
+NET = NETWORKS[parser.parse_args().network]; KEY = 'sepolia' if NET['chain_id'] == 11155111 else 'base'
 env = {}
 for line in (ROOT / '.env').read_text().splitlines():
     key, sep, value = line.removeprefix('export ').partition('=')
@@ -25,14 +41,14 @@ for line in (ROOT / '.env').read_text().splitlines():
 
 def rpc(method, params):
     response = subprocess.run(['curl', '-fsS', '--max-time', '300', '-H', 'content-type: application/json',
-                               '--data-binary', '@-', env['SEPOLIA_RPC_URL']],
+                               '--data-binary', '@-', NET.get('rpc') or env[NET['rpc_env']]],
                               input=json.dumps(dict(jsonrpc='2.0', id=1, method=method, params=params)),
                               text=True, capture_output=True)
     if response.returncode:
-        raise RuntimeError('Sepolia RPC transport failed')
+        raise RuntimeError(NET['name'] + ' RPC transport failed')
     data = json.loads(response.stdout)
     if 'error' in data:
-        raise RuntimeError('Sepolia RPC: ' + str(data['error'].get('message', 'read failed')))
+        raise RuntimeError(NET['name'] + ' RPC: ' + str(data['error'].get('message', 'read failed')))
     return data['result']
 
 
@@ -95,19 +111,23 @@ def scene_of(seed):
     return 7 if seed[4] < 4 else int.from_bytes(seed[:4], 'big') % 7
 
 
-assert int(rpc('eth_chainId', []), 16) == 11155111
-broadcast = json.loads((ROOT / 'broadcast/DeployBlocksV3.s.sol/11155111/run-latest.json').read_text())
+assert int(rpc('eth_chainId', []), 16) == NET['chain_id']
+broadcast = json.loads((ROOT / f"broadcast/{NET['script']}/{NET['chain_id']}/run-latest.json").read_text())
 transactions = broadcast['transactions']
 names = [t['contractName'] for t in transactions]
-assert names == ['DescentV3', 'BlockArtRenderer', 'BlockVideoRendererV3', 'BlockVideoNFTV3', 'BlockVideoNFTV3'], names
+assert names == NET['created'] + ['BlockVideoNFTV3'], names
 receipts = [rpc('eth_getTransactionReceipt', [t['hash']]) for t in transactions]
 assert all(r and r['status'] == '0x1' for r in receipts)
-descent, router, renderer, collection = (t['contractAddress'].lower() for t in transactions[:4])
-assert transactions[4]['transactionType'] == 'CALL' and transactions[4]['contractAddress'].lower() == collection
-deployer = env['DEPLOYER_ADDRESS'].lower()
-reused = json.loads((ROOT / 'deployments/blocks-sepolia.json').read_text())['scenes']
-slots = [reused['canyon'], descent, reused['monorail'], reused['spire'], reused['skyline'], reused['alley'],
-         reused['nighttrain'], reused['satoyama']]
+created = {name: t['contractAddress'].lower() for name, t in zip(NET['created'], transactions)}
+descent, router, renderer, collection = (created[n] for n in ('DescentV3', 'BlockArtRenderer', 'BlockVideoRendererV3', 'BlockVideoNFTV3'))
+mint_tx = transactions[len(NET['created'])]
+assert mint_tx['transactionType'] == 'CALL' and mint_tx['contractAddress'].lower() == collection
+deployer = env[NET['deployer_env']].lower()
+if KEY == 'sepolia':  # Seven epoch-era scenes are reused; only DescentV3 is new.
+    reused = json.loads((ROOT / 'deployments/blocks-sepolia.json').read_text())['scenes']
+    slots = [descent if name == 'descent' else reused[name] for name in NAMES]
+else:
+    slots = [created['DescentV3' if name == 'descent' else {'nighttrain': 'NightTrain'}.get(name, name.capitalize())] for name in NAMES]
 
 
 def check_code(address, artifact_name, immutables):
@@ -125,12 +145,13 @@ def check_code(address, artifact_name, immutables):
     return dict(address=address, runtime_bytes=len(code), runtime_sha256=sha(code), creation_bytecode_sha256=sha(creation))
 
 
-runtimes = dict(DescentV3=check_code(descent, 'DescentV3', []),
+scene_runtimes = {n: check_code(created[n], n, []) for n in NET['created'] if n not in ('DescentV3', 'BlockArtRenderer', 'BlockVideoRendererV3', 'BlockVideoNFTV3')}
+runtimes = dict(**scene_runtimes, DescentV3=check_code(descent, 'DescentV3', []),
                 BlockArtRenderer=check_code(router, 'BlockArtRenderer', slots),
                 BlockVideoRendererV3=check_code(renderer, 'BlockVideoRendererV3', [router]),
                 BlockVideoNFTV3=check_code(collection, 'BlockVideoNFTV3', [renderer]))
 
-mint = receipts[4]; token = int(mint['blockNumber'], 16); tid = word(token)
+mint = receipts[len(NET['created'])]; token = int(mint['blockNumber'], 16); tid = word(token)
 block = rpc('eth_getBlockByNumber', [mint['blockNumber'], False])
 assert int.from_bytes(call(collection, 'totalSupply()')) == 1
 assert int.from_bytes(call(collection, 'latestTokenId()')) == token
@@ -140,7 +161,7 @@ assert dynamic(call(collection, 'name()')).decode() == dynamic(call(collection, 
 raw = call(collection, 'blockData(uint256)', tid)
 fields = [int.from_bytes(raw[i:i + 32]) for i in range(0, len(raw), 32)]
 assert fields == [token, int(block['timestamp'], 16), int(block['gasLimit'], 16), int(block['baseFeePerGas'], 16),
-                  int(block['mixHash'], 16), int(block['miner'], 16), 11155111], 'Stored block differs from the mint block'
+                  int(block['mixHash'], 16), int(block['miner'], 16), NET['chain_id']], 'Stored block differs from the mint block'
 version = b'BLOCKS_VIDEO_V3'
 seed = kh(word(256) + b''.join(map(word, fields)) + word(len(version)) + version.ljust(32, b'\0'))
 assert call(collection, 'seedOf(uint256)', tid) == seed
@@ -185,7 +206,8 @@ movie = base64.b64decode(encoded, validate=True)
 assert movie == dynamic(call(collection, 'video(uint256)', tid))
 assert len(movie) == len(reference) == 1477976 and movie[:4] == b'RIFF' and movie[8:12] == b'AVI '
 
-out = ROOT / 'previews/blocks-video-v3-sepolia'; out.mkdir(exist_ok=True)
+out = ROOT / f'previews/blocks-video-v3-{KEY}-live' if KEY == 'base' else ROOT / 'previews/blocks-video-v3-sepolia'
+out.mkdir(exist_ok=True)
 avi_path = out / f'{token}.avi'; avi_path.write_bytes(movie)
 original = np.array([list(reference[212 + i * 4:215 + i * 4][::-1]) for i in range(256)], np.uint8)
 pal = palette(original, r)
@@ -219,34 +241,34 @@ assert covered == 16384 and poster == expected[0], 'SVG poster differs from fram
 
 gas = sum(int(x['gasUsed'], 16) for x in receipts)
 fee = sum(int(x['gasUsed'], 16) * int(x['effectiveGasPrice'], 16) for x in receipts)
-path = ROOT / 'deployments/blocks-video-v3-sepolia.json'
+path = ROOT / f'deployments/blocks-video-v3-{KEY}.json'
 manifest = json.loads(path.read_text()) if path.exists() else {}
 manifest.update({
-    'status': 'deployed', 'network': 'Ethereum Sepolia', 'chain_id': 11155111,
+    'status': 'deployed', 'network': NET['name'], 'chain_id': NET['chain_id'],
     'collection_name': 'blocks', 'collection_symbol': 'blocks', 'art_version': 'BLOCKS_VIDEO_V3',
     'collection': collection, 'renderer': renderer, 'scene_router': router, 'descent_v3': descent,
-    'scenes': dict(zip(['canyon', 'descent', 'monorail', 'spire', 'skyline', 'alley', 'nighttrain', 'satoyama'], slots)),
-    'reused_scenes_from': 'deployments/blocks-sepolia.json',
+    'scenes': dict(zip(NAMES, slots)),
+    'reused_scenes_from': 'deployments/blocks-sepolia.json' if KEY == 'sepolia' else None,
     'mint_signature': 'mint()', 'token_id': 'execution block number',
     'limit': 'one NFT per block, first successful caller',
     'image': 'native SVG of final AVI frame 0',
     'animation_url': 'self-contained HTML data URI embedding AVI and decoder', 'gif_in_metadata': False,
     'format': 'AVI BI_RGB', 'width': 128, 'height': 128, 'frames': 90, 'fps': 15, 'duration_seconds': 6,
-    'compiler': '0.8.37+commit.f401782d', 'evm_version': 'amsterdam', 'profile': 'default',
-    'optimizer_runs': 200, 'via_ir': True, 'experimental': True,
-    'deployer': env['DEPLOYER_ADDRESS'], 'first_token_id': token, 'first_scene': metadata['name'].split(' #')[0],
+    'compiler': '0.8.37+commit.f401782d', 'evm_version': NET['evm'], 'profile': NET['profile'],
+    'optimizer_runs': 200, 'via_ir': True, 'experimental': KEY == 'sepolia',
+    'deployer': env[NET['deployer_env']], 'first_token_id': token, 'first_scene': metadata['name'].split(' #')[0],
     'first_recipe': {k: (str(v) if k == 'tint' else v) for k, v in r.items()},
     'transaction_hashes': [t['hash'] for t in transactions], 'receipts': receipts,
     'gas_used': gas, 'transaction_fee_wei': str(fee), 'runtimes': runtimes, 'runtime_verified': True,
-    'broadcast_authorization': 'explicit_user_approval_2026-10-19',
+    'broadcast_authorization': 'explicit_user_approval_' + NET['authorized'],
     'live_media_validation': {
         'gas_cap': CAP, 'token_uri_min_passing_call_gas': uri_gas, 'token_uri_bytes': len(uri),
         'avi_bytes': len(movie), 'avi_sha256': sha(movie), 'svg_bytes': len(svg), 'svg_sha256': sha(svg),
         'block_fields_match_mint_block': True,
         'independent_reference': 'seed, recipe and scene input rebuilt in Python; all 90 frames, palette, FFmpeg decode '
                                  'and SVG poster match scripts/blocks_diversity_reference.py transforms of the router AVI',
-        'files': f'previews/blocks-video-v3-sepolia/{token}.*'},
-    'mint_enabled': False,
+        'files': f'{out.relative_to(ROOT)}/{token}.*'},
+    'mint_enabled': manifest.get('mint_enabled', False),
     'marketplace_playback': manifest.get('marketplace_playback', {'status': 'not_checked'}),
     'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).replace(microsecond=0).isoformat(),
 })

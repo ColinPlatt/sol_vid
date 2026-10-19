@@ -3,7 +3,7 @@
 `BLOCKS_VIDEO_V3` was deployed to Ethereum Sepolia on 2026-10-19
 (`deployments/blocks-video-v3-sepolia.json`); the measurements below were made
 before deployment, and the live first token was validated frame-by-frame by
-`scripts/record_blocks_v3_sepolia.py`. It preserves the eight
+`scripts/record_blocks_v3.py sepolia`. It preserves the eight
 scene families, including rare Satoyama, the block-only seed, no-argument free
 mint and one token per block. It does not change either deployed collection,
 the live site, or prepared `BLOCKS_VIDEO_V2`. The 100,000 figure is an audit

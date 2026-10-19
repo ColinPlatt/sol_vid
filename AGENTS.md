@@ -112,4 +112,10 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   OpenSea no longer supports testnets, so its marketplace gate cannot pass on Sepolia;
   on 2026-10-19 the user explicitly asked to switch the live `blocks-page/` mint to V3
   anyway; it now mints V3 (V1 stays deployed and readable).
-  This does not authorize Base, mainnet or other redeployments.
+  This does not authorize mainnet or other redeployments.
+- The user authorized and broadcast the `BLOCKS_VIDEO_V3` Base deployment on 2026-10-19
+  (`script/DeployBlocksV3Base.s.sol`, `FOUNDRY_PROFILE=blocks_base`). It is confirmed,
+  verified on Basescan and Sourcify, and audited frame-by-frame in
+  `deployments/blocks-video-v3-base.json` (`scripts/record_blocks_v3.py base`).
+  At the user's request the live `blocks-page/` now mints on Base. The OpenSea playback
+  check on Base is still to be recorded.

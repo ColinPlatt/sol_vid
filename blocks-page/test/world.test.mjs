@@ -34,11 +34,18 @@ test('restricted logs keep canonical mints; failed RPC never returns invented ch
 });
 test('chain labels preserve tiny fees and reject other networks; gallery accepts only onchain posters with their own video path',()=>{
  assert.equal(chainLabels({chainId:11155111,blockNumber:'123',baseFeeWei:'1',totalSupply:'2',timestamp:1}).fee,'1.00e-9 GWEI');
- assert.throws(()=>chainLabels({chainId:8453}));
+ assert.throws(()=>chainLabels({chainId:1}));
  const image='data:image/svg+xml;base64,PHN2Zy8+';
  assert.equal(validToken({tokenId:'123',image:'https://example.com/a.svg',video:'/api/token?id=123&as=avi'}),false);
  assert.equal(validToken({tokenId:'123',image:'data:image/gif;base64,R0lGODlh',video:'/api/token?id=123&as=avi'}),false);
  assert.equal(validToken({tokenId:'123',image,video:'https://example.com/a.avi'}),false);
  assert.equal(validToken({tokenId:'123',image,video:'/api/token?id=124&as=avi'}),false);
  assert.equal(validToken({tokenId:'123',image,video:'/api/token?id=123&as=avi'}),true);
+});
+test('server RPC and network checks follow the configured chain',async()=>{
+ const {serverRpc}=await import('../api/_rpc.js'),{networkOf}=await import('../dist/networks.mjs');
+ assert.equal(serverRpc({chainId:8453},{}),'https://mainnet.base.org');assert.equal(serverRpc({chainId:8453},{BASE_RPC_URL:'https://x.invalid'}),'https://x.invalid');
+ assert.equal(serverRpc({chainId:11155111},{}),null);assert.equal(serverRpc({chainId:1},{SEPOLIA_RPC_URL:'https://x.invalid'}),null);
+ assert.equal(networkOf({chainId:8453,chainHex:'0x2105'}).label,'BASE');assert.equal(networkOf({chainId:8453,chainHex:'0xaa36a7'}),null);
+ assert.equal(chainLabels({chainId:8453,blockNumber:'1',baseFeeWei:'5000000',totalSupply:'1',timestamp:1}).head,'#1');
 });

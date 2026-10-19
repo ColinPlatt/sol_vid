@@ -54,8 +54,13 @@ export function buildRamen(kit,b,g,s,{neonSide,r,animated,interactive,keep}){
   kit.sign(g,A(H+5),3.2,Z(-width/2+.06),['替玉無料','FREE NOODLE REFILLS'],'#46f5ff',3.8,1.2,0);
   for(const a of [2.5,5])for(const bb of [-5,-2,1,4]){b.ball(A(H+a),3.75,Z(bb),.3,.4,.3,0xffa94d,true);}
   kit.halo(g,A(H+4),3.6,ZC,9,'#ffa94d',.35);
-  b.part('solid',A(H+1.1),.9,Z(-6.2),.8,1.8,.9,0xd9dde3);b.part('lit',A(H+1.1),1.2,Z(-5.74),.6,.7,.02,0x7fd6ff);
-  kit.sign(g,A(H+1.1),2.05,Z(-5.72),['食券','TICKETS'],'#46f5ff',.8,.36,0);
+  // The ticket machine by the door connects a wallet, like the station's ticket gates.
+  const machine=new THREE.Group();machine.position.set(A(H+1.1),0,Z(-6.2));g.add(machine);
+  kit.batch(machine,kit.box,kit.materials.solid,[{x:0,y:.9,z:0,w:.8,h:1.8,d:.9,colour:0xd9dde3}]);
+  kit.batch(machine,kit.box,kit.materials.lit,[{x:0,y:1.2,z:.46,w:.6,h:.7,d:.02,colour:0x7fd6ff},{x:0,y:.62,z:.46,w:.5,h:.06,d:.02,colour:0xffb51b}]);
+  kit.halo(machine,0,1.3,.6,2.2,'#46f5ff',.45);
+  kit.sign(g,A(H+1.1),2.3,Z(-5.72),['食券機','TICKETS · CONNECT WALLET'],'#46f5ff',2.2,.72,0);
+  interactive({id:'ticket',object:machine,jp:'食券機',en:'Connect your wallet'});
   light(kit,g,0xffa860,18,14,A(H+5),3.7,ZC);
   return {id:'ramen'};
 }

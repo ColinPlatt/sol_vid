@@ -1,9 +1,10 @@
 // Read-only street feed. No wallet requests and no caller-selected RPC or collection.
+import {NETWORKS} from './networks.mjs';
 export const demos=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama'];
 // Tokens carry the onchain SVG poster and the same-origin path of their AVI.
 export function validToken(token){const id=String(token?.tokenId);return /^\d{1,18}$/.test(id)&&/^data:image\/svg\+xml;base64,[A-Za-z0-9+/=]+$/.test(token?.image??'')&&token?.video==='/api/token?id='+id+'&as=avi';}
 export function chainLabels(state){
- if(state.chainId!==11155111||!/^\d+$/.test(state.blockNumber)||!/^\d+$/.test(state.baseFeeWei)||!/^\d+$/.test(state.totalSupply)||!Number.isFinite(state.timestamp))throw Error('Unexpected chain feed');
+ if(!NETWORKS[state.chainId]||!/^\d+$/.test(state.blockNumber)||!/^\d+$/.test(state.baseFeeWei)||!/^\d+$/.test(state.totalSupply)||!Number.isFinite(state.timestamp))throw Error('Unexpected chain feed');
  const base=Number(state.baseFeeWei)/1e9;
  return {head:'#'+Number(state.blockNumber).toLocaleString('en-US'),fee:(base===0?'0':base<.000001?base.toExponential(2):base.toFixed(6).replace(/0+$/,'').replace(/\.$/,''))+' GWEI',minted:Number(state.totalSupply).toLocaleString('en-US')+' MINTED'};
 }

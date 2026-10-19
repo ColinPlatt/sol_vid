@@ -1,13 +1,15 @@
 import deployment from '../dist/config.json' with {type:'json'};
+import {serverRpc} from './_rpc.js';
 const transfer='0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const zero='0x'+'0'.repeat(64);
 export function createHandler(settings,request=fetch){
  return async(req,res)=>{
   res.setHeader('Cache-Control','no-store');
   if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({error:'Use GET'});}
-  if(!settings.deployed||!settings.collectionAddress||!process.env.SEPOLIA_RPC_URL)return res.status(503).json({error:'Chain feed unavailable'});
+  const rpc=serverRpc(settings);
+  if(!settings.deployed||!settings.collectionAddress||!rpc)return res.status(503).json({error:'Chain feed unavailable'});
   const call=async(method,params)=>{
-   const response=await request(process.env.SEPOLIA_RPC_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),signal:AbortSignal.timeout(10000)});
+   const response=await request(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',id:1,method,params}),signal:AbortSignal.timeout(10000)});
    if(!response.ok)throw Error('RPC unavailable');const body=await response.json();if(body.error||body.result===undefined)throw Error('RPC unavailable');return body.result;
   };
   try{

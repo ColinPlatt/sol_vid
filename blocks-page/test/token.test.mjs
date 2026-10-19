@@ -30,7 +30,7 @@ test('confirmed deployment reads only its fixed contract with the full static-ca
   process.env.SEPOLIA_RPC_URL='https://example.invalid/rpc';
   globalThis.fetch=async(url,options)=>{request=JSON.parse(options.body);return {ok:true,json:async()=>({result:request.params[0].data.startsWith('0x169aef4a')?abi(avi):request.params[0].data.startsWith('0x5209ec17')?abi(Buffer.from('data:text/html,%3Cp%3E')):encoded(metadata)})};};
   const res={status(n){status=n;return this;},setHeader(k,v){headers[k]=v;return this;},json(value){body=value;return this;},send(value){body=value;return this;}};
-  const collection='0x'+'b'.repeat(40),read=createHandler({deployed:true,collectionAddress:collection});
+  const collection='0x'+'b'.repeat(40),read=createHandler({deployed:true,collectionAddress:collection,chainId:11155111});
   await read({method:'GET',query:{id:'1'}},res);
   assert.equal(status,200);assert.equal(body.image,poster);assert.equal(body.video,'/api/token?id=1&as=avi');
   assert.equal(request.params[0].to,collection);assert.equal(BigInt(request.params[0].gas),500000000n);

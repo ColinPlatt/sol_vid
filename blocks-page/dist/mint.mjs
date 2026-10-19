@@ -1,8 +1,9 @@
 import {ensureChain,isAddress,decodeString} from './wallet.mjs';
+import {networkOf} from './networks.mjs';
 export const ART_VERSION='BLOCKS_VIDEO_V3';
 export async function mintBlock(provider,network,onStage=()=>{}){
  if(!network?.deployed||!network.mintEnabled)throw Error('Minting is not open yet.');
- if(network.chainId!==11155111||network.chainHex!=='0xaa36a7'||network.artVersion!==ART_VERSION||!isAddress(network.collectionAddress)||!isAddress(network.rendererAddress))throw Error('Invalid single-block collection settings.');
+ if(!networkOf(network)||network.artVersion!==ART_VERSION||!isAddress(network.collectionAddress)||!isAddress(network.rendererAddress))throw Error('Invalid single-block collection settings.');
  onStage('connect');
  const accounts=await provider.request({method:'eth_requestAccounts'}),account=accounts?.[0];
  if(!isAddress(account))throw Error('No wallet account selected.');
@@ -15,12 +16,12 @@ export async function mintBlock(provider,network,onStage=()=>{}){
  const estimate=BigInt(await request('eth_estimateGas',[transaction]));if(estimate<21000n||estimate>5000000n)throw Error('Unexpected mint estimate. No transaction was sent.');
  const price=BigInt(await request('eth_gasPrice'));if(price>1000000n)throw Error('Gas prices changed. Please try again later.');
  transaction.gas='0x'+((estimate*120n+99n)/100n).toString(16);transaction.maxFeePerGas='0x'+(price*4n>1000n?price*4n:1000n).toString(16);transaction.maxPriorityFeePerGas='0x1';
- const [chain,current]=await Promise.all([request('eth_chainId'),request('eth_accounts')]);if(BigInt(chain)!==11155111n||current?.[0]?.toLowerCase()!==account.toLowerCase())throw Error('Wallet changed. Please try again.');
+ const [chain,current]=await Promise.all([request('eth_chainId'),request('eth_accounts')]);if(BigInt(chain)!==BigInt(network.chainId)||current?.[0]?.toLowerCase()!==account.toLowerCase())throw Error('Wallet changed. Please try again.');
  onStage('wallet');const hash=await request('eth_sendTransaction',[transaction]);if(!/^0x[0-9a-f]{64}$/i.test(hash??''))throw Error('Invalid transaction hash.');return {hash,account};
 }
 // The ticket gate connects a wallet and selects the network without sending anything.
 export async function connectWallet(provider,network){
- if(network?.chainId!==11155111||network.chainHex!=='0xaa36a7')throw Error('Invalid single-block collection settings.');
+ if(!networkOf(network))throw Error('Invalid single-block collection settings.');
  const accounts=await provider.request({method:'eth_requestAccounts'}),account=accounts?.[0];
  if(!isAddress(account))throw Error('No wallet account selected.');
  await ensureChain(provider,network);return account;

@@ -27,15 +27,15 @@ try{
  window.__sends=[];const abi=s=>'0x'+'20'.padStart(64,'0')+BigInt(s.length).toString(16).padStart(64,'0')+Array.from(new TextEncoder().encode(s),b=>b.toString(16).padStart(2,'0')).join('').padEnd(64,'0');
  const native=window.fetch.bind(window);window.fetch=async(url,options)=>{
   if(String(url)==='/api/world'&&window.__worldOffline)return new Response('{}',{status:503});
-  if(String(url)==='/api/world')return new Response(JSON.stringify({chainId:11155111,blockNumber:'13000000',timestamp:Math.floor(Date.now()/1000),baseFeeWei:'123456789',gasUsed:'15000000',gasLimit:'60000000',transactions:72,totalSupply:'2',tokenIds:['13000000','11941801'],observedAt:Date.now()}));
+  if(String(url)==='/api/world')return new Response(JSON.stringify({chainId:8453,blockNumber:'13000000',timestamp:Math.floor(Date.now()/1000),baseFeeWei:'123456789',gasUsed:'15000000',gasLimit:'60000000',transactions:72,totalSupply:'2',tokenIds:['13000000','11941801'],observedAt:Date.now()}));
   if(String(url).startsWith('/api/token')){const id=new URL(url,location.href).searchParams.get('id');window.__tokenReads=(window.__tokenReads??0)+1;
    if(String(url).includes('&as=avi'))return new Response(Uint8Array.from(atob('${liveAVI}'),c=>c.charCodeAt(0)),{headers:{'Content-Type':'video/x-msvideo'}});
    return new Response(JSON.stringify({name:'夜景 SKYLINE #'+id,attributes:[{trait_type:'Art Version',value:'BLOCKS_VIDEO_V3'}],tokenId:id,image:'data:image/svg+xml;base64,${livePoster}',video:'/api/token?id='+id+'&as=avi'}));}
-  if(String(url).endsWith('config.json'))return new Response(JSON.stringify({artVersion:'BLOCKS_VIDEO_V3',name:'Ethereum Sepolia',chainId:11155111,chainHex:'0xaa36a7',rpcUrl:'https://mainnet.base.org',explorerUrl:'https://basescan.org',deployed:true,mintEnabled:live,collectionAddress:collection,rendererAddress:renderer}));
+  if(String(url).endsWith('config.json'))return new Response(JSON.stringify({artVersion:'BLOCKS_VIDEO_V3',name:'Base',chainId:8453,chainHex:'0x2105',rpcUrl:'https://mainnet.base.org',explorerUrl:'https://basescan.org',deployed:true,mintEnabled:live,collectionAddress:collection,rendererAddress:renderer}));
   if(options?.body){const req=JSON.parse(options.body);let result;if(req.method==='eth_getTransactionReceipt')result={status:'0x1',blockNumber:'0xc65d40',logs:[{address:collection,topics:['0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef','0x'+'0'.repeat(64),'0x'+account.slice(2).padStart(64,'0'),'0x'+(13000000n).toString(16).padStart(64,'0')]}]};else throw Error('Unexpected RPC '+req.method);return new Response(JSON.stringify({jsonrpc:'2.0',id:req.id,result}));}
   return native(url,options);
  };
- window.ethereum={on(){},async request({method,params}){if(method==='eth_requestAccounts'){window.__requested=true;return[account];}if(method==='eth_accounts')return window.__requested?[account]:[];if(method==='eth_chainId')return'0xaa36a7';if(method==='eth_blockNumber')return'0x'+(52546970n).toString(16);if(method==='eth_getCode')return'0x6000';if(method==='eth_call')return params[0].data==='0x8ada6b0f'?'0x'+renderer.slice(2).padStart(64,'0'):abi(params[0].data==='0xacaaa87e'?'BLOCKS_VIDEO_V3':'blocks');if(method==='eth_gasPrice')return'0x13';if(method==='eth_estimateGas')return'0x100000';if(method==='eth_sendTransaction'){window.__sends.push(params[0]);return hash;}throw Error(method);}};
+ window.ethereum={on(){},async request({method,params}){if(method==='eth_requestAccounts'){window.__requested=true;return[account];}if(method==='eth_accounts')return window.__requested?[account]:[];if(method==='eth_chainId')return'0x2105';if(method==='eth_blockNumber')return'0x'+(52546970n).toString(16);if(method==='eth_getCode')return'0x6000';if(method==='eth_call')return params[0].data==='0x8ada6b0f'?'0x'+renderer.slice(2).padStart(64,'0'):abi(params[0].data==='0xacaaa87e'?'BLOCKS_VIDEO_V3':'blocks');if(method==='eth_gasPrice')return'0x13';if(method==='eth_estimateGas')return'0x100000';if(method==='eth_sendTransaction'){window.__sends.push(params[0]);return hash;}throw Error(method);}};
  `});
  const wait=async(expression,seconds=60)=>{for(let i=0;i<seconds*4;++i){if(await evaluate(expression).catch(()=>false))return;await delay(250);}throw Error('Timed out: '+expression);};
  const shot=async name=>writeFile(path.join(root,'previews/blocks-sepolia/'+name+'.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
@@ -46,7 +46,11 @@ try{
  assert.equal(await evaluate("document.querySelector('#mint').disabled"),true);
  await cdp('Page.navigate',{url:origin+'/?qa=live'});await wait("document.querySelector('#mint')?.disabled===false");
  assert.equal(await evaluate("document.documentElement.dataset.scene"),'webgl');
- await wait("document.querySelector('#chain-status').textContent==='SEPOLIA / LIVE'");
+ await wait("document.querySelector('#chain-status').textContent==='BASE / LIVE'");
+ // The wallet is offered in the top bar from the start, and the copy names the configured network.
+ assert.equal(await evaluate("document.querySelector('#wallet').dataset.connected==='false'&&document.querySelector('#wallet-label').textContent==='Connect wallet'"),true);
+ assert.equal(await evaluate("document.querySelector('#mint-note').textContent.includes('Base')"),true);
+ await evaluate("document.querySelector('#wallet').click()");await wait("window.__requested&&document.querySelector('#wallet-label').textContent==='0xaaaa…aaaa'");
  assert.equal(await evaluate("document.querySelector('#chain-head').textContent"),'#13,000,000');
  assert.equal(await evaluate("document.querySelector('#chain-supply').textContent"),'2 MINTED');
  await wait("document.querySelector('#animated-icon')?.href.startsWith('data:image/png;base64,')");
@@ -98,9 +102,11 @@ try{
  await key('Escape');await wait("__blocks.walker.mode==='street'",60);
  // The subway: the ticket gate connects the wallet, then the train rides out to Sakuragawa and back.
  // Minting already connected the wallet, which opens the gates; close them to test the tap.
- await evaluate("window.__requested=false;__blocks.walker.gate=false;__blocks.walker.placeAt('station',18,0)");await delay(600);
+ await evaluate("window.__requested=false;document.querySelector('#wallet').dataset.connected='false';__blocks.walker.gate=false;__blocks.walker.placeAt('station',18,0)");await delay(600);
  assert.equal(await evaluate("__blocks.walker.gate"),false);
- await evaluate("__blocks.interact('gate')");await wait("__blocks.walker.gate&&!document.querySelector('#wallet-chip').hidden");
+ await evaluate("__blocks.interact('gate')");await wait("__blocks.walker.gate&&window.__requested&&document.querySelector('#wallet').dataset.connected==='true'");
+ // The ramen shop's ticket machine connects the wallet too.
+ await evaluate("window.__requested=false;document.querySelector('#wallet').dataset.connected='false';window.dispatchEvent(new CustomEvent('blocks:wallet',{detail:{state:'none'}}));__blocks.interact('ticket')");await wait("window.__requested&&document.querySelector('#wallet').dataset.connected==='true'");
  await evaluate("__blocks.walker.placeAt('station',25,-4,Math.PI/2)");await delay(900);await shot('site-station-desktop');
  await evaluate("__blocks.timeScale=8;__blocks.interact('train')");
  await wait("__blocks.ride?.phase==='journey'",120);await wait("__blocks.ride?.phase==='journey'&&__blocks.ride.t>20",150);
@@ -130,12 +136,12 @@ try{
  assert.equal(await evaluate("document.querySelector('#animated-icon').href"),stillIcon,'Reduced motion must stop the tab icon');
  // An offline feed keeps the last reading.
  await evaluate("window.__worldOffline=true;document.dispatchEvent(new Event('visibilitychange'))");
- await wait("document.querySelector('#chain-status').textContent==='SEPOLIA / FEED OFFLINE'");
+ await wait("document.querySelector('#chain-status').textContent==='BASE / FEED OFFLINE'");
  assert.equal(await evaluate("document.querySelector('#chain-head').textContent"),'#13,000,000');
  // Without WebGL the mint panel is always available.
  await cdp('Page.addScriptToEvaluateOnNewDocument',{source:"const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:originalContext.call(this,type,...args);};"});
  await cdp('Page.navigate',{url:origin+'/?qa=live'});await wait("document.documentElement.dataset.scene==='fallback' && !document.querySelector('#mint').disabled");
  assert.equal(await evaluate("getComputedStyle(document.querySelector('#mint-panel')).visibility"),'visible');
- await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',zero_argument_mint:true,threejs:'Walkable street grid with junction turns, arrow keys and on-screen arrows, guided route, walk-in ramen shop, gallery mint terminal, subway ticket-gate wallet connection, round-trip ride to Sakuragawa, paused-frame stability, mobile touch look; reduced-motion and no-WebGL fallback preserve mint',chain_feed:'Mocked head, base fee, minted count and offline state passed',gallery:'Seven frames show minted originals (empty frames await a block, no demos); a fresh mint pops up in a reveal and floats inside the terminal; WebCodecs GIF playback with static poster fallback',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',audio:'procedural Web Audio; not asserted in headless Chrome',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Base (mocked settings; also runs on Ethereum Sepolia)',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',zero_argument_mint:true,threejs:'Walkable street grid with junction turns, arrow keys and on-screen arrows, guided route, walk-in ramen shop, gallery mint terminal, subway ticket-gate wallet connection, round-trip ride to Sakuragawa, paused-frame stability, mobile touch look; reduced-motion and no-WebGL fallback preserve mint',chain_feed:'Mocked head, base fee, minted count and offline state passed',gallery:'Seven frames show minted originals (empty frames await a block, no demos); a fresh mint pops up in a reveal and floats inside the terminal; WebCodecs GIF playback with static poster fallback',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',audio:'procedural Web Audio; not asserted in headless Chrome',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
  console.log('PASS blocks city: walk, turns, guided route, gallery mint, ticket gate wallet, Sakuragawa round trip, mobile, reduced motion, fallback');
 }finally{ws?.close();chrome?.kill();server.close();await delay(100);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:100});}

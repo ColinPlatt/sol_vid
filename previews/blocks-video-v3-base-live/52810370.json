@@ -1,0 +1,98 @@
+{
+ "name": "夜行 NIGHT TRAIN #52810370",
+ "description": "One Ethereum block. A six-second onchain city. Native SVG first-frame poster and a fully embedded lossless AVI player.",
+ "attributes": [
+  {
+   "trait_type": "Art Version",
+   "value": "BLOCKS_VIDEO_V3"
+  },
+  {
+   "trait_type": "Scene",
+   "value": "夜行 NIGHT TRAIN"
+  },
+  {
+   "trait_type": "Rare",
+   "value": "No"
+  },
+  {
+   "trait_type": "Hue",
+   "value": 81
+  },
+  {
+   "trait_type": "Saturation",
+   "value": 69
+  },
+  {
+   "trait_type": "Height Band",
+   "value": 5
+  },
+  {
+   "trait_type": "Window Density",
+   "value": 3
+  },
+  {
+   "trait_type": "Street Layout",
+   "value": 0
+  },
+  {
+   "trait_type": "Vertical Crop",
+   "value": 2
+  },
+  {
+   "trait_type": "Vertical Pan",
+   "value": 2
+  },
+  {
+   "trait_type": "Mirror",
+   "value": "No"
+  },
+  {
+   "trait_type": "Direction",
+   "value": "Forward"
+  },
+  {
+   "trait_type": "Phase",
+   "value": 13
+  },
+  {
+   "trait_type": "Block",
+   "value": 52810370
+  },
+  {
+   "trait_type": "Timestamp",
+   "value": 1792410087
+  },
+  {
+   "trait_type": "Gas Limit",
+   "value": 400000000
+  },
+  {
+   "trait_type": "Base Fee (wei)",
+   "value": 5000000
+  },
+  {
+   "trait_type": "Chain ID",
+   "value": 8453
+  },
+  {
+   "trait_type": "Duration Seconds",
+   "value": 6
+  },
+  {
+   "trait_type": "FPS",
+   "value": 15
+  },
+  {
+   "trait_type": "Format",
+   "value": "AVI BI_RGB"
+  },
+  {
+   "trait_type": "Width",
+   "value": 128
+  },
+  {
+   "trait_type": "Height",
+   "value": 128
+  }
+ ]
+}

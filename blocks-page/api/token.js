@@ -1,6 +1,7 @@
 // BLOCKS_VIDEO_V3 token reads. The JSON keeps the onchain name, traits and native SVG poster; the lossless AVI
 // is a separate immutable response so the street can animate it. Only a block number reaches the fixed contract.
 import deployment from '../dist/config.json' with {type:'json'};
+import {serverRpc} from './_rpc.js';
 const SELECTORS={json:'0xc87b56dd',avi:'0x169aef4a',player:'0x5209ec17'}; // tokenURI, video, animationURI (uint256)
 export const videoPath=id=>'/api/token?id='+id+'&as=avi';
 function abiBytes(result,limit){
@@ -38,7 +39,7 @@ return async function handler(req,res){
  if(typeof id!=='string'||!/^\d{1,18}$/.test(id))return res.status(400).json({error:'Enter a valid block number'});
  if(!Object.hasOwn(SELECTORS,as))return res.status(400).json({error:'Unknown format'});
  if(!settings.deployed||!COLLECTION)return res.status(503).json({error:'The single-block edition is not open yet.'});
- const rpc=process.env.SEPOLIA_RPC_URL;
+ const rpc=serverRpc(settings);
  if(!rpc)return res.status(503).json({error:'Artwork reads are temporarily unavailable. Try again shortly.'});
  try{
   const data=SELECTORS[as]+BigInt(id).toString(16).padStart(64,'0');

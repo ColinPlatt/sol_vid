@@ -2,6 +2,7 @@ import {rpc,friendlyError,mintedToken,isAddress} from './wallet.mjs';
 import {mintBlock,connectWallet,ART_VERSION} from './mint.mjs';
 import {decodeAvi,drawFrame} from './avi.mjs';
 import {validToken} from './world.mjs';
+import {networkOf} from './networks.mjs';
 const $=id=>document.getElementById(id);
 let network,busy=false,reading=false,connecting=false;
 // The 3D city mirrors the mint and wallet state on the terminal screen and ticket gates.
@@ -40,7 +41,7 @@ function reveal(token,{mine=false,hash=null}={}){
  $('reveal-image').src=token.image;$('reveal-image').alt=token.name;
  $('reveal-eyebrow').textContent=mine?'鋳造完了 / MINTED · YOURS':'作品 / MINTED BLOCK';
  $('reveal-title').innerHTML='';$('reveal-title').append(mine?'Your night: ':'',Object.assign(document.createElement('em'),{textContent:scene[0]+scene.slice(1).toLowerCase()+'.'}));
- $('reveal-block').textContent='Block #'+Number(id).toLocaleString('en-US')+' · Ethereum Sepolia';
+ $('reveal-block').textContent='Block #'+Number(id).toLocaleString('en-US')+' · '+network.name;
  $('download').href=token.video;$('download').download=`blocks-${id}.avi`;traits(token.attributes);
  $('reveal-tx').hidden=!hash;if(hash)$('reveal-tx').href=network.explorerUrl+'/tx/'+hash;
  $('reveal').classList.toggle('mine',mine);openPanel('reveal');play(token);
@@ -58,22 +59,25 @@ async function viewToken(id,{mine=false,hash=null}={}){
 $('lookup').onsubmit=event=>{event.preventDefault();viewToken($('view-block').value);};
 // Clicking an artwork in the gallery opens it in the collection panel.
 window.addEventListener('blocks:inspect',event=>{const tokenId=event.detail?.tokenId;if(tokenId)viewToken(tokenId);});
-function showAccount(account){const chip=$('wallet-chip');chip.hidden=!account;chip.textContent=account?'WALLET '+account.slice(0,6)+'…'+account.slice(-4):'';}
+// The wallet button is always in the top bar; the ticket gates and the ramen shop's ticket machine do the same.
+let connected=null;
+function showAccount(account){connected=account||null;$('wallet').dataset.connected=String(Boolean(account));$('wallet-label').textContent=account?account.slice(0,6)+'…'+account.slice(-4):'Connect wallet';}
+$('wallet').onclick=()=>{if(connected)toast('財布 · Connected as '+connected.slice(0,6)+'…'+connected.slice(-4)+'. Mint at the terminal in the gallery.');else emit('blocks:connect-request');};
 // Tapping a ticket gate connects a wallet. Visitors without one are waved through.
 window.addEventListener('blocks:connect-request',async()=>{
  if(connecting)return;connecting=true;emit('blocks:wallet',{state:'connecting'});
  try{
   if(!network)throw Error('Settings are still loading.');
-  if(!window.ethereum){emit('blocks:wallet',{state:'visitor'});toast('No wallet found — the gate lets you through as a visitor. You’ll need a wallet to mint.');return;}
+  if(!window.ethereum){emit('blocks:wallet',{state:'visitor'});toast('No wallet found in this browser. You can explore as a visitor; minting needs a wallet such as MetaMask or Coinbase Wallet.');return;}
   const account=await connectWallet(window.ethereum,network);showAccount(account);emit('blocks:wallet',{state:'connected',account});toast('ようこそ · Wallet connected: '+account.slice(0,6)+'…'+account.slice(-4));
- }catch(error){emit('blocks:wallet',{state:'visitor',error:friendlyError(error)});toast(friendlyError(error)+' The gate opens anyway.');}
+ }catch(error){emit('blocks:wallet',{state:'visitor',error:friendlyError(error)});toast(friendlyError(error)+' You can keep exploring as a visitor.');}
  finally{connecting=false;}
 });
 async function mint(){
  if(busy||!network)return;busy=true;render();$('transaction').hidden=true;
  try{
   if(!window.ethereum)throw Error('Open this page in a wallet-enabled browser to mint.');
-  const messages={connect:['Connect wallet…','Approve the connection in your wallet.'],checking:['Checking…','Getting your mint ready on Ethereum Sepolia.'],wallet:['Approve mint…','Confirm the free mint in your wallet. Network gas applies.']};
+  const messages={connect:['Connect wallet…','Approve the connection in your wallet.'],checking:['Checking…','Getting your mint ready on '+network.name+'.'],wallet:['Approve mint…','Confirm the free mint in your wallet. Network gas applies.']};
   const {hash,account}=await mintBlock(window.ethereum,network,stage=>{$('mint').textContent=messages[stage][0];status(messages[stage][1],stage);});
   showAccount(account);emit('blocks:wallet',{state:'connected',account});$('transaction').href=network.explorerUrl+'/tx/'+hash;$('transaction').hidden=false;$('mint').textContent='Finding your night…';status('Mint sent. Waiting for the block to be confirmed…','pending');
   let receipt;for(let i=0;i<90;i++){receipt=await rpc(network,'eth_getTransactionReceipt',[hash]);if(receipt)break;await new Promise(resolve=>setTimeout(resolve,2000));}
@@ -85,7 +89,8 @@ async function mint(){
 $('mint').onclick=mint;window.addEventListener('blocks:mint-request',mint);
 try{
  const response=await fetch('config.json',{cache:'no-store'});if(!response.ok)throw Error('Settings unavailable.');network=await response.json();
- if(network.chainId!==11155111||network.artVersion!==ART_VERSION||!isAddress(network.rendererAddress)||(network.deployed&&!isAddress(network.collectionAddress)))throw Error('Single-block mint settings are not ready.');
+ if(!networkOf(network)||network.artVersion!==ART_VERSION||!isAddress(network.rendererAddress)||(network.deployed&&!isAddress(network.collectionAddress)))throw Error('Single-block mint settings are not ready.');
+ $('mint-note').textContent=networkOf(network).gas;
  if(network.deployed)$('contract').href=network.explorerUrl+'/address/'+network.collectionAddress;else $('contract').hidden=true;
  status(network.mintEnabled?'No inputs. Just the block your mint lands in.':'A new single-block edition. Opening soon.',network.mintEnabled?'ready':'closed');render();
  if(network.firstTokenId)$('view-block').value=network.firstTokenId;

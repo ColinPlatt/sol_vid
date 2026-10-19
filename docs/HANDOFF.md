@@ -1,17 +1,26 @@
 # Handoff — blocks (block-art) status
 
-Last updated 2026-10-19 by Claude Code, after `3787c3a` (site mints V3). This covers the
+Last updated 2026-10-19 by Claude Code: V3 deployed on Base and the site switched to Base. This covers the
 `blocks` collection only; ghoulballs is unchanged. AGENTS.md remains the source of rules
 and authorizations.
 
-## Live (Ethereum Sepolia)
+## Live on Base (the site's chain)
 
 | What | Where | Notes |
 |---|---|---|
-| `blocks` video, `BLOCKS_VIDEO_V3` | collection `0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f` | **The site's collection.** Deployed 2026-10-19 with explicit approval by `script/DeployBlocksV3.s.sol`: new `DescentV3` `0xc549…88b7`, a new router `0xd5b2…4d6b` (DescentV3 in slot 1, the other seven epoch-era scenes reused), `BlockVideoRendererV3` `0xfc1f…649b`, then the collection and first mint in one broadcast. First token #11947754 (夜景 SKYLINE) to the deployer. Manifest: `deployments/blocks-video-v3-sepolia.json`. |
-| `blocks` single-block, `BLOCKS_SINGLE_V1` | `0x4a37f71418870d89e192bc973626db8eb4ded06b` | Previous site collection (GIF in metadata). Still deployed and open to direct `mint()` calls; the site no longer uses it. Kept in `blocks-page/dist/config.json` under `previous` for the lab's V1 renders. Manifest: `deployments/blocks-single-sepolia.json`. |
+| `blocks` video, `BLOCKS_VIDEO_V3` | collection `0x555261be0c7b9c3decb85016c23777f53fa61b77` | Deployed 2026-10-19 by the user with `scripts/broadcast_blocks_v3_base.sh --broadcast` (keystore `ghoulballs_base`, `FOUNDRY_PROFILE=blocks_base`, Cancun). All eight scenes, router `0xff9a…fb9f`, renderer `0x72c7…8d1b`, collection and first mint (#52810370, 夜行 NIGHT TRAIN) in one broadcast; ~41M gas, 0.00022 ETH. All 11 contracts are verified on Basescan and Sourcify (exact). `scripts/record_blocks_v3.py base` passed: bytecode, mint block, recipe, all 90 frames vs the reference; `tokenURI` ≈357M gas through `mainnet.base.org`. Manifest: `deployments/blocks-video-v3-base.json`. **OpenSea playback on Base not yet recorded.** |
+
+The site (`blocks-page/dist/config.json`) mints this collection. The lab still renders
+from Sepolia (V1 router and the Sepolia V3 renderer), so it needs `SEPOLIA_RPC_URL`.
+
+## Earlier deployments (Ethereum Sepolia)
+
+| What | Where | Notes |
+|---|---|---|
+| `blocks` video, `BLOCKS_VIDEO_V3` | collection `0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f` | The site's collection until the Base switch. Deployed 2026-10-19 with explicit approval by `script/DeployBlocksV3.s.sol`: new `DescentV3` `0xc549…88b7`, a new router `0xd5b2…4d6b` (DescentV3 in slot 1, the other seven epoch-era scenes reused), `BlockVideoRendererV3` `0xfc1f…649b`, then the collection and first mint in one broadcast. First token #11947754 (夜景 SKYLINE) to the deployer. Manifest: `deployments/blocks-video-v3-sepolia.json`. |
+| `blocks` single-block, `BLOCKS_SINGLE_V1` | `0x4a37f71418870d89e192bc973626db8eb4ded06b` | Earlier site collection (GIF in metadata). Still deployed and open to direct `mint()` calls; the site no longer uses it. Kept in `blocks-page/dist/config.json` under `previous` for the lab's V1 renders. Manifest: `deployments/blocks-single-sepolia.json`. |
 | `blocks` ten-block epochs, `NEO_TOKYO_BLOCKS_V1` | `0xedff9b1dfb79ba12fde25fc8c1aadb730a3b5825` | Oldest collection. Its router `0xedf6…ad46` (V1 renders) and scene contracts are reused by V1 and V3. Manifest: `deployments/blocks-sepolia.json`. |
-| Site `blocks-page/` | https://blocks-eight-pi.vercel.app | Walkable Three.js city; mints V3 in the gallery. Vercel project `blocks` auto-deploys `main`; production verified after `3787c3a`. |
+| Site `blocks-page/` | https://blocks-eight-pi.vercel.app | Walkable Three.js city; mints Base V3 in the gallery. Vercel project `blocks` auto-deploys `main`; production verified after `3787c3a`. |
 | Art lab | https://blocks-eight-pi.vercel.app/lab/ | Unlisted, `noindex`. Live V1/V3 renders for any seed. |
 | Concepts site | https://solvids-concepts.vercel.app | Source in `concepts/`. Deploy only from a clean bundle, never the repo root (a root deploy once leaked `.env`). |
 
@@ -19,7 +28,7 @@ and authorizations.
 
 - **Verification:** all four new contracts are exact matches (creation and runtime) on
   Sourcify. Etherscan rejects the `amsterdam` EVM version, as it did for V1.
-- **Live audit:** `scripts/record_blocks_v3_sepolia.py` (run it with the diversity venv,
+- **Live audit:** `scripts/record_blocks_v3.py sepolia` (run it with the diversity venv,
   which needs numpy and pycryptodome) checks several things:
   - receipts;
   - runtime bytecode against the local build, with immutables filled in;
@@ -52,6 +61,9 @@ and authorizations.
 - **Animation:** `dist/avi.mjs` decodes the 8-bit BI_RGB AVI. Gallery frames show the
   poster, then animate the AVI. The mint reveal plays it over the poster and downloads
   the `.avi`. `test/avi.test.mjs` checks frame 0 against the live token's poster.
+- **Networks:** `dist/networks.mjs` (Base, Sepolia) drives labels, gas copy and wallet chain
+  checks; `api/_rpc.js` picks the server RPC. **Wallet:** the top-bar 財布 button, any
+  ticket gate and the ramen shop's ticket machine (食券機) all connect without a transaction.
 - **Mint checks:** `mint.mjs` requires `ART_VERSION === 'BLOCKS_VIDEO_V3'`, name and symbol
   `blocks`, and the configured renderer before sending the zero-argument `mint()`.
 - **Lab:**
@@ -70,15 +82,15 @@ and authorizations.
 
 - `BLOCKS_VIDEO_V2` (`deployments/blocks-video-sepolia.json`) is superseded in practice by
   V3, but still prepared. It needs its own authorization if ever wanted.
-- Base (`FOUNDRY_PROFILE=blocks_base`, `deployments/blocks-base.json`) has no broadcast
-  approval. A Base or mainnet V3 deployment is the only way to pass a real OpenSea
-  playback gate. It needs explicit user authorization.
+- `deployments/blocks-base.json` (the epoch-era `NEO_TOKYO_BLOCKS_V1` on Base) stays
+  undeployed; Base V3 above is a separate deployment. Mainnet needs its own authorization.
 
 ## Open items
 
 1. **`deployments/blocks-site.json` is stale.** It still records the `67fd74e` deploy and
-   the V1 collection. Update it with the current deployment id, source commit and V3
+   the V1 collection. Update it with the current deployment id, source commit and Base
    collection.
+1. **OpenSea playback on Base** for #52810370 is not yet recorded in the Base manifest.
 2. **Preview JSON drift.** A plain `forge test --offline` rewrites about 35 tracked files
    (`previews/blockart/*.json`, `previews/blocks-video/*.json`,
    `previews/blocks-single/nighttrain.json`, `previews/blocks-video-v3/nighttrain.json`,
