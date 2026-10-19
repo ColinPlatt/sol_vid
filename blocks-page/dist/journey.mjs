@@ -1,23 +1,45 @@
 // The line out of the city: tunnel, viaduct, a mountain tunnel and the cherry-blossom valley at Sakuragawa.
 // The track runs along x=0; the city end is +z and Sakuragawa is at REMOTE_Z. Train floor is y=1.1.
+// It is always the first minutes of sunrise out here: a low sun over the sea, purple haze on the horizon.
 import {REMOTE_Z,EYE} from './walker.mjs';
 import {NEON,rng,pick} from './kit.mjs';
 
 export const RIDE={start:42,portal:0,viaduct:-320,mountain:-780,end:REMOTE_Z,floor:1.1,duration:30};
-const ease=t=>t*t*t*(t*(t*6-15)+10);
+// Distance travelled along a ride: a quintic matching speed and acceleration at both ends, so the train never
+// jolts where the city scenes hand over (it leaves the city platform at 16.8 m/s, 6 m/s², and pulls into the
+// city at 40 m/s, braking at 10 m/s²).
+function profile(D,T,v0,a0,v1,a1){
+  const c3=(20*D-(8*v1+12*v0)*T-(3*a0-a1)*T*T)/(2*T**3),c4=(-30*D+(14*v1+16*v0)*T+(3*a0-2*a1)*T*T)/(2*T**4),c5=(12*D-6*(v1+v0)*T-(a0-a1)*T*T)/(2*T**5);
+  return t=>{t=Math.min(T,Math.max(0,t));return v0*t+a0/2*t*t+c3*t**3+c4*t**4+c5*t**5;};
+}
+export const DEPART={accel:6,time:2.8},ARRIVE={speed:40,brake:10};
+const OUT=profile(RIDE.start-(RIDE.end-17.8),RIDE.duration,DEPART.accel*DEPART.time,DEPART.accel,0,0);
+const BACK=profile(RIDE.start-(RIDE.end+17.8),RIDE.duration,0,0,ARRIVE.speed,-ARRIVE.brake);
+const SUN=[.24,.045,-.97];
+// Smooth deterministic value noise for the landscape.
+const hash=(x,z)=>{const h=Math.sin(x*127.1+z*311.7)*43758.5453;return h-Math.floor(h);};
+const smooth=(a,b,v)=>{const t=Math.min(1,Math.max(0,(v-a)/(b-a)));return t*t*(3-2*t);};
+function noise(x,z){const ix=Math.floor(x),iz=Math.floor(z),fx=x-ix,fz=z-iz,u=fx*fx*(3-2*fx),v=fz*fz*(3-2*fz);
+  const a=hash(ix,iz),b=hash(ix+1,iz),c=hash(ix,iz+1),d=hash(ix+1,iz+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;}
+function ridged(x,z){let sum=0,amp=.55,f=1/260;for(let o=0;o<5;o++){sum+=amp*(1-Math.abs(noise(x*f,z*f)*2-1))**2;amp*=.5;f*=2.1;}return sum;}
 
 export function createJourney(kit,{keep,interactive}){
   const {THREE}=kit,scene=new THREE.Scene(),r=rng(8128),b=kit.builder(),g=new THREE.Group();scene.add(g);
-  scene.background=new THREE.Color(0x120c2a);scene.fog=new THREE.FogExp2(0x2b1f4d,.0021);
-  scene.add(new THREE.HemisphereLight(0xb6a0ff,0x1a1030,1.25));
-  const moon=new THREE.DirectionalLight(0xc9d6ff,1.1);moon.position.set(-200,300,-400);scene.add(moon);
-  const sky=new THREE.Mesh(keep(new THREE.SphereGeometry(1800,32,16)),keep(new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
+  const HAZE=0x6b4a86;scene.background=new THREE.Color(HAZE);scene.fog=new THREE.FogExp2(HAZE,.00105);
+  scene.add(new THREE.HemisphereLight(0x8a78bd,0x1c1428,.55));
+  const sun=new THREE.DirectionalLight(0xff9a6a,1.35);sun.position.set(SUN[0]*1000,SUN[1]*1000+40,SUN[2]*1000);scene.add(sun);
+  const sky=new THREE.Mesh(keep(new THREE.SphereGeometry(1800,48,24)),keep(new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
     vertexShader:'varying vec3 vDir;void main(){vDir=normalize(position);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
     fragmentShader:`varying vec3 vDir;
       float hash(vec3 p){return fract(sin(dot(p,vec3(12.9898,78.233,37.719)))*43758.5453);}
-      void main(){float h=clamp(vDir.y,0.,1.);vec3 c=mix(vec3(.55,.18,.42),vec3(.16,.08,.3),smoothstep(0.,.18,h));c=mix(c,vec3(.02,.02,.08),smoothstep(.15,.7,h));
-        vec3 q=floor(vDir*420.);float star=step(.9975,hash(q))*smoothstep(.08,.3,h);c+=vec3(star);
-        float moon=smoothstep(.9985,.9992,dot(vDir,normalize(vec3(-.35,.32,-.88))));c+=vec3(1.,.95,.9)*moon+vec3(.25,.2,.35)*pow(max(dot(vDir,normalize(vec3(-.35,.32,-.88))),0.),60.);
+      void main(){vec3 sun=normalize(vec3(${SUN.join(',')}));float h=vDir.y,toward=max(dot(vDir,sun),0.);
+        vec3 haze=vec3(.42,.29,.53),top=vec3(.07,.06,.19);
+        vec3 c=mix(haze,mix(vec3(.30,.18,.42),top,smoothstep(.12,.55,h)),smoothstep(0.,.14,h));
+        c+=vec3(1.,.5,.28)*pow(toward,5.)*.75*(1.-smoothstep(0.,.35,h));
+        c+=vec3(1.,.72,.45)*pow(toward,40.)*.8;
+        c=mix(c,haze*1.08,exp(-abs(h)*22.)*.75);
+        c+=vec3(1.,.86,.62)*smoothstep(.9994,.9997,toward)*smoothstep(-.004,.012,h);
+        float star=step(.9978,hash(floor(vDir*420.)))*smoothstep(.35,.75,h)*(1.-pow(toward,2.));c+=vec3(star*.7);
         gl_FragColor=vec4(c,1.);}`})));
   scene.add(sky);
   const sakura=keep(new THREE.MeshStandardMaterial({color:0xffb3d4,emissive:0x7a2c55,emissiveIntensity:.7,roughness:.85}));
@@ -40,8 +62,10 @@ export function createJourney(kit,{keep,interactive}){
     for(const z of [z0,z1]){b.part('lit',0,6.1,z,5.8,.12,.12,0xff32b5);for(const x of [-2.85,2.85])b.part('lit',x,3,z,.12,6.2,.12,0xff32b5);}
   }
   // The city edge: a megastructure wall around the portal and a skyline beyond it.
-  b.part('solid',0,13,RIDE.portal+6,900,26,12,0x111827);
-  for(let k=0;k<40;k++)b.part('lit',(r()-.5)*600,4+r()*20,RIDE.portal-.2,4+r()*20,.25,.1,new THREE.Color(pick(r,NEON)).getHex());
+  // The wall leaves a clean opening for the tunnel, so nothing crosses the track.
+  for(const e of [-1,1])b.part('solid',e*226.45,13,RIDE.portal+6,447.1,26,12,0x111827);
+  b.part('solid',0,16.1,RIDE.portal+6,5.8,19.8,12,0x111827);
+  for(let k=0;k<40;k++){const x=(r()-.5)*600,w=4+r()*20;if(Math.abs(x)<w/2+4)continue;b.part('lit',x,4+r()*20,RIDE.portal-.2,w,.25,.1,new THREE.Color(pick(r,NEON)).getHex());}
   kit.sign(g,0,9,RIDE.portal-.3,['中央区','CENTRAL DISTRICT'],'#46f5ff',14,2.4,Math.PI);
   const windows=[];
   for(let k=0;k<150;k++){
@@ -54,7 +78,6 @@ export function createJourney(kit,{keep,interactive}){
   b.part('solid',0,150,380,26,330,26,0x182038);for(let k=0;k<14;k++)b.part('lit',0,190+k*7,380-13.5,22-k,.5,.2,k%2?0xff26bd:0x14dfff);
   kit.sign(g,0,322,366,['ブロック','BLOCKS'],'#ff32b5',30,9,Math.PI);
   // Viaduct over the outskirts: low lit buildings, highways and pillars.
-  b.part('matte',0,-14.2,(RIDE.portal+RIDE.viaduct)/2,1400,.4,RIDE.portal-RIDE.viaduct+200,0x0f141c);
   for(let z=RIDE.portal-10;z>RIDE.viaduct;z-=30){b.part('solid',0,-7,z,2.4,14,2.4,0x4b5566);}
   b.part('solid',0,-.6,(RIDE.portal+RIDE.viaduct)/2,4.2,.8,RIDE.portal-RIDE.viaduct,0x5b6577);
   for(let k=0;k<160;k++){
@@ -62,18 +85,53 @@ export function createJourney(kit,{keep,interactive}){
     b.part('solid',x,-14+h/2,z,w,h,w,0x1a2130);for(let n=0;n<4;n++)b.part('lit',x+(r()-.5)*w*.8,-14+r()*h,z+(x>0?-1:1)*0+w/2+.05,1.4,.5,.05,pick(r,[0xffd3a0,0x46f5ff,0xffb56b]));
   }
   for(const x of [-60,48])for(const colour of [0xff3355,0xfff2d0])b.part('lit',x+(colour===0xff3355?2:-2),-13.8,(RIDE.portal+RIDE.viaduct)/2,.3,.05,RIDE.portal-RIDE.viaduct,colour);
-  // The mountain the second tunnel passes through.
-  const mountains=[],caps=[];
-  mountains.push({x:0,y:110,z:(RIDE.viaduct+RIDE.mountain)/2,w:340,h:240,d:300,colour:0x1d1f3a});
-  for(let k=0;k<70;k++){
-    const side=k%2?1:-1,x=side*(150+r()*780),z=RIDE.mountain+150-r()*(RIDE.mountain-RIDE.end+900),h=150+r()*380,w=110+r()*260;
-    mountains.push({x,y:h/2-2,z,w,h,d:w,colour:pick(r,[0x1d1f3a,0x22213f,0x191b33])});caps.push({x,y:h*.82-2,z,w:w*.36,h:h*.36,d:w*.36,colour:0x8a83b8});
+  // One smooth landscape: low ground under the viaduct, the mountain the second tunnel passes through, then the valley
+  // with ridges on both sides that opens onto the sea beyond Sakuragawa. Heights are in metres above the track bed.
+  const E=RIDE.end,valley=(RIDE.mountain+E-600)/2,valleyLen=RIDE.mountain-E+600;
+  function height(x,z){
+    const ax=Math.abs(x),rid=ridged(x,z);
+    if(z>RIDE.viaduct)return -14.2+smooth(380,1000,ax)*(70+rid*240);
+    if(z>=RIDE.mountain){const t=(RIDE.viaduct-z)/(RIDE.viaduct-RIDE.mountain);return 40+Math.sin(Math.PI*t)*170+rid*70+smooth(250,900,ax)*rid*160;}
+    const inland=smooth(E-650,E-150,z),offshore=smooth(E-280,E-480,z);
+    return -.1+smooth(60,200,ax)*noise(x/90,z/90)*5*inland+smooth(200,540,ax)*(170+rid*300)*inland-offshore*12;
   }
-  for(let k=0;k<12;k++){const x=(r()-.5)*1600,h=380+r()*300,w=300+r()*300;mountains.push({x,y:h/2,z:RIDE.end-700-r()*500,w,h,d:w,colour:0x1a1832});caps.push({x,y:h*.82,z:RIDE.end-700,w:w*.36,h:h*.36,d:w*.36,colour:0x9890c8});}
-  kit.batch(g,kit.cone,kit.materials.matte,mountains);kit.batch(g,kit.cone,kit.materials.lit,caps);
-  // Valley floor, river, groves, villages and lanterns.
-  const valley=(RIDE.mountain+RIDE.end-600)/2,valleyLen=RIDE.mountain-RIDE.end+600;
-  b.part('matte',0,-.6,valley,2400,1,valleyLen,0x141f22);
+  const xs=[],zs=new Set();
+  for(let i=0;i<=200;i++){const t=i/100-1;xs.push(Math.sign(t)*2300*Math.abs(t)**1.8);}
+  for(let z=140;z>E-1750;z-=18)zs.add(Math.round(z));
+  // Rows straddling each portal make a sheer rock face there rather than a slope across the track.
+  for(const z of [RIDE.viaduct,RIDE.mountain])for(const d of [-.4,.4,-6,6])zs.add(z+d);
+  const rows=[...zs].sort((p,q)=>q-p),vertices=[],colours=[],index=[],tint=new THREE.Color();
+  for(const z of rows)for(const x of xs){
+    const y=height(x,z);vertices.push(x,y,z);
+    const snow=smooth(230,330,y),rock=smooth(8,60,y);
+    tint.setRGB(.10,.12,.15).lerp(new THREE.Color(.20,.16,.27),rock).lerp(new THREE.Color(.80,.72,.90),snow);colours.push(tint.r,tint.g,tint.b);
+  }
+  const W=xs.length;for(let j=0;j<rows.length-1;j++)for(let i=0;i<W-1;i++){const a=j*W+i;index.push(a,a+1,a+W,a+1,a+W+1,a+W);}
+  const ground=keep(new THREE.BufferGeometry());ground.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));
+  ground.setAttribute('color',new THREE.Float32BufferAttribute(colours,3));ground.setIndex(index);ground.computeVertexNormals();
+  const groundMaterial=keep(new THREE.MeshStandardMaterial({vertexColors:true,roughness:.95,metalness:0}));
+  // Cut the tunnel bore out of the rock faces so the train never passes through terrain.
+  groundMaterial.onBeforeCompile=shader=>{
+    shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vWorld;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWorld=(modelMatrix*vec4(transformed,1.)).xyz;');
+    shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vWorld;').replace('void main() {',`void main() {\nif(abs(vWorld.x)<2.9&&vWorld.y<6.3&&vWorld.z<${RIDE.viaduct+7}.&&vWorld.z>${RIDE.mountain-7}.)discard;`);
+  };
+  g.add(new THREE.Mesh(ground,groundMaterial));
+  // Concrete portals with neon frames around both mouths of the mountain tunnel.
+  for(const z of [RIDE.viaduct,RIDE.mountain]){const f=z===RIDE.viaduct?1:-1;
+    for(const e of [-1,1])b.part('solid',e*7.4,7,z+f*.6,9,22,1.2,0x2a2c38);b.part('solid',0,12.6,z+f*.6,5.8,11.2,1.2,0x2a2c38);}
+  // The sea beyond the valley mouth, catching the sunrise.
+  const sea=new THREE.Mesh(keep(new THREE.PlaneGeometry(6400,3600,1,1)),keep(new THREE.ShaderMaterial({uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:{value:0}}]),fog:true,
+    vertexShader:'#include <fog_pars_vertex>\nvarying vec3 vWorld;void main(){vec4 w=modelMatrix*vec4(position,1.);vWorld=w.xyz;vec4 mvPosition=viewMatrix*w;gl_Position=projectionMatrix*mvPosition;\n#include <fog_vertex>\n}',
+    fragmentShader:`#include <fog_pars_fragment>
+      varying vec3 vWorld;uniform float time;
+      void main(){vec3 v=normalize(vWorld-cameraPosition),sun=normalize(vec3(${SUN.join(',')}));
+        vec3 n=normalize(vec3(sin(vWorld.x*.08+time*.7)*.04+sin(vWorld.z*.13-time)*.03,1.,cos(vWorld.z*.09+time*.5)*.04));
+        vec3 r=reflect(v,n);float glint=pow(max(dot(r,sun),0.),180.)*2.2+pow(max(dot(r,sun),0.),12.)*.25;
+        vec3 c=mix(vec3(.07,.06,.16),vec3(.42,.29,.53),pow(1.-abs(v.y),5.))+vec3(1.,.62,.36)*glint;
+        gl_FragColor=vec4(c,1.);
+      #include <fog_fragment>
+      }`})));
+  sea.rotation.x=-Math.PI/2;sea.position.set(0,-.35,E-380-1800);g.add(sea);
   const river=new THREE.Mesh(keep(new THREE.PlaneGeometry(16,valleyLen)),keep(new THREE.ShaderMaterial({uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{time:{value:0}}]),fog:true,
     vertexShader:'#include <fog_pars_vertex>\nvarying vec2 vUv;void main(){vUv=uv;vec4 mvPosition=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mvPosition;\n#include <fog_vertex>\n}',
     fragmentShader:'#include <fog_pars_fragment>\nvarying vec2 vUv;uniform float time;void main(){float s=sin(vUv.y*900.+time*2.+sin(vUv.x*20.))*.5+.5;float glint=pow(s,24.)*.6;vec3 c=mix(vec3(.04,.05,.14),vec3(.25,.12,.32),.4+.4*sin(vUv.y*60.));c+=vec3(.9,.6,.85)*glint;gl_FragColor=vec4(c,1.);\n#include <fog_fragment>\n}'})));
@@ -90,7 +148,6 @@ export function createJourney(kit,{keep,interactive}){
   // A distant arcology on a ridge keeps it futurist.
   b.part('solid',-260,160,RIDE.end-380,40,160,40,0x232a44);for(let k=0;k<16;k++)b.part('lit',-260,90+k*9,RIDE.end-380+20.3,36,.5,.2,k%2?0x46f5ff:0xff32b5);
   // Sakuragawa: platform, canopy, signs, a riverside deck and an unstaffed station office.
-  const E=RIDE.end;
   b.part('matte',5.55,.3,E,7.3,1.6,48,0x6e6a72);b.part('lit',2.2,1.11,E,.3,.01,46,0xffd23a);
   b.part('matte',12,.3,E,6,1.6,16,0x5d4a3e);for(let z=E-7.8;z<=E+7.8;z+=.4)b.part('matte',15,1.6,z,.06,1,.06,0x3a2a24);b.part('lit',15,2.1,E,.06,.04,16,0xffb24a);
   b.part('clear',5.6,4.7,E,7.6,.08,30);for(let z=E-14;z<=E+14;z+=7){b.part('solid',8.8,2.9,z,.12,3.6,.12,0xc9d3dc);b.part('lit',5.6,4.62,z,7,.03,.1,0xbfe9ff);}
@@ -128,15 +185,14 @@ export function createJourney(kit,{keep,interactive}){
   scene.add(cab);cab.visible=false;
   // Ride sampler: where the cab is at time t (seconds) of a ride in either direction.
   function ride(direction,t){
-    const k=ease(Math.min(1,Math.max(0,t/RIDE.duration)));
-    const z=direction==='out'?RIDE.start+(RIDE.end-17.8-RIDE.start)*k:(RIDE.end+17.8)+(RIDE.start-(RIDE.end+17.8))*k;
+    const z=direction==='out'?RIDE.start-OUT(t):(RIDE.end+17.8)+BACK(t);
     return {x:0,y:RIDE.floor,z,yaw:direction==='out'?0:Math.PI,done:t>=RIDE.duration};
   }
   function setCab(state,direction){
     cab.visible=true;cab.position.set(state.x,state.y,state.z);cab.rotation.y=state.yaw;out.visible=direction==='out';back.visible=direction!=='out';
   }
   function tick(time,camera,dt){
-    river.material.uniforms.time.value=time;
+    river.material.uniforms.time.value=time;sea.material.uniforms.time.value=time;
     const p=petalGeometry.attributes.position.array;
     for(let i=0;i<count;i++){p[i*3+1]-=dt*(.6+(i%7)*.08);p[i*3]+=Math.sin(time+i)*dt*.3;if(p[i*3+1]<-1)p[i*3+1]+=20;}
     petalGeometry.attributes.position.needsUpdate=true;petals.position.set(camera.position.x,camera.position.y-6,camera.position.z);

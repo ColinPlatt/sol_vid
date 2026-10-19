@@ -125,7 +125,7 @@ export function buildGallery(kit,b,g,s,{neonSide,r,interactive,animated,keep}){
 }
 buildGallery.id='gallery';
 
-export function buildStation(kit,b,g,s,{neonSide,r,interactive,keep}){
+export function buildStation(kit,b,g,s,{neonSide,r,interactive,keep,animated}){
   const {THREE}=kit,A=a=>s*a,Z=bb=>ZC+bb,ry=-s*Math.PI/2,F=-6;
   // Street-level entrance hall in the building's ground floor, then stairs down.
   b.part('glass',A(H+5.75),(4.6+30)/2,ZC,11.5,30-4.6,LEN,0x182a3e);
@@ -141,7 +141,18 @@ export function buildStation(kit,b,g,s,{neonSide,r,interactive,keep}){
   b.part('matte',A(H-.05),4.45,ZC,.3,.3,3.4,0x1a1f2a);
   kit.sign(g,A(H-.22),5.05,ZC,['地下鉄','SUBWAY · CHUO LINE'],'#46f5ff',4.5,.9,ry);kit.halo(g,A(H-.3),5,ZC,5,'#46f5ff',.45);
   kit.sign(g,A(5.14-.06-.75),7.5,Z(7),['地下鉄','SUBWAY'],'#46f5ff',1.5,4.6);
-  b.part('solid',A(4.4),1.6,Z(2.6),.1,3.2,.1,0x56707e);kit.sign(g,A(4.4),3.5,Z(2.6),['駅','METRO'],'#46f5ff',.9,.9);kit.halo(g,A(4.4),3.5,Z(2.6),2.6,'#46f5ff',.6);
+  // The entrance should read from far down the street: a tall station pylon, a lit portal and arrows that run to the door.
+  b.part('solid',A(4.4),2.6,Z(2.6),.14,5.2,.14,0x56707e);kit.sign(g,A(4.4),5.6,Z(2.6),['駅','METRO'],'#46f5ff',1.5,1.5);
+  const beacon=kit.halo(g,A(4.4),5.6,Z(2.6),4.4,'#46f5ff',.75);beacon.material=keep(beacon.material.clone());
+  for(const e of [-1,1])b.part('lit',A(H-.12),2.3,Z(e*1.78),.14,4.5,.14,0x46f5ff);b.part('lit',A(H-.12),4.62,ZC,.14,.14,3.7,0x46f5ff);
+  kit.halo(g,A(H-.4),2.4,ZC,6,'#46f5ff',.35);light(kit,g,0x46f5ff,14,10,A(H-1.2),3,ZC);
+  const arrows=new THREE.Group();arrows.position.set(A(0),0,ZC);arrows.scale.x=s;g.add(arrows);const chevrons=[];
+  for(let k=0;k<6;k++){
+    const a=.7+k*.8,material=keep(new THREE.MeshBasicMaterial({color:0x46f5ff,transparent:true,opacity:.4,toneMapped:false,depthWrite:false}));
+    for(const e of [-1,1]){const arm=new THREE.Mesh(kit.box,material);arm.position.set(a-.12,a<2.4?.02:.135,e*.22);arm.rotation.y=e*.75;arm.scale.set(.62,.02,.13);arrows.add(arm);}
+    chevrons.push(material);
+  }
+  animated.custom.push(time=>{chevrons.forEach((m,k)=>{m.opacity=.18+.72*Math.max(0,Math.sin(time*3.2-k*.7))**2;});beacon.material.opacity=.45+.35*Math.sin(time*2.2);});
   for(let k=0;k<5;k++)b.part('lit',A(3.6+k*.35),.13,ZC,.18,.01,.9,0x46f5ff);
   // Underground concourse, ticket gates and the platform.
   b.part('matte',A(23.2),F-.05,ZC,12.8,.1,40,0x2b3442);b.part('matte',A(25.6),-1.35,ZC,17.6,.2,40.4,0x1a1f2a);
