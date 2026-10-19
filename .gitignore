@@ -35,3 +35,13 @@ previews/blocks-single/*.metadata.json
 previews/blocks-video/*.uri
 previews/blocks-video/*.reference.avi
 previews/blocks-video/samples/
+
+# Opt-in 100k native-frame diversity corpus; keep reports and contact sheets.
+previews/blocks-diversity-v3/raw/
+previews/blocks-video-v3/*.uri
+previews/blocks-video-v3/*.reference.avi
+test/blockart/GeneratedDiversityAudit.t.sol
+previews/blocks-video-v3/stress-*.avi
+previews/blocks-video-v3-base/*.uri
+previews/blocks-video-v3-base/*.reference.avi
+previews/blocks-video-v3-base/*.avi

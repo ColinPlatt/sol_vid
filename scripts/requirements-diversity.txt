@@ -1,0 +1,6 @@
+numpy==2.5.4
+scipy==1.18.1
+faiss-cpu==1.15.1
+pycryptodome==4.0.1
+pillow==13.0.0
+packaging==26.3

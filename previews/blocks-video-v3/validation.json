@@ -1,0 +1,179 @@
+{
+  "version": "BLOCKS_VIDEO_V3",
+  "profile": "default",
+  "evm": "amsterdam",
+  "compiler": "0.8.37",
+  "status": "passed",
+  "scenes": [
+    {
+      "scene": "canyon",
+      "metadata_gas": 368966314,
+      "svg_bytes": 55813,
+      "token_uri_bytes": 2741877,
+      "first_frame_sha256": "53b82df70dce79f95f1c7cf724ef4055eeb169e8df5f27b0102788d82bffa860"
+    },
+    {
+      "scene": "descent",
+      "metadata_gas": 326729265,
+      "svg_bytes": 45136,
+      "token_uri_bytes": 2722897,
+      "first_frame_sha256": "0b02241ba1b5a360142a9f00f2d4105b1ac688ed2c2e6e9ae2d121767a60554a"
+    },
+    {
+      "scene": "monorail",
+      "metadata_gas": 413994924,
+      "svg_bytes": 38146,
+      "token_uri_bytes": 2710473,
+      "first_frame_sha256": "700cce94243e5298feaa37befe2b78ac0bc33949346d76afc7ca8618ed19f80b"
+    },
+    {
+      "scene": "spire",
+      "metadata_gas": 374704076,
+      "svg_bytes": 70215,
+      "token_uri_bytes": 2767485,
+      "first_frame_sha256": "c535155a84018c8f17fb35a24690f0f3803c7d06f18a5824895239f301e10346"
+    },
+    {
+      "scene": "skyline",
+      "metadata_gas": 413016341,
+      "svg_bytes": 75784,
+      "token_uri_bytes": 2777385,
+      "first_frame_sha256": "4bd6370d1c29977dd94dde6d3f83a96ec3c065b976ce38dae95d39e071e3291d"
+    },
+    {
+      "scene": "alley",
+      "metadata_gas": 323267903,
+      "svg_bytes": 30501,
+      "token_uri_bytes": 2696873,
+      "first_frame_sha256": "cad18fc413ba554ebcccbb82c5acb66d7bf45b1543f8d737b05ae487b1b2d800"
+    },
+    {
+      "scene": "nighttrain",
+      "metadata_gas": 373307385,
+      "svg_bytes": 37246,
+      "token_uri_bytes": 2708881,
+      "first_frame_sha256": "d03714c460cb6c9d9f4f961142081fe23c885411e0c1dc10fb0bca5f6bf4ff36"
+    },
+    {
+      "scene": "satoyama",
+      "metadata_gas": 207635266,
+      "svg_bytes": 52810,
+      "token_uri_bytes": 2736545,
+      "first_frame_sha256": "db3f73695653cc539e82401b600c29aab07b57443a30b1d3a74abb853e30184e"
+    },
+    {
+      "scene": "stress-0",
+      "metadata_gas": 385355672,
+      "svg_bytes": 58296,
+      "token_uri_bytes": 2746285,
+      "first_frame_sha256": "2a468444dc60947f4ca703c30fbc33d6eacf973201326252de2c6599d364c466"
+    },
+    {
+      "scene": "stress-1",
+      "metadata_gas": 355127897,
+      "svg_bytes": 52650,
+      "token_uri_bytes": 2736253,
+      "first_frame_sha256": "35e85e834471be6810d1b4b32f2980d15e44b9194d07f7f3a2b10bf7c5007821"
+    },
+    {
+      "scene": "stress-10",
+      "metadata_gas": 439881615,
+      "svg_bytes": 42740,
+      "token_uri_bytes": 2718637,
+      "first_frame_sha256": "d94938d011c46858ab48cbf614391a60fc73379922e70bf2e4cf4157f279d055"
+    },
+    {
+      "scene": "stress-11",
+      "metadata_gas": 384985053,
+      "svg_bytes": 76252,
+      "token_uri_bytes": 2778217,
+      "first_frame_sha256": "9078695882f9d493c3801b0195c9d36cbac5a14ec96105c2b5961fa44adb1f17"
+    },
+    {
+      "scene": "stress-12",
+      "metadata_gas": 452342841,
+      "svg_bytes": 80844,
+      "token_uri_bytes": 2786373,
+      "first_frame_sha256": "0fe88da8f42f8e99da392885634e345b8fa56e00315c89d1a287452bab4318de"
+    },
+    {
+      "scene": "stress-13",
+      "metadata_gas": 318359941,
+      "svg_bytes": 33336,
+      "token_uri_bytes": 2701909,
+      "first_frame_sha256": "9e07194d8cb60638d3393859f37e72fb7d360b055beba848aef292bfd736bc75"
+    },
+    {
+      "scene": "stress-14",
+      "metadata_gas": 392301868,
+      "svg_bytes": 42892,
+      "token_uri_bytes": 2718917,
+      "first_frame_sha256": "3727cc5f6d848099482f57dcbfcc4da5b7e5f40e54a53a62eaa665a73a92d2f7"
+    },
+    {
+      "scene": "stress-15",
+      "metadata_gas": 221751430,
+      "svg_bytes": 54781,
+      "token_uri_bytes": 2740049,
+      "first_frame_sha256": "b2254843a2cf7312ac388dad11f41322e39db19c04b74290473a0e57c44d9239"
+    },
+    {
+      "scene": "stress-2",
+      "metadata_gas": 423598806,
+      "svg_bytes": 45327,
+      "token_uri_bytes": 2723233,
+      "first_frame_sha256": "441199a316a4413d357fe9ef8e410ca58d6b8ce0a5adb8d79a9e2cf2b514b794"
+    },
+    {
+      "scene": "stress-3",
+      "metadata_gas": 384633275,
+      "svg_bytes": 80893,
+      "token_uri_bytes": 2786465,
+      "first_frame_sha256": "101ea3308d05a158359d49810343281fa861314de58ed5273c0b62057627ea87"
+    },
+    {
+      "scene": "stress-4",
+      "metadata_gas": 388666084,
+      "svg_bytes": 80144,
+      "token_uri_bytes": 2785129,
+      "first_frame_sha256": "7c9341b0a7c77cddef07344bdee568a519b570d80806e5314f234dd784b8c1ec"
+    },
+    {
+      "scene": "stress-5",
+      "metadata_gas": 318359941,
+      "svg_bytes": 33336,
+      "token_uri_bytes": 2701909,
+      "first_frame_sha256": "9e07194d8cb60638d3393859f37e72fb7d360b055beba848aef292bfd736bc75"
+    },
+    {
+      "scene": "stress-6",
+      "metadata_gas": 350567708,
+      "svg_bytes": 48284,
+      "token_uri_bytes": 2728501,
+      "first_frame_sha256": "1ae06dfd7dddcdd52791133d0e0adcc0e7b980eda50fe091273971b6b26852f1"
+    },
+    {
+      "scene": "stress-7",
+      "metadata_gas": 221752193,
+      "svg_bytes": 56086,
+      "token_uri_bytes": 2742369,
+      "first_frame_sha256": "1c2345ddd42163f745e6daf594c97dab9235828d7dfd22fdc7de556e714d2fc4"
+    },
+    {
+      "scene": "stress-8",
+      "metadata_gas": 399181899,
+      "svg_bytes": 57121,
+      "token_uri_bytes": 2744201,
+      "first_frame_sha256": "5c85e396999ea02f153480b9e0457f81de1dc4ac7000d277c21a4916702db49c"
+    },
+    {
+      "scene": "stress-9",
+      "metadata_gas": 352140986,
+      "svg_bytes": 47682,
+      "token_uri_bytes": 2727421,
+      "first_frame_sha256": "5db366c62bb9d833d007339ce7c7b8be644cdcb3bd92de98bab67bd89be08d63"
+    }
+  ],
+  "frames_validated": 2160,
+  "limits": "Selected examples and corpus-selected stress cases, not an exhaustive gas maximum or marketplace approval"
+}

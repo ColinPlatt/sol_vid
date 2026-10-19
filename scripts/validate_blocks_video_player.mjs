@@ -1,11 +1,13 @@
 // Exercise the exact HTML exported by a capped Solidity call, including its loop.
-import { readFileSync, writeFileSync, unlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, unlinkSync, readdirSync } from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { decodeAVI } from '../players/blocks-avi.mjs';
-for (const name of ['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama']) {
-  const size=128,stem=`previews/blocks-video/${name}`;
+const fixtures=process.env.BLOCKS_VIDEO_FIXTURES??'blocks-video';
+const names=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama',...readdirSync(`previews/${fixtures}`).filter(name=>/^stress-\d+\.json$/.test(name)).map(name=>name.slice(0,-5))];
+for (const name of names) {
+  const size=128,stem=`previews/${fixtures}/${name}`;
   const uri=readFileSync(`${stem}.uri`,'utf8');
   const metadata=JSON.parse(Buffer.from(uri.split(',')[1],'base64'));
   const animation=metadata.animation_url;

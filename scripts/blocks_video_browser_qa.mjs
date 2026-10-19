@@ -7,7 +7,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 const root=fileURLToPath(new URL('../',import.meta.url)),dist=path.join(root,'mint-page/dist');
-const uri=await readFile(path.join(root,'previews/blocks-video/skyline.uri'),'utf8');
+const fixtures=path.join(root,'previews',process.env.BLOCKS_VIDEO_FIXTURES??'blocks-video');
+const uri=await readFile(path.join(fixtures,'skyline.uri'),'utf8');
 const metadata=JSON.parse(Buffer.from(uri.split(',')[1],'base64'));
 const config=JSON.parse(await readFile(path.join(dist,'video-config.json'),'utf8'));
 const profile=await mkdtemp(path.join(tmpdir(),'ghoulballs-video-qa-'));
@@ -42,10 +43,10 @@ try{
  const f=await evaluate('window.__videoFrame');await delay(170);assert.notEqual(await evaluate('window.__videoFrame'),f);
  await evaluate("document.querySelector('button').click()");await delay(80);const paused=await evaluate('window.__videoFrame');await delay(200);assert.equal(await evaluate('window.__videoFrame'),paused);
  await evaluate("document.querySelector('button').click()");await delay(200);assert.notEqual(await evaluate('window.__videoFrame'),paused);
- const screenshot=(await cdp('Page.captureScreenshot',{format:'png'})).data;await writeFile(path.join(root,'previews/blocks-video/chrome-player.png'),Buffer.from(screenshot,'base64'));
+ const screenshot=(await cdp('Page.captureScreenshot',{format:'png'})).data;await writeFile(path.join(fixtures,'chrome-player.png'),Buffer.from(screenshot,'base64'));
  // Independently rasterize the real SVG in Chromium and compare it with FFmpeg's first AVI frame.
  const pixels=await evaluate(`new Promise((resolve,reject)=>{const image=new Image();image.onload=()=>{const c=document.createElement('canvas');c.width=c.height=128;const ctx=c.getContext('2d');ctx.imageSmoothingEnabled=false;ctx.drawImage(image,0,0,128,128);resolve(btoa(String.fromCharCode(...ctx.getImageData(0,0,128,128).data)));};image.onerror=()=>reject(Error('SVG load failed'));image.src=${JSON.stringify(metadata.image)};})`);
- const expected=execFileSync('ffmpeg',['-v','error','-i',path.join(root,'previews/blocks-video/skyline.avi'),'-frames:v','1','-f','rawvideo','-pix_fmt','rgba','-threads','1','-']);
+ const expected=execFileSync('ffmpeg',['-v','error','-i',path.join(fixtures,'skyline.avi'),'-frames:v','1','-f','rawvideo','-pix_fmt','rgba','-threads','1','-']);
  assert.deepEqual(Buffer.from(pixels,'base64'),expected,'Browser SVG differs from the first AVI frame');
  console.log('PASS Chromium direct playback and native SVG rasterization');
  await open(origin+'/embedded');
@@ -53,7 +54,7 @@ try{
  const embeddedBefore=(await cdp('Page.captureScreenshot',{format:'png'})).data;await delay(300);
  const embeddedAfter=(await cdp('Page.captureScreenshot',{format:'png'})).data;
  assert.notEqual(embeddedBefore,embeddedAfter,'Sandboxed AVI player does not animate');
- await writeFile(path.join(root,'previews/blocks-video/chrome-embedded-player.png'),Buffer.from(embeddedAfter,'base64'));
+ await writeFile(path.join(fixtures,'chrome-embedded-player.png'),Buffer.from(embeddedAfter,'base64'));
  report.chrome=true;report.native_svg_matches_ffmpeg_first_frame=true;report.sandboxed_player=true;
  // Use actual Firefox/Geckodriver binaries, avoiding Snap's profile path indirection.
  const firefox=process.env.FIREFOX_BIN??'/snap/firefox/current/usr/lib/firefox/firefox';
@@ -69,9 +70,9 @@ try{
  assert(await execute('return window.__videoLoops>=1'),'Firefox failed to loop');
  await execute("document.querySelector('button').click();return true;");await delay(80);const pause2=await execute('return window.__videoFrame');await delay(200);assert.equal(await execute('return window.__videoFrame'),pause2);
  await execute("document.querySelector('button').click();return true;");await delay(200);assert.notEqual(await execute('return window.__videoFrame'),pause2);
- const shot=await webdriver(`/session/${session}/screenshot`,undefined,'GET');await writeFile(path.join(root,'previews/blocks-video/firefox-player.png'),Buffer.from(shot,'base64'));
+ const shot=await webdriver(`/session/${session}/screenshot`,undefined,'GET');await writeFile(path.join(fixtures,'firefox-player.png'),Buffer.from(shot,'base64'));
  await webdriver(`/session/${session}`,undefined,'DELETE');session=null;report.firefox=true;
- await writeFile(path.join(root,'previews/blocks-video/browser-validation.json'),JSON.stringify(report,null,2)+'\n');
+ await writeFile(path.join(fixtures,'browser-validation.json'),JSON.stringify(report,null,2)+'\n');
  console.log('PASS: Chromium native SVG matches AVI frame 0 pixel-for-pixel; embedded AVI loops, pauses and resumes in Chromium and Firefox; sandbox playback works.');
 }finally{
  ws?.close();chrome?.kill('SIGTERM');driver?.kill('SIGTERM');server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await delay(250);await rm(profile,{recursive:true,force:true}).catch(()=>{});

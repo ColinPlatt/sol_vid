@@ -364,3 +364,20 @@ See [the implementation and release gates](docs/BLOCK_VIDEO.md),
 [poster examples](previews/blocks-video/posters.png) and
 [256 variation studies](previews/blocks-video/variation-256.png).
 This revision is **not deployed**; the existing collection and mint site are intact.
+
+### blocks V3 diversity experiment
+
+`BLOCKS_VIDEO_V3` adds independent semantic palette ramps, district height bands,
+window occupancy and street layouts, plus camera and playback variants. Its
+100,000-sample audit uses native Solidity frames with fixed block labels and
+phase, and undoes camera transforms before comparing images. Exact RGB/index
+geometry checks and a cross-scene near-duplicate search replace trait-count
+claims. The final 100,000-frame audit found zero exact duplicates and zero
+threshold-defined near duplicates, after a dedicated tunnel-geometry revision.
+Twenty-four complete examples/stress cases measured 207.6M–452.3M metadata gas
+under Amsterdam. Shared family silhouettes and audit limits are documented.
+The live collection and V2 remain unchanged; V3 is **not deployed**.
+See [methodology and release checks](docs/BLOCK_DIVERSITY.md),
+[the measured audit](previews/blocks-diversity-v3/audit.json),
+[variation overview](previews/blocks-diversity-v3/overview.png) and
+[closest-pair review](previews/blocks-diversity-v3/closest-pairs.png).

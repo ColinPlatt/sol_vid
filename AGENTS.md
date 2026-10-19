@@ -84,3 +84,11 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   deployment is authorized, confirmed and its own marketplace gate passes.
   Run `scripts/validate_blocks_video.py` and
   `scripts/blocks_video_browser_qa.mjs` after video-revision media changes.
+
+- `BLOCKS_VIDEO_V3` is a separate undeployed diversity experiment in
+  `BlockVideoNFTV3` / `BlockVideoRendererV3`; preserve V1/V2 and the live page.
+  `docs/BLOCK_DIVERSITY.md` describes its 100k native-frame audit and its limits.
+  Use `scripts/export_blocks_diversity.py`, `scripts/audit_blocks_diversity.py`,
+  and `scripts/validate_blocks_video_v3.py` for recipe changes. Do not claim
+  uniqueness from seed/trait counts, serial labels, phase, or camera transforms.
+  No deployment authorization is implied by this prototype or its audit.

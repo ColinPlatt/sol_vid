@@ -1,0 +1,67 @@
+{
+  "version": "BLOCKS_VIDEO_V3",
+  "profile": "blocks_base",
+  "evm": "cancun",
+  "compiler": "0.8.37",
+  "status": "passed",
+  "scenes": [
+    {
+      "scene": "canyon",
+      "metadata_gas": 368964449,
+      "svg_bytes": 55813,
+      "token_uri_bytes": 2741877,
+      "first_frame_sha256": "53b82df70dce79f95f1c7cf724ef4055eeb169e8df5f27b0102788d82bffa860"
+    },
+    {
+      "scene": "descent",
+      "metadata_gas": 326727398,
+      "svg_bytes": 45136,
+      "token_uri_bytes": 2722897,
+      "first_frame_sha256": "0b02241ba1b5a360142a9f00f2d4105b1ac688ed2c2e6e9ae2d121767a60554a"
+    },
+    {
+      "scene": "monorail",
+      "metadata_gas": 413992720,
+      "svg_bytes": 38146,
+      "token_uri_bytes": 2710473,
+      "first_frame_sha256": "700cce94243e5298feaa37befe2b78ac0bc33949346d76afc7ca8618ed19f80b"
+    },
+    {
+      "scene": "spire",
+      "metadata_gas": 374702213,
+      "svg_bytes": 70215,
+      "token_uri_bytes": 2767485,
+      "first_frame_sha256": "c535155a84018c8f17fb35a24690f0f3803c7d06f18a5824895239f301e10346"
+    },
+    {
+      "scene": "skyline",
+      "metadata_gas": 413014480,
+      "svg_bytes": 75784,
+      "token_uri_bytes": 2777385,
+      "first_frame_sha256": "4bd6370d1c29977dd94dde6d3f83a96ec3c065b976ce38dae95d39e071e3291d"
+    },
+    {
+      "scene": "alley",
+      "metadata_gas": 323266033,
+      "svg_bytes": 30501,
+      "token_uri_bytes": 2696873,
+      "first_frame_sha256": "cad18fc413ba554ebcccbb82c5acb66d7bf45b1543f8d737b05ae487b1b2d800"
+    },
+    {
+      "scene": "nighttrain",
+      "metadata_gas": 373305181,
+      "svg_bytes": 37246,
+      "token_uri_bytes": 2708881,
+      "first_frame_sha256": "d03714c460cb6c9d9f4f961142081fe23c885411e0c1dc10fb0bca5f6bf4ff36"
+    },
+    {
+      "scene": "satoyama",
+      "metadata_gas": 207633059,
+      "svg_bytes": 52810,
+      "token_uri_bytes": 2736545,
+      "first_frame_sha256": "db3f73695653cc539e82401b600c29aab07b57443a30b1d3a74abb853e30184e"
+    }
+  ],
+  "frames_validated": 720,
+  "limits": "Selected examples and corpus-selected stress cases, not an exhaustive gas maximum or marketplace approval"
+}
