@@ -49,3 +49,23 @@ test('street names are stable',()=>{
   assert.deepEqual(streetName(0,-10,0),{jp:'中央通り',en:'CHUO-DORI',chome:1});
   assert.equal(streetName(10,-46,1).en,'AMAOTO-GAI'.length?streetName(10,-46,1).en:'');
 });
+
+test('cruising pauses briefly at a junction, then carries on straight',()=>{
+  const w=new Walker();w.x=0;w.z=8;w.h=0;
+  const events=run(w,6);
+  assert.ok(events.includes('pause:junction'));assert.ok(Math.abs(w.z)<1e-9,'stopped on the junction');assert.equal(w.v,0);
+  run(w,4);assert.ok(w.z<-1,'continued north after the pause');assert.equal(w.h,0);
+});
+
+test('cruising pauses at a doorway so the turn-off is obvious',()=>{
+  const w=new Walker();w.x=0;w.z=-15;w.h=0;
+  const events=run(w,6);
+  assert.ok(events.includes('pause:ramen'));assert.ok(Math.abs(w.z+23)<1e-9,'stopped at the ramen door');
+  w.queue('left');assert.ok(run(w,4).includes('entered:ramen'),'a turn during the pause goes straight in');
+});
+
+test('holding forward runs straight past junctions and doors without stopping',()=>{
+  const w=new Walker();w.x=0;w.z=8;w.h=0;
+  const events=run(w,8,{forward:true});
+  assert.ok(!events.some(e=>e.startsWith('pause:')));assert.ok(w.z<-30,'ran past the junction and the ramen door');
+});

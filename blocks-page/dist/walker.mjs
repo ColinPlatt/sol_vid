@@ -5,6 +5,8 @@ export const PITCH=46,FACADE=5.7,EYE=1.68;
 export const FORWARD=[[0,-1],[1,0],[0,1],[-1,0]];
 export const yawOf=h=>[0,-Math.PI/2,Math.PI,Math.PI/2][h];
 const CRUISE=2.3,RUN=5.6,BACK=1.6,ROUTE=7.5,EPS=1e-6;
+// Cruising pauses briefly at each junction and doorway so turn-offs are obvious; holding forward runs straight past.
+const STOP={junction:.9,door:1.1},BRAKE=2.4;
 const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 const mod=(n,m)=>((n%m)+m)%m;
 const ease=t=>t*t*(3-2*t);
@@ -46,7 +48,7 @@ const sideHeading=(h,side)=>side==='left'?(h+3)%4:side==='right'?(h+1)%4:(h+2)%4
 const nearest=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
 
 export class Walker{
-  constructor(){Object.assign(this,{x:0,z:34,y:0,h:0,yaw:0,v:0,mode:'street',cruise:true,queued:null,anim:null,place:null,auto:null,returnH:0,gate:false,events:[]});}
+  constructor(){Object.assign(this,{x:0,z:34,y:0,h:0,yaw:0,v:0,mode:'street',cruise:true,queued:null,anim:null,place:null,auto:null,returnH:0,gate:false,hold:0,lastStop:null,events:[]});}
   get axisZ(){return this.h%2===0;}
   sign(){const [fx,fz]=FORWARD[this.h];return this.axisZ?fz:fx;}
   coord(){return this.axisZ?this.z:this.x;}
@@ -71,11 +73,23 @@ export class Walker{
     if(this.mode==='inside'){this.insideStep(dt,input);return this.events;}
     if(this.mode!=='street')return this.events;
     this.plan();
+    // A pause ends early on any input, a queued turn, autopilot or when cruising is switched off.
+    const pausing=!this.auto&&!this.queued&&this.cruise&&!input.forward&&!input.back;
+    if(this.hold>0){if(pausing){this.hold=Math.max(0,this.hold-dt);this.v=0;return this.events;}this.hold=0;}
     let target=this.auto?this.auto.speed:this.cruise?CRUISE:0;
     if(input.forward)target=Math.max(target,RUN);if(input.back)target=-BACK;
-    this.v+=(target-this.v)*Math.min(1,dt*3);if(target===0&&Math.abs(this.v)<.02)this.v=0;
+    const stop=this.v>=0?this.stopAhead():null;
+    if(stop&&input.forward&&stop.d<BRAKE+3)this.lastStop=stop.key;
+    const braking=pausing&&stop&&stop.key!==this.lastStop&&stop.d<BRAKE;
+    if(braking)target=Math.min(target,Math.max(.45,CRUISE*stop.d/BRAKE));
+    this.v+=(target-this.v)*Math.min(1,dt*(braking?6:3));if(target===0&&Math.abs(this.v)<.02)this.v=0;
     const c0=this.coord(),c1=c0+this.sign()*this.v*dt;
     if(this.queued&&this.v>0){const hit=this.points(c0,c1,this.queued)[0];if(hit){Object.assign(this,this.point(hit.c));this.trigger(hit);return this.events;}}
+    if(braking&&(stop.c-c1)*this.sign()<=EPS){
+      Object.assign(this,this.point(stop.c));this.yaw=this.nearYaw(this.h);
+      this.v=0;this.hold=STOP[stop.kind];this.lastStop=stop.key;this.events.push('pause:'+(stop.place?stop.place.id:'junction'));
+      return this.events;
+    }
     Object.assign(this,this.point(c1));this.yaw=this.nearYaw(this.h);
     return this.events;
   }
@@ -193,6 +207,17 @@ export class Walker{
     return this.h;
   }
   // What is near: for prompts.
+  // The next junction or doorway ahead on this street, with its distance.
+  stopAhead(){
+    const c=this.coord(),sg=this.sign(),j=this.nextJunction();
+    let best={c:j,d:(j-c)*sg,kind:'junction',place:null};
+    for(const place of this.doorsOnLine()){
+      const dc=this.axisZ?place.door.z:place.door.x,d=(dc-c)*sg;
+      if(d>EPS&&d<best.d)best={c:dc,d,kind:'door',place};
+    }
+    best.key=this.h+':'+this.fixed()+':'+best.c;
+    return best;
+  }
   nearby(){
     if(this.mode!=='street')return{};
     const c=this.coord(),sg=this.sign(),next=this.nextJunction();

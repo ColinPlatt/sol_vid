@@ -49,3 +49,10 @@ test('server RPC and network checks follow the configured chain',async()=>{
  assert.equal(networkOf({chainId:8453,chainHex:'0x2105'}).label,'BASE');assert.equal(networkOf({chainId:8453,chainHex:'0xaa36a7'}),null);
  assert.equal(chainLabels({chainId:8453,blockNumber:'1',baseFeeWei:'5000000',totalSupply:'1',timestamp:1}).head,'#1');
 });
+test('marketplace links point at the configured Base collection and are hidden on testnets',async()=>{
+ const {marketLinks}=await import('../dist/networks.mjs');const c='0x87076cb1f55b7fb6c1febbffa1d45f4f4bd39cac';
+ const links=marketLinks({chainId:8453,chainHex:'0x2105',collectionAddress:c,openseaSlug:'blocks-293662871'});
+ assert.equal(links.opensea,'https://opensea.io/collection/blocks-293662871');assert.equal(links.checker,'https://onchainchecker.xyz/collection/base/'+c);
+ assert.equal(links.openseaItem('52814599'),'https://opensea.io/item/base/'+c+'/52814599');assert.equal(links.checkerItem('52814599'),'https://onchainchecker.xyz/collection/base/'+c+'/52814599');
+ assert.equal(marketLinks({chainId:11155111,chainHex:'0xaa36a7',collectionAddress:c}),null);
+});

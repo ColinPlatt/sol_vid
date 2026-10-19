@@ -2,7 +2,7 @@ import {rpc,friendlyError,mintedToken,isAddress} from './wallet.mjs';
 import {mintBlock,connectWallet,ART_VERSION} from './mint.mjs';
 import {decodeAvi,drawFrame} from './avi.mjs';
 import {validToken} from './world.mjs';
-import {networkOf} from './networks.mjs';
+import {networkOf,marketLinks} from './networks.mjs';
 import {mountRamen} from './ramen.mjs';
 const $=id=>document.getElementById(id);
 let network,busy=false,reading=false,connecting=false;
@@ -46,6 +46,7 @@ function reveal(token,{mine=false,hash=null}={}){
  $('reveal-block').textContent='Block #'+Number(id).toLocaleString('en-US')+' · '+network.name;
  $('download').href=token.video;$('download').download=`blocks-${id}.avi`;traits(token.attributes);
  $('reveal-tx').hidden=!hash;if(hash)$('reveal-tx').href=network.explorerUrl+'/tx/'+hash;
+ const links=marketLinks(network);$('reveal-links').hidden=!links;if(links){$('reveal-opensea').href=links.openseaItem(id);$('reveal-checker').href=links.checkerItem(id);}
  $('reveal').classList.toggle('mine',mine);openPanel('reveal');play(token);
 }
 async function viewToken(id,{mine=false,hash=null}={}){
@@ -101,6 +102,7 @@ try{
  if(!networkOf(network)||network.artVersion!==ART_VERSION||!isAddress(network.rendererAddress)||(network.deployed&&!isAddress(network.collectionAddress)))throw Error('Single-block mint settings are not ready.');
  $('mint-note').textContent=networkOf(network).gas;
  if(network.deployed)$('contract').href=network.explorerUrl+'/address/'+network.collectionAddress;else $('contract').hidden=true;
+ const links=network.deployed?marketLinks(network):null;$('opensea').hidden=$('checker').hidden=!links;if(links){$('opensea').href=links.opensea;$('checker').href=links.checker;}
  status(network.mintEnabled?'No inputs. Just the block your mint lands in.':'A new single-block edition. Opening soon.',network.mintEnabled?'ready':'closed');render();
  if(network.firstTokenId)$('view-block').value=network.firstTokenId;
  window.ethereum?.request?.({method:'eth_accounts'}).then(accounts=>{if(isAddress(accounts?.[0])){showAccount(accounts[0]);emit('blocks:wallet',{state:'connected',account:accounts[0],silent:true});}}).catch(()=>{});

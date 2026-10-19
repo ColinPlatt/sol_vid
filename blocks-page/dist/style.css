@@ -108,3 +108,4 @@ dialog.ramen-panel{width:min(850px,94vw);padding:38px 42px;background:radial-gra
 @media(min-width:720px){#ramen-receipt{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start}.ramen-tipping{margin-top:0}.receipt-actions{grid-column:1/-1;margin-top:0}}
 @media(max-width:600px){dialog.ramen-panel{padding:28px 20px}.ramen-dishes{grid-template-columns:1fr}.ramen-dish{min-height:0;padding:16px;gap:9px;display:grid;grid-template-columns:68px 1fr}.dish-jp{grid-row:1/4;font-size:27px}.ramen-dish small{padding-top:8px}.ramen-bill{padding:24px 20px}.ramen-heading{margin-bottom:18px}.ramen-bowl{transform:scale(.88);margin-top:-10px;margin-bottom:-10px}}
 @media(prefers-reduced-motion:reduce){.bowl-steam,.ramen-kitchen i{animation:none;opacity:.5}.ramen-dish:hover{transform:none}}
+.reveal-links{display:flex;gap:16px;flex-wrap:wrap}.reveal-links[hidden]{display:none}

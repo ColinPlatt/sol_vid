@@ -95,6 +95,8 @@ try{
  const revealFrame="(()=>{const c=document.querySelector('#reveal-video');return c.width===128?Array.from(c.getContext('2d').getImageData(0,0,128,128).data.filter((v,i)=>i%97===0)).join(','):''})()";
  const firstFrame=await evaluate(revealFrame);await delay(1500);assert.notEqual(await evaluate(revealFrame),firstFrame,'reveal video is not animating');
  assert.equal(await evaluate("document.querySelector('#download').getAttribute('href')==='/api/token?id=13000000&as=avi'&&document.querySelector('#download').download==='blocks-13000000.avi'"),true);
+ // The reveal links the token on OpenSea and onchainchecker.
+ assert.equal(await evaluate("!document.querySelector('#reveal-links').hidden&&document.querySelector('#reveal-opensea').href==='https://opensea.io/item/base/0x'+'b'.repeat(40)+'/13000000'&&document.querySelector('#reveal-checker').href==='https://onchainchecker.xyz/collection/base/0x'+'b'.repeat(40)+'/13000000'"),true);
  assert.equal(await evaluate("document.querySelector('#reveal-block').textContent.includes('13,000,000')&&!document.querySelector('#reveal-tx').hidden&&window.__missNext===false"),true);
  await delay(900);await shot('site-browser-desktop-mocked');
  await evaluate("document.querySelector('#reveal').close()");await delay(1200);await shot('site-gallery-minted-desktop');
