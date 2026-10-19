@@ -28,6 +28,9 @@ export const PLACES={
     areas:[[FACADE+.7,FACADE+9.1,-6.6,6.6]]},
   gallery:{id:'gallery',jp:'ギャラリー',en:'Gallery',door:{x:23,z:-46,dir:0},depth:12,width:18,height:5.4,
     areas:[[FACADE+.7,FACADE+11.1,-8.1,8.1]]},
+  // An open-air park behind a gate: a plaza along the street, then a lawn running deep into the block.
+  park:{id:'park',jp:'公園',en:'Block park',outdoor:true,door:{x:23,z:0,dir:0},depth:29,width:19.6,
+    areas:[[FACADE+.7,12.4,-9.4,9.4],[12.4,28.6,-6.2,6.2]]},
   // Street-level hall, stairs down, the concourse, ticket gates and the platform.
   station:{id:'station',jp:'地下鉄',en:'Subway',door:{x:0,z:23,dir:1},depth:30,width:34,
     areas:[[FACADE+.6,16.8,-1.3,1.3],[16.8,20.5,-7,7],[20.5,22.2,-6.2,6.2,'gate'],[22.2,29.3,-15.5,15.5,'gate']],

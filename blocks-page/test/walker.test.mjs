@@ -33,7 +33,7 @@ test('station gates block the platform until opened, then the train edge boards'
 });
 
 test('routes reach every door from a distant junction',()=>{
-  for(const id of ['gallery','ramen','station']){
+  for(const id of ['gallery','ramen','station','park']){
     const w=new Walker();w.x=PITCH*3;w.z=PITCH*2+10;w.h=3;w.route(id);
     const events=run(w,120);
     assert.ok(events.includes('entered:'+id),id);assert.equal(w.place.id,id);

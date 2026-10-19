@@ -31,7 +31,7 @@ label();
 try{if(!localStorage.getItem('blocks-help-seen'))document.body.dataset.firstVisit='true';}catch{}
 window.addEventListener('blocks:panel',event=>{if(event.detail.id==='help'&&event.detail.open){delete document.body.dataset.firstVisit;try{localStorage.setItem('blocks-help-seen','1');}catch{}}});
 
-let showChain=()=>{},showToken=()=>{},lastChainLabels,lastStatus='connecting',chainLabel='CHAIN';
+let showChain=()=>{},showToken=()=>{},showPark=()=>{},lastState=null,lastChainLabels,lastStatus='connecting',chainLabel='CHAIN';
 const hud=document.querySelector('.chain-hud');
 // The chain's short name comes from the site settings, so the street reads BASE or SEPOLIA.
 fetch('config.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(settings=>{const label=NETWORKS[settings?.chainId]?.label;if(!label)return;chainLabel=label;
@@ -40,7 +40,7 @@ const stopWorld=watchWorld({
   onState(state,labels){
     $('chain-head').textContent=labels.head;$('chain-fee').textContent=labels.fee;$('chain-supply').textContent=labels.minted;
     hud.title='Latest block: '+new Date(state.timestamp*1000).toLocaleTimeString()+' · '+state.transactions+' transactions · '+Math.round(Number(state.gasUsed)/Number(state.gasLimit)*100)+'% gas used';
-    lastChainLabels=labels;showChain(labels);
+    lastChainLabels=labels;lastState=state;showChain(labels);showPark(state);
   },
   onStatus(status){hud.dataset.status=status;lastStatus=status;showChain(lastChainLabels,status);$('chain-status').textContent=chainLabel+' / '+({live:'LIVE',stale:'DELAYED',offline:'FEED OFFLINE'}[status]);},
   onToken(token){showToken(token);}
@@ -73,7 +73,7 @@ try{
   paintChain();showChain=(labels,status)=>{paintChain(labels,status);paintTerminal();if(paused)render(true);};
   const streets=createStreets(kit,{scene,keep,telemetry:telemetryMaterial,interactive:register('city')});
   const journey=createJourney(kit,{keep,interactive:register('journey')});
-  const {gallery,station,ramen}=streets.places;
+  const {gallery,station,ramen,park}=streets.places;
   window.addEventListener('blocks:ramen-state',event=>{ramen.serving.setMeal(event.detail);if(paused)render(true);});
   window.addEventListener('blocks:ramen-thanks',()=>{ramen.serving.thank();pulse=1;toast2('ありがとう · The chef bows. Thanks for keeping the lights on.');if(paused)render(true);});
   window.dispatchEvent(new Event('blocks:ramen-ready'));
@@ -136,7 +136,7 @@ try{
   {const c=emptyCanvas.getContext('2d');c.fillStyle='#0b0a1c';c.fillRect(0,0,128,128);c.fillStyle='#ff32b522';for(let y=0;y<128;y+=4)c.fillRect(0,y,128,1);
    c.textAlign='center';c.fillStyle='#ff75d0';c.font='800 44px "Noto Sans CJK JP",sans-serif';c.fillText('空',64,64);c.font='bold 9px monospace';c.fillStyle='#9eebff';c.fillText('AWAITING A BLOCK',64,98);}
   const emptyTexture=keep(new THREE.CanvasTexture(emptyCanvas));emptyTexture.colorSpace=THREE.SRGBColorSpace;emptyTexture.magFilter=THREE.NearestFilter;
-  let myToken=null;
+  let myToken=null;const parkContent=[];
   function galleryLabels(){
     gallery.boards.forEach((board,i)=>{
       const token=mintedArt[i]??null,mine=token&&token.tokenId===myToken?.tokenId;
@@ -149,11 +149,43 @@ try{
     });
     const {centre,centreArt}=gallery.terminal;
     if(myToken){centreArt.material.map=artwork(myToken).texture;centreArt.material.needsUpdate=true;centre.visible=true;}
-    const used=new Set([...gallery.boards.map(board=>board.picture.material.map),myToken?centreArt.material.map:null]);
+    // The park's frames show the same recent mints.
+    park.totems.forEach((totem,i)=>{
+      const token=mintedArt[i]??null;parkContent[i]=token?{tokenId:token.tokenId}:null;
+      totem.picture.material.map=token?artwork(token).texture:emptyTexture;totem.picture.material.color.set(0xffffff);totem.picture.material.needsUpdate=true;
+      const ctx=totem.ctx;ctx.fillStyle='#080c21';ctx.fillRect(0,0,512,96);ctx.textAlign='center';
+      ctx.fillStyle=token?'#7dffb0':'#7c8aa0';ctx.font='bold 26px "Noto Sans CJK JP",monospace';
+      ctx.fillText(token?(token.name.split(' #')[0]+' · #'+Number(token.tokenId).toLocaleString('en-US')):'空 · AWAITING A BLOCK',256,40);
+      ctx.font='16px monospace';ctx.fillStyle='#b1d0e1';ctx.fillText(token?'MINTED ON BASE · TAP TO VIEW':'MINT IN THE GALLERY',256,74);totem.texture.needsUpdate=true;
+    });
+    const used=new Set([...gallery.boards.map(board=>board.picture.material.map),...park.totems.map(totem=>totem.picture.material.map),myToken?centreArt.material.map:null]);
     for(const [source,entry] of artSources)if(!used.has(entry.texture)){entry.removed=true;entry.movie=null;entry.image.onload=null;entry.image.src='';entry.texture.dispose();resources.delete(entry.texture);artSources.delete(source);}
   }
   showToken=token=>{if(disposed)return;const i=mintedArt.findIndex(item=>item.tokenId===token.tokenId);if(i>=0)mintedArt.splice(i,1);mintedArt.unshift(token);mintedArt.length=Math.min(mintedArt.length,gallery.boards.length);galleryLabels();if(paused)render(true);};
   window.addEventListener('blocks:mine',event=>{myToken=event.detail;showToken(myToken);pulse=1;});
+  // The park's big screen: live Base figures and the last dozen blocks as bars.
+  function paintPark(state){
+    const {ctx:x,texture}=park.screen,recent=state.recent?.length?state.recent:[{number:state.blockNumber,timestamp:state.timestamp,transactions:state.transactions,gasUsed:state.gasUsed,gasLimit:state.gasLimit,baseFeeWei:state.baseFeeWei}];
+    x.fillStyle='#050a14';x.fillRect(0,0,1024,576);x.strokeStyle='#46f5ff';x.lineWidth=6;x.strokeRect(6,6,1012,564);
+    x.textAlign='left';x.fillStyle='#7dffb0';x.font='bold 30px "Noto Sans CJK JP",monospace';x.fillText(chainLabel+' / LIVE CHAIN · ベース · 鎖 '+state.chainId,32,54);
+    x.fillStyle='#ffffff';x.font='bold 74px monospace';x.fillText('#'+Number(state.blockNumber).toLocaleString('en-US'),32,140);
+    const times=recent.map(b=>b.timestamp),span=times.length>1?(times[0]-times[times.length-1])/(times.length-1):0;
+    const gasPct=Math.round(Number(state.gasUsed)/Math.max(1,Number(state.gasLimit))*100);
+    const stats=[['BASE FEE',lastChainLabels?.fee??'—'],['GAS USED',gasPct+'%'],['TRANSACTIONS',String(state.transactions)],['BLOCK TIME',span?span.toFixed(1)+' S':'—'],['MINTED',lastChainLabels?.minted.replace(' MINTED','')??'—'],['GAS LIMIT',(Number(state.gasLimit)/1e6).toFixed(0)+'M']];
+    stats.forEach(([label,value],i)=>{const cx=32+(i%3)*330,cy=i<3?186:262;x.fillStyle='#46f5ff';x.font='bold 18px monospace';x.fillText(label,cx,cy);x.fillStyle='#ffffff';x.font='bold 32px monospace';x.fillText(value,cx,cy+36);});
+    // Bars: transactions (cyan) and gas used (pink) for each recent block, oldest on the left.
+    const blocks=[...recent].reverse(),maxTx=Math.max(1,...blocks.map(b=>b.transactions)),w=(960-(blocks.length-1)*8)/blocks.length;
+    x.fillStyle='#9eebff';x.font='bold 16px monospace';x.fillText('LAST '+blocks.length+' BLOCKS · TRANSACTIONS AND GAS',32,346);
+    blocks.forEach((b,i)=>{
+      const left=32+i*(w+8),tx=b.transactions/maxTx*130,gas=Number(b.gasUsed)/Math.max(1,Number(b.gasLimit))*130;
+      x.fillStyle='#46f5ff';x.fillRect(left,500-tx,w*.55,tx);x.fillStyle='#ff32b5';x.fillRect(left+w*.6,500-gas,w*.35,gas);
+      x.fillStyle='#b1d0e1';x.font='13px monospace';x.textAlign='center';x.fillText(String(b.number).slice(-4),left+w/2,522);x.textAlign='left';
+    });
+    x.fillStyle='#7c8aa0';x.font='15px monospace';x.fillText('Updated '+new Date().toISOString().slice(11,19)+' UTC · read live from Base',32,556);
+    texture.needsUpdate=true;
+  }
+  showPark=state=>{if(disposed)return;paintPark(state);park.stream.push(state.recent?.length?state.recent:[{number:state.blockNumber,timestamp:state.timestamp,transactions:state.transactions,gasUsed:state.gasUsed,gasLimit:state.gasLimit,baseFeeWei:state.baseFeeWei}]);if(paused)render(true);};
+  if(lastState)showPark(lastState);
   galleryLabels();
   // The mint terminal and ticket gate screens mirror the page's wallet and mint state.
   let mintState={stage:'idle',text:'No inputs. Just the block your mint lands in.'},wallet={state:'none'},pulse=0;
@@ -246,6 +278,10 @@ try{
       let best=null;for(const e of interactive)if(e.id.startsWith('art:')){e.object.getWorldPosition(worldPosition);const d=Math.hypot(worldPosition.x-walker.x,worldPosition.z-walker.z);if(d<3.2&&(!best||d<best.d))best={id:e.id,d,jp:'作品',en:'View this artwork'};}
       return best;
     }
+    if(place.id==='park'){
+      let best=null;for(const e of interactive)if(e.id.startsWith('park-art:')){e.object.getWorldPosition(worldPosition);const d=Math.hypot(worldPosition.x-walker.x,worldPosition.z-walker.z);if(d<3.4&&(!best||d<best.d))best={id:e.id,d,jp:'作品',en:'View this minted block'};}
+      return best;
+    }
     if(place.id==='ramen'){
       const machine=interactive.find(e=>e.id==='ticket');machine.object.getWorldPosition(worldPosition);
       // Near the door the ticket machine is offered first; deeper in, the chef.
@@ -259,6 +295,8 @@ try{
     if(id.startsWith('door:')){const place=PLACES[id.slice(5)],near=walker.nearby().door;if(near?.place===place)walker.queue(near.side);return;}
     if(id==='gate'){if(walker.gate){toast2('The gate is open. The train is waiting on the platform.');return;}window.dispatchEvent(new Event('blocks:connect-request'));return;}
     if(id==='terminal'){window.dispatchEvent(new Event('blocks:mint-request'));return;}
+    if(id.startsWith('park-art:')){const content=parkContent[Number(id.slice(9))];if(content)window.dispatchEvent(new CustomEvent('blocks:inspect',{detail:content}));else toast2('空 · This frame waits for a minted block. Mint one in the gallery.');return;}
+    if(id==='park-screen'){toast2(lastState?'ベース · Block #'+Number(lastState.blockNumber).toLocaleString('en-US')+' · '+lastState.transactions+' transactions · '+(lastChainLabels?.fee??'')+' base fee':'ベース · Waiting for the chain feed.');return;}
     if(id.startsWith('art:')){const content=boardContent[Number(id.slice(4))];if(content)window.dispatchEvent(new CustomEvent('blocks:inspect',{detail:content}));else toast2('空 · This frame is waiting for a block. Mint at the terminal to fill it.');return;}
     if(id==='train'){if(!walker.gate){toast2('改札 · Tap a ticket gate first.');return;}if(walker.place?.id==='station'&&walker.mode==='inside')startRide('out');return;}
     if(id==='train-home'){if(walker.place?.remote&&walker.mode==='inside')startRide('back');return;}
@@ -282,7 +320,7 @@ try{
     if(ride)html=ride.direction==='out'?'<b>次は 桜川</b>Next stop: Sakuragawa':'<b>次は 中央</b>Next stop: Chuo Station';
     else if(walker.mode==='inside'){
       const id=walker.place.id,{a}=frameOf(walker.place).local(walker.x,walker.z);
-      html={ramen:'<b>ラーメン</b>Use the ticket machine or chef for a free bowl. ↓ or Esc to leave.',gallery:'<b>ギャラリー</b>Mint at the terminal in the centre. Minted blocks hang on the walls.',
+      html={park:'<b>公園</b>Live Base data on the screen, recent blocks along the rail, minted blocks on the frames. ↓ or Esc to leave.',ramen:'<b>ラーメン</b>Use the ticket machine or chef for a free bowl. ↓ or Esc to leave.',gallery:'<b>ギャラリー</b>Mint at the terminal in the centre. Minted blocks hang on the walls.',
         remote:'<b>桜川</b>Explore the platform and the river deck. Walk back to the train to return.',
         station:walker.gate?(a>22?'<b>乗車</b>Walk onto the train, or tap it, to ride to Sakuragawa.':'<b>改札</b>The gates are open. Go through to the platform.'):'<b>改札</b>Tap a ticket gate to connect your wallet and go through.'}[id];
     }else if(walker.mode==='street'){
@@ -304,7 +342,7 @@ try{
     const cx=walker.x,cz=walker.z,X=x=>W/2+(x-cx)*scale,Z=z=>W/2+(z-cz)*scale;
     c.fillStyle='#1a1530';
     for(let i=Math.floor((cx-130)/PITCH);i<=Math.ceil((cx+130)/PITCH);i++)for(let j=Math.floor((cz-130)/PITCH);j<=Math.ceil((cz+130)/PITCH);j++)c.fillRect(X(i*PITCH+FACADE),Z(j*PITCH+FACADE),(PITCH-2*FACADE)*scale,(PITCH-2*FACADE)*scale);
-    for(const [id,colour,glyph] of [['station','#46f5ff','駅'],['gallery','#ff32b5','画'],['ramen','#ff4d5e','麺']]){
+    for(const [id,colour,glyph] of [['station','#46f5ff','駅'],['gallery','#ff32b5','画'],['ramen','#ff4d5e','麺'],['park','#7dffb0','園']]){
       const d=PLACES[id].door,dx=Math.max(14,Math.min(W-14,X(d.x))),dz=Math.max(14,Math.min(W-14,Z(d.z)));
       c.fillStyle=colour;c.beginPath();c.arc(dx,dz,11,0,Math.PI*2);c.fill();c.fillStyle='#090713';c.font='bold 14px "Noto Sans CJK JP",sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(glyph,dx,dz+1);
     }
@@ -322,7 +360,7 @@ try{
   let lastMirror=-1,mapFrame=0;
   render=(forceMirror=false)=>{
     placeCamera();
-    if(!paused&&!reduced.matches&&elapsed-artStamp>1/12&&walker.place?.id==='gallery'){
+    if(!paused&&!reduced.matches&&elapsed-artStamp>1/12&&['gallery','park'].includes(walker.place?.id)){
       for(const entry of artSources.values())if(entry.movie){
         const index=Math.floor(elapsed*entry.movie.fps)%entry.movie.frames.length;if(index===entry.frame)continue;
         entry.ctx.putImageData(drawFrame(entry.movie,index,entry.pixels),0,0);entry.texture.needsUpdate=true;entry.frame=index;
@@ -432,12 +470,12 @@ try{
   document.documentElement.addEventListener('pointerleave',leave);document.addEventListener('visibilitychange',visibility);reduced.addEventListener('change',preference);
   window.addEventListener('pagehide',()=>{disposed=true;renderer.setAnimationLoop(null);observer.disconnect();soundtrack.dispose();document.removeEventListener('keydown',keydown);document.removeEventListener('keyup',keyup);document.removeEventListener('visibilitychange',visibility);reduced.removeEventListener('change',preference);artSources.forEach(entry=>{entry.removed=true;entry.movie=null;entry.image.onload=null;entry.image.src='';});resources.forEach(resource=>resource.dispose());renderer.dispose();},{once:true});
   canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();renderer.setAnimationLoop(null);document.documentElement.dataset.scene='fallback';motion.hidden=true;explore(false,false);enter.hidden=true;});
-  // Deep links: #gallery, #ramen and #station start inside; otherwise the overview wanders.
+  // Deep links: #gallery, #ramen, #station and #park start inside; otherwise the overview wanders.
   const link=location.hash.slice(1);
-  if(['gallery','ramen','station'].includes(link)){walker.placeAt(link,PLACES[link].id==='station'?18:FACADE+2,0);explore(true,false);}
+  if(['gallery','ramen','station','park'].includes(link)){walker.placeAt(link,PLACES[link].id==='station'?18:FACADE+2,0);explore(true,false);}
   else walker.wander();
   // A small hook for automated browser QA.
-  window.__blocks={walker,startRide,interact,get ride(){return ride;},set timeScale(v){timeScale=v;},gallery:()=>({centre:gallery.terminal.centre.visible,mine:myToken?.tokenId??null,minted:mintedArt.map(t=>t.tokenId),boards:boardContent.map(c=>c?.tokenId??null),animated:[...artSources.values()].filter(e=>e.movie&&e.frame>=0).length}),stats:()=>({...renderer.info.render,programs:renderer.info.programs.length,segments:[...streets.cache.values()].filter(e=>e.group.parent).length,cached:streets.cache.size})};
+  window.__blocks={walker,startRide,interact,park:()=>({minted:parkContent.map(c=>c?.tokenId??null),painted:Boolean(lastState)}),get ride(){return ride;},set timeScale(v){timeScale=v;},gallery:()=>({centre:gallery.terminal.centre.visible,mine:myToken?.tokenId??null,minted:mintedArt.map(t=>t.tokenId),boards:boardContent.map(c=>c?.tokenId??null),animated:[...artSources.values()].filter(e=>e.movie&&e.frame>=0).length}),stats:()=>({...renderer.info.render,programs:renderer.info.programs.length,segments:[...streets.cache.values()].filter(e=>e.group.parent).length,cached:streets.cache.size})};
   window.__blocks.ramen=()=>({phase:ramen.serving.phase,meal:ramen.serving.meal,visible:ramen.serving.visible,receiptVisible:ramen.serving.receiptVisible});
   document.documentElement.dataset.scene='webgl';resize();visibility();
 }catch(error){

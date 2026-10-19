@@ -1,6 +1,7 @@
 // Walk-in places built into their street segments: a ramen shop, the gallery (mint) and the subway station (wallet).
 // Segment space: x=s*a is depth from the street centre, z=ZC+b runs along the street.
 import {PITCH,FACADE} from './walker.mjs';
+import {pick} from './kit.mjs';
 import {createRamenServing} from './ramen-scene.mjs';
 const H=FACADE,ZC=-PITCH/2,LEN=PITCH-2*H-14;
 
@@ -209,3 +210,107 @@ export function buildStation(kit,b,g,s,{neonSide,r,interactive,keep,animated}){
   return {id:'station',gates:{group:gates,flaps,canvas:gateCanvas,ctx:gateCanvas.getContext('2d'),texture:gateTexture,material:flapMaterial},train};
 }
 buildStation.id='station';
+
+// An open-air park behind a gate: live Base data on a big screen, recent blocks drifting along a rail, and the
+// minted NFTs on standing frames. The city feeds it through the returned screen, stream and totems.
+export function buildPark(kit,b,g,s,{neonSide,r,interactive,animated,keep}){
+  const {THREE}=kit,A=a=>s*a,Z=bb=>ZC+bb,ry=-s*Math.PI/2,back=29.2;
+  // Ground: a paved plaza along the street, then a lawn and a lit path into the block.
+  b.part('matte',A(9.1),.025,ZC,6.8,.05,19.6,0x252b3a);
+  b.part('matte',A(21),.02,ZC,17.2,.04,13.2,0x12261c);
+  b.part('matte',A(17.3),.035,ZC,23.2,.03,2.2,0x353d52);
+  for(const e of [-1,1]){
+    b.part('lit',A(17.3),.055,Z(e*1.15),23.2,.01,.06,0x46f5ff);
+    b.part('matte',A(21),.45,Z(e*6.9),17.2,.9,.4,0x1c3a29);
+    b.part('matte',A(9.2),.45,Z(e*9.9),6.6,.9,.4,0x1c3a29);
+    b.part('matte',A(12.6),.45,Z(e*8.3),.4,.9,3.2,0x1c3a29);
+  }
+  b.part('matte',A(29.8),.45,ZC,.4,.9,13.6,0x1c3a29);
+  // The gate and its street signs.
+  for(const e of [-1,1]){b.part('solid',A(H+.4),2.2,Z(e*2.2),.3,4.4,.3,0x1d2433);b.part('lit',A(H+.24),2.2,Z(e*2.2),.04,4.2,.08,0x7dffb0);}
+  b.part('solid',A(H+.4),4.5,ZC,.4,.35,5.2,0x1d2433);b.part('lit',A(H+.18),4.32,ZC,.04,.05,4.6,0x7dffb0);
+  kit.sign(g,A(H+.15),5.15,ZC,['ブロック公園','BLOCK PARK · LIVE BASE DATA'],'#7dffb0',6,.95,ry);
+  kit.sign(g,A(5.14-.06-.8),8,Z(7),['公園','PARK'],'#7dffb0',1.6,4.6);kit.halo(g,A(4.3),8,Z(7),6,'#7dffb0',.45);
+  kit.halo(g,A(H+.3),2.4,ZC,5,'#7dffb0',.35);
+  for(let k=0;k<5;k++)b.part('lit',A(3.6+k*.35),.13,ZC,.18,.01,.9,0x7dffb0);
+  // Sakura trees, benches and lanterns.
+  const blossom=keep(new THREE.MeshStandardMaterial({color:0xffb3d4,emissive:0x7a2c55,emissiveIntensity:.7,roughness:.85})),blooms=[];
+  const tree=(a,bb,size)=>{b.part('matte',A(a),1.4*size,Z(bb),.25*size,2.8*size,.25*size,0x3a2a24);
+    for(let k=0;k<6;k++)blooms.push({x:A(a)+(r()-.5)*2.4*size,y:(3+r()*1.5)*size,z:Z(bb)+(r()-.5)*2.4*size,w:(.9+r()*.7)*size,h:(.7+r()*.5)*size,d:(.9+r()*.7)*size,colour:pick(r,[0xffa6cf,0xff8cc0,0xffc8e0,0xffffff])});};
+  for(const [a,bb,size] of [[7.6,-8.2,1],[7.6,8.2,1],[11.2,-8.4,.9],[11.2,8.4,.9],[27.6,-5.4,1.1],[27.6,5.4,1.1],[14,-5.8,.8]])tree(a,bb,size);
+  kit.batch(g,kit.ball,blossom,blooms);
+  for(const e of [-1,1]){b.part('matte',A(9.4),.45,Z(e*4.2),1.8,.08,.55,0x8a6b4f);b.part('matte',A(9.4),.22,Z(e*4.2),1.6,.44,.4,0x2a2430);}
+  for(const a of [8.4,14,20,26])for(const e of [-1,1]){
+    b.part('solid',A(a),1.3,Z(e*2.9),.07,2.6,.07,0x3a2a24);b.ball(A(a),2.7,Z(e*2.9),.16,.22,.16,0xffb24a,true);kit.halo(g,A(a),2.7,Z(e*2.9),1.4,'#ffb24a',.4);
+  }
+  // The big screen at the end of the lawn: live chain stats, painted by the city.
+  const screenGroup=new THREE.Group();screenGroup.position.set(A(back),0,ZC);screenGroup.rotation.y=ry;g.add(screenGroup);
+  kit.batch(screenGroup,kit.box,kit.materials.solid,[{x:-3.6,y:1.5,z:-.1,w:.3,h:3,d:.3,colour:0x1d2433},{x:3.6,y:1.5,z:-.1,w:.3,h:3,d:.3,colour:0x1d2433},{x:0,y:4.4,z:-.12,w:9.6,h:5.6,d:.2,colour:0x0a0c18}]);
+  const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=576;
+  const texture=keep(new THREE.CanvasTexture(canvas));texture.colorSpace=THREE.SRGBColorSpace;
+  const screen=new THREE.Mesh(kit.plane,keep(new THREE.MeshBasicMaterial({map:texture,toneMapped:false})));screen.position.set(0,4.4,.01);screen.scale.set(9.2,5.2,1);screenGroup.add(screen);
+  kit.halo(screenGroup,0,4.4,1,11,'#46f5ff',.22);
+  interactive({id:'park-screen',object:screen,jp:'ベース',en:'Live Base data'});
+  // Recent blocks drift along a rail toward the plaza, newest at the far end.
+  const SLOTS=11,laneB=4.6,far=27.6,step=1.4,cubes=[];
+  b.part('lit',A(far-step*(SLOTS-1)/2),.06,Z(laneB),step*(SLOTS-1)+1.4,.02,.08,0x46f5ff);
+  b.part('matte',A(far-step*(SLOTS-1)/2),.12,Z(laneB),step*(SLOTS-1)+1.4,.2,1.2,0x1a1f2e);
+  for(let k=0;k<SLOTS;k++){
+    const label=document.createElement('canvas');label.width=label.height=128;
+    const map=keep(new THREE.CanvasTexture(label));map.colorSpace=THREE.SRGBColorSpace;
+    const cube=new THREE.Mesh(kit.box,keep(new THREE.MeshBasicMaterial({map,toneMapped:false,transparent:true})));
+    cube.scale.setScalar(.95);cube.visible=false;g.add(cube);
+    cubes.push({cube,ctx:label.getContext('2d'),map,slot:k,y:.75,number:null});
+  }
+  const slotA=k=>far-k*step;
+  for(const c of cubes)c.cube.position.set(A(slotA(c.slot)),c.y,Z(laneB));
+  const queue=[];let lastNumber=0n,releaseAt=0;
+  function paintCube(c,block){
+    const x=c.ctx,full=Number(block.gasUsed)/Math.max(1,Number(block.gasLimit));
+    x.fillStyle='#071019';x.fillRect(0,0,128,128);x.fillStyle=full>.5?'#ff32b5':'#46f5ff';x.fillRect(0,118-Math.round(full*100),128,Math.round(full*100)+10);
+    x.fillStyle='#071019cc';x.fillRect(6,6,116,70);x.strokeStyle='#7dffb0';x.lineWidth=4;x.strokeRect(2,2,124,124);
+    x.fillStyle='#ffffff';x.font='bold 19px monospace';x.textAlign='center';x.fillText(Number(block.number).toLocaleString('en-US'),64,30);
+    x.fillStyle='#7dffb0';x.font='bold 22px monospace';x.fillText(block.transactions+' TX',64,62);
+    x.fillStyle='#ffffff';x.font='bold 15px monospace';x.fillText(Math.round(full*100)+'% GAS',64,100);c.map.needsUpdate=true;
+  }
+  // New blocks wait in a queue and are released about every two seconds, roughly Base's block time.
+  function admit(time){
+    if(!queue.length||time<releaseAt)return;releaseAt=time+1.9;
+    const block=queue.shift(),c=cubes.reduce((o,c)=>c.slot>o.slot?c:o);
+    for(const other of cubes)other.slot++;
+    c.slot=0;c.y=4;c.cube.visible=true;c.number=block.number;paintCube(c,block);
+    c.cube.position.set(A(slotA(0)),4,Z(laneB));
+  }
+  animated.custom.push(time=>{
+    admit(time);
+    for(const c of cubes){
+      if(c.slot>=SLOTS){c.cube.visible=false;continue;}
+      const p=c.cube.position;p.x+=(A(slotA(c.slot))-p.x)*.08;c.y+=(.75-c.y)*.06;p.y=c.y+Math.sin(time*1.6+c.slot)*.05;
+      c.cube.rotation.y=Math.sin(time*.5+c.slot)*.25;
+    }
+  });
+  const stream={push(blocks){
+    // Oldest first; only blocks newer than any seen join the queue.
+    for(const block of [...blocks].sort((p,q)=>Number(BigInt(p.number)-BigInt(q.number)))){
+      const n=BigInt(block.number);if(n<=lastNumber)continue;lastNumber=n;queue.push(block);
+    }
+    if(queue.length>SLOTS)queue.splice(0,queue.length-SLOTS);
+  }};
+  // Minted NFTs on standing frames facing the path, filled by the city.
+  const totems=[];
+  [15,18.2,21.4,24.6].forEach((a,i)=>{
+    const frame=new THREE.Group();frame.position.set(A(a),0,Z(-4.7));g.add(frame);
+    kit.batch(frame,kit.box,kit.materials.solid,[{x:0,y:.5,z:-.05,w:1.9,h:1,d:.5,colour:0x1a1f2e}]);
+    const border=new THREE.Mesh(kit.plane,keep(new THREE.MeshBasicMaterial({color:i%2?0xff32b5:0x7dffb0,toneMapped:false})));border.position.set(0,2.2,.005);border.scale.set(1.9,1.9,1);frame.add(border);
+    const picture=new THREE.Mesh(kit.plane,keep(new THREE.MeshBasicMaterial({toneMapped:false,color:0x101020})));picture.position.set(0,2.2,.012);picture.scale.set(1.74,1.74,1);frame.add(picture);
+    const caption=document.createElement('canvas');caption.width=512;caption.height=96;
+    const texture=keep(new THREE.CanvasTexture(caption));texture.colorSpace=THREE.SRGBColorSpace;
+    const label=new THREE.Mesh(kit.plane,keep(new THREE.MeshBasicMaterial({map:texture,toneMapped:false})));label.position.set(0,1.02,.27);label.scale.set(1.8,.34,1);frame.add(label);
+    kit.halo(frame,0,2.2,.4,2.6,i%2?'#ff32b5':'#7dffb0',.3);
+    totems.push({picture,ctx:caption.getContext('2d'),texture});
+    interactive({id:'park-art:'+i,object:picture,jp:'作品',en:'View this minted block'});
+  });
+  light(kit,g,0x9fffd0,14,22,A(18),5,ZC);light(kit,g,0x46f5ff,10,16,A(27),5,ZC);
+  return {id:'park',screen:{canvas,ctx:canvas.getContext('2d'),texture},stream,totems};
+}
+buildPark.id='park';

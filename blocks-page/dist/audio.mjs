@@ -3,7 +3,7 @@
 const midi=n=>440*2**((n-69)/12);
 const CHORDS=[[57,60,64,67,71],[53,57,60,64,67],[48,52,55,59,62],[55,59,62,65,69]];
 const PENTA=[62,64,67,69,71,74,76,79,81];
-const MIX={street:{street:1},ramen:{street:.22,ramen:1},gallery:{street:.18,gallery:1},station:{street:.35,station:1},ride:{ride:1},remote:{remote:1}};
+const MIX={street:{street:1},ramen:{street:.22,ramen:1},gallery:{street:.18,gallery:1},station:{street:.35,station:1},park:{street:.55,gallery:.35},ride:{ride:1},remote:{remote:1}};
 
 export function createSoundtrack(){
   let ctx=null,sizzleTimer=null,master,reverb,noise,layers={},timer=null,step=0,next=0,place='street',on=false;
@@ -90,7 +90,7 @@ export function createSoundtrack(){
   function setPlace(name,instant=false){
     place=name;if(!ctx)return;const mix=MIX[name]??MIX.street;
     for(const [key,l] of Object.entries(layers)){l.level=mix[key]??0;l.gain.gain.setTargetAtTime(l.level,ctx.currentTime,instant?.01:.9);}
-    layers.street.filter.frequency.setTargetAtTime(name==='street'?9000:650,ctx.currentTime,.6);
+    layers.street.filter.frequency.setTargetAtTime(name==='street'||name==='park'?9000:650,ctx.currentTime,.6);
   }
   return {
     get on(){return on;},

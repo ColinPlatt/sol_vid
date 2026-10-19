@@ -102,6 +102,8 @@ try{
  await evaluate("document.querySelector('#reveal').close()");await delay(1200);await shot('site-gallery-minted-desktop');
  // Gallery frames animate from the decoded AVI, not just the poster.
  await wait("window.__blocks.gallery().animated>0");
+ // The park shows live chain data and the same minted blocks.
+ await evaluate("__blocks.walker.placeAt('park',14,0)");await wait("__blocks.park().painted&&__blocks.park().minted.includes('13000000')");await delay(1500);await shot('site-park-desktop');
  // Leaving with Escape returns to the street.
  await key('Escape');await wait("__blocks.walker.mode==='street'",60);
  // The subway: the ticket gate connects the wallet, then the train rides out to Sakuragawa and back.

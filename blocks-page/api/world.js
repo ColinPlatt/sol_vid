@@ -30,7 +30,16 @@ export function createHandler(settings,request=fetch){
     }
    }catch{/* Some RPCs restrict logs. Never invent a mint. */}
    if(total>0n&&settings.firstTokenId)ids.add(String(settings.firstTokenId));
-   return res.status(200).setHeader('Cache-Control','public, max-age=12, s-maxage=12').json({chainId:settings.chainId,blockNumber:String(number),timestamp:Number(BigInt(block.timestamp)),baseFeeWei:String(BigInt(block.baseFeePerGas??'0x0')),gasUsed:String(BigInt(block.gasUsed)),gasLimit:String(BigInt(block.gasLimit)),transactions:block.transactions.length,totalSupply:String(total),tokenIds:[...ids].slice(0,8),observedAt:Date.now()});
+   // The last dozen blocks for the park's block stream, in one batched request; just the latest if batching is refused.
+   const summary=b=>({number:String(BigInt(b.number)),timestamp:Number(BigInt(b.timestamp)),transactions:b.transactions.length,gasUsed:String(BigInt(b.gasUsed)),gasLimit:String(BigInt(b.gasLimit)),baseFeeWei:String(BigInt(b.baseFeePerGas??'0x0'))});
+   const recent=[summary(block)];
+   try{
+    const batch=Array.from({length:11},(_,k)=>({jsonrpc:'2.0',id:k+2,method:'eth_getBlockByNumber',params:['0x'+(number-BigInt(k+1)).toString(16),false]}));
+    const response=await request(rpc,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(batch),signal:AbortSignal.timeout(10000)});
+    const rows=response.ok?await response.json():null;
+    if(Array.isArray(rows))for(const row of rows.sort((p,q)=>p.id-q.id))if(row?.result?.number&&Array.isArray(row.result.transactions))recent.push(summary(row.result));
+   }catch{/* The stream still gets the latest block. */}
+   return res.status(200).setHeader('Cache-Control','public, max-age=12, s-maxage=12').json({chainId:settings.chainId,blockNumber:String(number),timestamp:Number(BigInt(block.timestamp)),baseFeeWei:String(BigInt(block.baseFeePerGas??'0x0')),gasUsed:String(BigInt(block.gasUsed)),gasLimit:String(BigInt(block.gasLimit)),transactions:block.transactions.length,totalSupply:String(total),recent,tokenIds:[...ids].slice(0,8),observedAt:Date.now()});
   }catch{return res.status(502).json({error:'Chain feed temporarily unavailable'});}
  };
 }

@@ -2,14 +2,14 @@
 // Segment space: the street runs along -z from one junction (z=0) to the next (z=-PITCH); sides are x<0 and x>0.
 import {PITCH,FACADE,FORWARD} from './walker.mjs';
 import {NEON,SHOPS,SMALL,ADS,rng,hash,pick} from './kit.mjs';
-import {buildRamen,buildGallery,buildStation} from './places.mjs';
+import {buildRamen,buildGallery,buildStation,buildPark} from './places.mjs';
 
 export const H=FACADE,R=2.4,CORNER=7,ZC=-PITCH/2,LEN=PITCH-2*H-2*CORNER,WALK=PITCH-2*H;
 const facing=s=>-s*Math.PI/2;           // rotation for a plane flush on side s, facing the street
 const UPPER=5.14,GROUND=4.84;           // frontmost facade planes above and below the awnings
 const mod=(n,m)=>((n%m)+m)%m;
 // Special segments host the walk-in places.
-const SPECIAL={'v:0:0':{side:-1,build:buildRamen},'h:0:-1':{side:-1,build:buildGallery},'v:0:1':{side:1,build:buildStation}};
+const SPECIAL={'v:0:0':{side:-1,build:buildRamen},'h:0:-1':{side:-1,build:buildGallery},'v:0:1':{side:1,build:buildStation},'h:0:0':{side:-1,build:buildPark}};
 export function styleAt(i,j){
   if(Math.abs(i)<=1&&Math.abs(j)<=1)return'neon';
   return ['neon','canyon','alley','neon','canyon','alley','neon'][hash(Math.floor((i+64)/2),Math.floor((j+64)/2),7)%7];
@@ -262,7 +262,8 @@ export function createStreets(kit,{scene,keep,telemetry,interactive}){
     const street=walker.mode==='street'||walker.mode==='turn';
     const nearJunction=Math.min(Math.abs(walker.x-Math.round(walker.x/PITCH)*PITCH),Math.abs(walker.z-Math.round(walker.z/PITCH)*PITCH))<30;
     const headings=street&&!nearJunction&&walker.mode!=='turn'?[walker.h]:[walker.h,(walker.h+1)%4];
-    const indoors=!street&&walker.place&&!walker.place.remote;
+    // The park is outdoors, so the streets around it stay loaded as on the street.
+    const indoors=!street&&walker.place&&!walker.place.remote&&!walker.place.outdoor;
     // Underground, only the station itself; inside a shop, its own street seen through the glass.
     if(indoors&&walker.y<-1)headings.length=0;
     else if(indoors){const d=walker.place.door,axisZ=d.dir%2===1;line(axisZ,Math.round((axisZ?d.x:d.z)/PITCH),axisZ?d.z:d.x,PITCH*.8);headings.length=0;}
