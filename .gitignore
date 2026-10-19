@@ -47,3 +47,10 @@ previews/blocks-video-v3-base/*.reference.avi
 previews/blocks-video-v3-base/*.avi
 previews/blocks-video-v3-sepolia/*.uri
 previews/blocks-video-v3-sepolia/skyline.avi
+previews/blocks-video-v4/*.uri
+previews/blocks-video-v4/*.reference.avi
+previews/blocks-video-v4/stress-*.avi
+previews/blocks-video-v4-base/*.uri
+previews/blocks-video-v4-base/*.reference.avi
+previews/blocks-video-v4-base/*.avi
+previews/blocks-video-v4/live-*.avi
