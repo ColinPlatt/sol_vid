@@ -51,7 +51,14 @@ async function viewToken(id,{mine=false,hash=null}={}){
  if(!/^\d{1,18}$/.test(String(id))){$('read-status').textContent='Enter a minted block number.';return;}
  reading=true;$('view').disabled=true;$('read-status').textContent='Drawing this block’s night from the contract…';
  try{
-  const response=await fetch('/api/token?id='+encodeURIComponent(id)),token=await response.json();if(!response.ok)throw Error(token.error||'This block could not be read.');
+  // A fresh mint can reach the wallet's node before the server's, which then briefly reports it unminted: retry.
+  let response,token;
+  for(let attempt=0;;attempt++){
+   response=await fetch('/api/token?id='+encodeURIComponent(id));token=await response.json();
+   if(response.ok||!mine||response.status!==404||attempt>=10)break;
+   $('read-status').textContent='Waiting for the network to catch up with your block…';await new Promise(resolve=>setTimeout(resolve,2000));
+  }
+  if(!response.ok)throw Error(token.error||'This block could not be read.');
   token.tokenId=String(id);if(!validToken(token)||!Array.isArray(token.attributes))throw Error('Unexpected artwork response.');emit('blocks:artwork',token);if(mine)emit('blocks:mine',token);
   $('read-status').textContent='';reveal(token,{mine,hash});
  }catch(error){$('read-status').textContent=friendlyError(error);if(mine)status(friendlyError(error),'error');}finally{reading=false;$('view').disabled=false;}

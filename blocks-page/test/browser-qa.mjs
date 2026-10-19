@@ -29,6 +29,8 @@ try{
   if(String(url)==='/api/world'&&window.__worldOffline)return new Response('{}',{status:503});
   if(String(url)==='/api/world')return new Response(JSON.stringify({chainId:8453,blockNumber:'13000000',timestamp:Math.floor(Date.now()/1000),baseFeeWei:'123456789',gasUsed:'15000000',gasLimit:'60000000',transactions:72,totalSupply:'2',tokenIds:['13000000','11941801'],observedAt:Date.now()}));
   if(String(url).startsWith('/api/token')){const id=new URL(url,location.href).searchParams.get('id');window.__tokenReads=(window.__tokenReads??0)+1;
+   // Simulates a server node one block behind the wallet's: the first read of a fresh mint says it is unminted.
+   if(window.__missNext&&!String(url).includes('&as=')){window.__missNext=false;return new Response(JSON.stringify({error:'That block has not been minted.'}),{status:404});}
    if(String(url).includes('&as=avi'))return new Response(Uint8Array.from(atob('${liveAVI}'),c=>c.charCodeAt(0)),{headers:{'Content-Type':'video/x-msvideo'}});
    return new Response(JSON.stringify({name:'夜景 SKYLINE #'+id,attributes:[{trait_type:'Art Version',value:'BLOCKS_VIDEO_V3'}],tokenId:id,image:'data:image/svg+xml;base64,${livePoster}',video:'/api/token?id='+id+'&as=avi'}));}
   if(String(url).endsWith('config.json'))return new Response(JSON.stringify({artVersion:'BLOCKS_VIDEO_V3',name:'Base',chainId:8453,chainHex:'0x2105',rpcUrl:'https://mainnet.base.org',explorerUrl:'https://basescan.org',deployed:true,mintEnabled:live,collectionAddress:collection,rendererAddress:renderer}));
@@ -85,7 +87,7 @@ try{
  assert.equal(await evaluate("document.querySelector('#mint-panel').dataset.visible"),'true');
  assert.equal(await evaluate("document.querySelector('#action').textContent.includes('Mint')"),true);
  await delay(800);await shot('site-gallery-desktop');
- await evaluate("document.querySelector('#action').click()");await wait("document.querySelector('#status').textContent.includes('is yours')",60);
+ await evaluate("window.__missNext=true;document.querySelector('#action').click()");await wait("document.querySelector('#status').textContent.includes('is yours')",60);
  assert.equal(await evaluate("window.__sends.length"),1);assert.equal(await evaluate("window.__sends[0].data"),'0x1249c58b');assert.equal(await evaluate("window.__sends[0].value"),'0x0');
  // The new token pops up centre stage, and then floats in the gallery's terminal.
  await wait("document.querySelector('#reveal').open&&document.querySelector('#reveal').classList.contains('mine')&&document.querySelector('#reveal-image').naturalWidth>0&&!document.querySelector('#reveal-video').hidden");
@@ -93,7 +95,7 @@ try{
  const revealFrame="(()=>{const c=document.querySelector('#reveal-video');return c.width===128?Array.from(c.getContext('2d').getImageData(0,0,128,128).data.filter((v,i)=>i%97===0)).join(','):''})()";
  const firstFrame=await evaluate(revealFrame);await delay(1500);assert.notEqual(await evaluate(revealFrame),firstFrame,'reveal video is not animating');
  assert.equal(await evaluate("document.querySelector('#download').getAttribute('href')==='/api/token?id=13000000&as=avi'&&document.querySelector('#download').download==='blocks-13000000.avi'"),true);
- assert.equal(await evaluate("document.querySelector('#reveal-block').textContent.includes('13,000,000')&&!document.querySelector('#reveal-tx').hidden"),true);
+ assert.equal(await evaluate("document.querySelector('#reveal-block').textContent.includes('13,000,000')&&!document.querySelector('#reveal-tx').hidden&&window.__missNext===false"),true);
  await delay(900);await shot('site-browser-desktop-mocked');
  await evaluate("document.querySelector('#reveal').close()");await delay(1200);await shot('site-gallery-minted-desktop');
  // Gallery frames animate from the decoded AVI, not just the poster.
