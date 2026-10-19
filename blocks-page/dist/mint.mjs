@@ -17,3 +17,10 @@ export async function mintBlock(provider,network,onStage=()=>{}){
  const [chain,current]=await Promise.all([request('eth_chainId'),request('eth_accounts')]);if(BigInt(chain)!==11155111n||current?.[0]?.toLowerCase()!==account.toLowerCase())throw Error('Wallet changed. Please try again.');
  onStage('wallet');const hash=await request('eth_sendTransaction',[transaction]);if(!/^0x[0-9a-f]{64}$/i.test(hash??''))throw Error('Invalid transaction hash.');return {hash,account};
 }
+// The ticket gate connects a wallet and selects the network without sending anything.
+export async function connectWallet(provider,network){
+ if(network?.chainId!==11155111||network.chainHex!=='0xaa36a7')throw Error('Invalid single-block collection settings.');
+ const accounts=await provider.request({method:'eth_requestAccounts'}),account=accounts?.[0];
+ if(!isAddress(account))throw Error('No wallet account selected.');
+ await ensureChain(provider,network);return account;
+}

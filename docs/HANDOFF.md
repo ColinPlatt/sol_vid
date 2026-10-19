@@ -1,6 +1,6 @@
 # Handoff — blocks (block-art) status
 
-Last updated 2026-10-19 by Claude Code. This covers the `blocks` collection only;
+Last updated 2026-10-19 by Claude Code (walkable city revision). This covers the `blocks` collection only;
 ghoulballs is unchanged. AGENTS.md remains the source of rules and authorizations.
 
 ## Live (Ethereum Sepolia)
@@ -32,8 +32,24 @@ ghoulballs is unchanged. AGENTS.md remains the source of rules and authorization
   "ベース" katakana, and the block-header concept explorer).
 - Both pushed to `main`. `forge fmt --check` OK; `forge test --offline`: 185/185 pass.
 
+## Walkable city revision (2026-10-19)
+
+The `blocks-page/` site is now a full-screen walkable Three.js city (not yet
+deployed; production still serves the earlier street). Modules in `dist/`:
+`walker.mjs` (pure grid navigation, rooms, routes; unit-tested in
+`test/walker.test.mjs`), `kit.mjs` (materials, bilingual sign textures),
+`streets.mjs` (districts, segments, junctions, LOD streaming), `places.mjs`
+(ramen shop, gallery mint terminal, subway with ticket gates), `journey.mjs`
+(ride to Sakuragawa), `audio.mjs` (procedural Web Audio), `city.mjs` (wiring).
+Minting only appears in the gallery; the ticket gate calls `connectWallet()`
+from `mint.mjs` (no transaction). `window.__blocks` is a QA hook used by
+`test/browser-qa.mjs`, which takes ~5 minutes under SwiftShader.
+Measured draw calls: ~550 on the street, ~90 underground, ~55 in the gallery.
+
 ## Open items
 
+0. **Walkable city not deployed.** Needs a Vercel deploy of `blocks-page` and a
+   real-GPU/mobile check (performance was only measured under SwiftShader).
 1. **Site deploy unverified.** The push may or may not have auto-deployed
    blocks-eight-pi.vercel.app; nobody has checked. If redeploying, update
    `deployments/blocks-site.json` (source commit, deployment id, asset hashes).

@@ -12,29 +12,41 @@ is owned by the deployment wallet. Receipts, exact bytecode checks and original
 media hashes are in `deployments/blocks-single-sepolia.json`. Sourcify verified
 exact creation and runtime matches. The prior epoch prototype remains separate.
 
-The Three.js scene is a Tokyo-inspired modernist night walk at 1.72m eye height.
-Eight street segments recycle behind the walker: glass and concrete facades,
-covered pavements, stacked neon shop signs, trees, vending machines and overhead
-bridges. Market gates, arcade cabinets, junction signals, umbrella silhouettes,
-floating delivery drones and procedural animated adverts fill out the street.
-A district rail and scrolling market ticker frame the walk; the motion control
-and reduced-motion preference stop these alongside the scene.
-A low-resolution planar reflection pass gives the wet pavement actual reflections
-of the buildings; rain, a passing train and gentle head movement add motion.
+The whole site is a walkable Three.js city. The page has no scroll: the collection,
+the idea and a help guide open as panels over the street.
 
-“Walk the street” clears the overview and pins a compact mint dock over the walk.
-Move the pointer or drag on mobile to look around; Escape or “Back to overview”
-returns to the page. Entering the street is optional: the same one-action mint is
-available in both views. A confirmed mint returns to the artwork viewer.
-Pause, reduced-motion preferences, background-tab/offscreen suspension and a
-no-WebGL fallback are supported. This browser illustration is separate from the
-original onchain GIF in the collection viewer.
+**Streets.** A square grid of named avenues (通り) and streets (番街) streams in
+around the walker: neon market blocks, tall glass canyons with giant screens, low
+lantern-lit alleys and the occasional sakura park with a torii. Signs lead with
+Japanese and carry a smaller English line. Perpendicular signs stop in front of
+facade ribs and awnings, and segments load well beyond the fog line in every
+direction you can turn, so nothing pops in or clips. Small signs and glows only
+render nearby and are excluded from the low-resolution wet-ground reflection.
 
-The street includes eight art kiosks. They start with labelled demo scenes, then
-show original minted GIFs from the fixed Sepolia collection. New mints also enter
-the gallery after their metadata loads. WebCodecs-capable browsers animate GIF
-textures; other browsers display the first-frame poster. Pausing or requesting
-reduced motion freezes the artwork as well as the walk.
+**Walking.** ↑/W walks on (hold to hurry), ↓/S stops or steps back, ←/→ turn at
+the next junction or into a doorway (press again to cancel), T turns around, and
+Enter/E uses what is in front of you. On-screen arrows mirror the keys; mouse or
+drag looks around. Prompts, a pulsing action button, a floating marker and a
+minimap with the three places give visual hints; the `?` button explains the
+controls and can guide you to any place. `#gallery`, `#ramen` and `#station`
+deep-link straight inside.
+
+**Places.** A ramen shop (ラーメン) with a robot chef. The gallery (ギャラリー),
+whose walls show minted originals and labelled demos and whose central terminal
+(鋳造) is the only place to mint; the one-action `mint()` flow is unchanged. The
+subway (地下鉄): tapping a ticket gate (改札) connects a wallet, or lets a visitor
+through, then the train runs out through tunnels and a viaduct to Sakuragawa
+(桜川), a riverside station among cherry blossoms. You can explore the platform
+and deck; the train waits and brings you back as the city skyline comes into view.
+
+**Sound.** Music is generated in the browser with Web Audio, with a layer for
+each place: synth city, lo-fi ramen bar, ambient gallery, a driving ride and koto
+plucks by the river. It starts only when Sound is switched on.
+
+Pause, reduced-motion preferences (the scene starts still and never auto-walks),
+background-tab suspension and a no-WebGL fallback (mint panel always shown) are
+supported. The city is a browser illustration; the artwork is the original onchain
+GIF. WebCodecs-capable browsers animate the gallery's GIF textures.
 
 The read-only `/api/world` feed refreshes every 30 seconds and reports the latest
 Sepolia block, base fee and collection mint count in the HUD and overhead signs.
@@ -58,7 +70,7 @@ Checks from the repo root:
 
 - `npm test --prefix blocks-page`
 - `npm run check --prefix blocks-page`
-- `node blocks-page/test/browser-qa.mjs` (Chromium; mocked wallet only)
+- `node blocks-page/test/browser-qa.mjs` (Chromium; mocked wallet only; walks, mints in the gallery, connects at the gate and rides to Sakuragawa and back — several minutes under SwiftShader)
 
 The separate Vercel project is `blocks`, root directory `blocks-page`, production
 URL https://blocks-eight-pi.vercel.app . Three.js provenance/license is in

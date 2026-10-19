@@ -32,71 +32,95 @@ try{
   if(options?.body){const req=JSON.parse(options.body);let result;if(req.method==='eth_getTransactionReceipt')result={status:'0x1',blockNumber:'0xc65d40',logs:[{address:collection,topics:['0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef','0x'+'0'.repeat(64),'0x'+account.slice(2).padStart(64,'0'),'0x'+(13000000n).toString(16).padStart(64,'0')]}]};else throw Error('Unexpected RPC '+req.method);return new Response(JSON.stringify({jsonrpc:'2.0',id:req.id,result}));}
   return native(url,options);
  };
- window.ethereum={on(){},async request({method,params}){if(method==='eth_requestAccounts'||method==='eth_accounts')return[account];if(method==='eth_chainId')return'0xaa36a7';if(method==='eth_blockNumber')return'0x'+(52546970n).toString(16);if(method==='eth_getCode')return'0x6000';if(method==='eth_call')return params[0].data==='0x8ada6b0f'?'0x'+renderer.slice(2).padStart(64,'0'):abi(params[0].data==='0xacaaa87e'?'BLOCKS_SINGLE_V1':'blocks');if(method==='eth_gasPrice')return'0x13';if(method==='eth_estimateGas')return'0x100000';if(method==='eth_sendTransaction'){window.__sends.push(params[0]);return hash;}throw Error(method);}};
+ window.ethereum={on(){},async request({method,params}){if(method==='eth_requestAccounts'){window.__requested=true;return[account];}if(method==='eth_accounts')return window.__requested?[account]:[];if(method==='eth_chainId')return'0xaa36a7';if(method==='eth_blockNumber')return'0x'+(52546970n).toString(16);if(method==='eth_getCode')return'0x6000';if(method==='eth_call')return params[0].data==='0x8ada6b0f'?'0x'+renderer.slice(2).padStart(64,'0'):abi(params[0].data==='0xacaaa87e'?'BLOCKS_SINGLE_V1':'blocks');if(method==='eth_gasPrice')return'0x13';if(method==='eth_estimateGas')return'0x100000';if(method==='eth_sendTransaction'){window.__sends.push(params[0]);return hash;}throw Error(method);}};
  `});
- await cdp('Page.navigate',{url:origin+'/'});await until("document.querySelector('#hero')?.complete&&document.querySelector('#hero').naturalWidth===128&&document.querySelectorAll('#scenes button').length===8");
+ const wait=async(expression,seconds=60)=>{for(let i=0;i<seconds*4;++i){if(await evaluate(expression).catch(()=>false))return;await delay(250);}throw Error('Timed out: '+expression);};
+ const shot=async name=>writeFile(path.join(root,'previews/blocks-sepolia/'+name+'.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ const key=async(code,hold=80)=>{const k={ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40,Escape:27,Enter:13,KeyT:84}[code];await cdp('Input.dispatchKeyEvent',{type:'keyDown',code,key:code,windowsVirtualKeyCode:k});await delay(hold);await cdp('Input.dispatchKeyEvent',{type:'keyUp',code,key:code,windowsVirtualKeyCode:k});};
+ // Unreleased config: the mint stays closed and the city still renders.
+ await cdp('Page.navigate',{url:origin+'/'});await wait("['webgl','fallback'].includes(document.documentElement.dataset.scene)&&document.querySelector('#scenes').children.length===8");
  assert.equal(await evaluate("document.querySelector('#mint').disabled"),true);
- await cdp('Page.navigate',{url:origin+'/?qa=live'});await until("document.querySelector('#mint')?.disabled===false");
- assert.equal(await evaluate("document.querySelector('#epoch')===null && document.querySelector('#refresh')===null && document.querySelector('#connect')===null"),true);
- await until("['webgl','fallback'].includes(document.documentElement.dataset.scene)");
+ await cdp('Page.navigate',{url:origin+'/?qa=live'});await wait("document.querySelector('#mint')?.disabled===false");
  assert.equal(await evaluate("document.documentElement.dataset.scene"),'webgl');
- await until("document.querySelector('#chain-status').textContent==='SEPOLIA / LIVE'");
+ await wait("document.querySelector('#chain-status').textContent==='SEPOLIA / LIVE'");
  assert.equal(await evaluate("document.querySelector('#chain-head').textContent"),'#13,000,000');
  assert.equal(await evaluate("document.querySelector('#chain-supply').textContent"),'2 MINTED');
- await until("document.querySelector('#animated-icon')?.href.startsWith('data:image/png;base64,')");
+ await wait("document.querySelector('#animated-icon')?.href.startsWith('data:image/png;base64,')");
  const icon=await evaluate("document.querySelector('#animated-icon').href");await delay(180);
  assert.notEqual(await evaluate("document.querySelector('#animated-icon').href"),icon,'Tab icon must animate');
  const iconPNG=await evaluate("(async()=>{const {drawIcon}=await import('./favicon.mjs');const c=document.createElement('canvas');c.width=c.height=64;drawIcon(c.getContext('2d'),0);return c.toDataURL('image/png').split(',')[1];})()");
  await writeFile(path.join(root,'previews/blocks-sepolia/tab-icon.png'),Buffer.from(iconPNG,'base64'));
-
+ // The mint terminal lives in the gallery; it is not shown on the street.
+ assert.equal(await evaluate("document.querySelector('#mint-panel').dataset.visible"),'false');
+ await shot('site-overview-desktop');
+ // Walking: the street moves, pausing freezes it exactly, and arrows queue turns.
  await evaluate("document.querySelector('#explore').click()");
- await until("document.body.classList.contains('exploring')&&!document.querySelector('#leave-street').hidden");
- assert.equal(await evaluate("document.querySelector('.topbar').inert&&!document.querySelector('#mint').disabled"),true);
- await delay(600);const streetBefore=(await cdp('Page.captureScreenshot',{format:'png'})).data;await delay(450);
- assert.notEqual((await cdp('Page.captureScreenshot',{format:'png'})).data,streetBefore,'Street must move while walking');
- await evaluate("document.querySelector('#motion').click()");await delay(500);
- const streetPaused=(await cdp('Page.captureScreenshot',{format:'png'})).data;await delay(250);
- const pausedAfter=(await cdp('Page.captureScreenshot',{format:'png'})).data;
- if(pausedAfter!==streetPaused){await writeFile('/tmp/blocks-pause-before.png',Buffer.from(streetPaused,'base64'));await writeFile('/tmp/blocks-pause-after.png',Buffer.from(pausedAfter,'base64'));}
- assert.ok(pausedAfter===streetPaused,'Pause must freeze the street and reflections');
- await writeFile(path.join(root,'previews/blocks-sepolia/site-street-desktop.png'),Buffer.from(streetPaused,'base64'));
+ await wait("document.body.classList.contains('exploring')&&!document.querySelector('#leave-street').hidden");
+ const z0=await evaluate('__blocks.walker.z');await delay(1500);
+ assert.ok(await evaluate('__blocks.walker.z')<z0,'Cruising walks north');
+ assert.equal(await evaluate("document.body.dataset.firstVisit"),'true','First visits highlight the help button');
+ await evaluate("delete document.body.dataset.firstVisit;document.querySelector('#motion').click()");await delay(400);
+ // Compare the scene below the top bar; the bar's buttons may still be animating focus or hover.
+ const scene={x:0,y:70,width:1280,height:1030,scale:1},paused=(await cdp('Page.captureScreenshot',{format:'png',clip:scene})).data;await delay(400);
+ assert.ok((await cdp('Page.captureScreenshot',{format:'png',clip:scene})).data===paused,'Pause must freeze the street and reflections');
+ await shot('site-street-desktop');
  await evaluate("document.querySelector('#motion').click()");
- await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
- await until("!document.body.classList.contains('exploring')&&!document.querySelector('.topbar').inert");
- await evaluate("document.querySelector('#motion').click()");assert.equal(await evaluate("document.querySelector('#motion').getAttribute('aria-pressed')"),'true');
- await evaluate("document.querySelector('#mint').click()");await until("document.querySelector('#status').textContent.includes('is yours')");
- assert.equal(await evaluate("window.__sends[0].data"),'0x1249c58b');
- assert.equal(await evaluate('window.__sends.length'),1);assert.equal(await evaluate('window.__sends[0].value'),'0x0');
- await evaluate("document.querySelectorAll('#scenes button')[7].click()");await evaluate('window.scrollTo(0,0)');await until("document.querySelector('#hero').complete&&document.querySelector('#hero').naturalWidth===128");
- const desktop=(await cdp('Page.captureScreenshot',{format:'png'})).data;await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-desktop-mocked.png'),Buffer.from(desktop,'base64'));
- await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(100);
+ await key('ArrowRight');assert.equal(await evaluate("__blocks.walker.queued?.side"),'right');
+ await key('ArrowRight');assert.equal(await evaluate("__blocks.walker.queued"),null,'Pressing again cancels the turn');
+ assert.ok((await evaluate("document.querySelector('#prompt').textContent")).length>0,'Contextual prompt is shown');
+ // Guided route to the gallery, then mint at the terminal (mocked wallet only).
+ await evaluate("__blocks.timeScale=8;document.querySelector('[data-guide=gallery]').click()");
+ await wait("__blocks.walker.place?.id==='gallery'&&__blocks.walker.mode==='inside'",150);
+ await evaluate("__blocks.timeScale=1");
+ assert.equal(await evaluate("document.querySelector('#mint-panel').dataset.visible"),'true');
+ assert.equal(await evaluate("document.querySelector('#action').textContent.includes('Mint')"),true);
+ await delay(800);await shot('site-gallery-desktop');
+ await evaluate("document.querySelector('#action').click()");await wait("document.querySelector('#status').textContent.includes('is yours')",60);
+ assert.equal(await evaluate("window.__sends.length"),1);assert.equal(await evaluate("window.__sends[0].data"),'0x1249c58b');assert.equal(await evaluate("window.__sends[0].value"),'0x0');
+ await wait("document.querySelector('#collection').open&&document.querySelector('#hero').naturalWidth===128");
+ await shot('site-browser-desktop-mocked');
+ await evaluate("document.querySelector('#collection').close()");
+ // Leaving with Escape returns to the street.
+ await key('Escape');await wait("__blocks.walker.mode==='street'",60);
+ // The subway: the ticket gate connects the wallet, then the train rides out to Sakuragawa and back.
+ await evaluate("window.__requested=false;__blocks.walker.placeAt('station',18,0)");await delay(600);
+ assert.equal(await evaluate("__blocks.walker.gate"),false);
+ await evaluate("__blocks.interact('gate')");await wait("__blocks.walker.gate&&!document.querySelector('#wallet-chip').hidden");
+ await evaluate("__blocks.walker.placeAt('station',25,-4,Math.PI/2)");await delay(900);await shot('site-station-desktop');
+ await evaluate("__blocks.timeScale=8;__blocks.interact('train')");
+ await wait("__blocks.ride?.phase==='journey'",120);await wait("__blocks.ride?.phase==='journey'&&__blocks.ride.t>20",150);
+ await evaluate("__blocks.timeScale=1");await delay(600);await shot('site-ride-desktop');await evaluate("__blocks.timeScale=8");
+ await wait("__blocks.walker.place?.id==='remote'&&__blocks.walker.mode==='inside'",150);
+ await evaluate("__blocks.timeScale=1");await delay(900);await shot('site-sakuragawa-desktop');
+ await evaluate("__blocks.timeScale=8;__blocks.interact('train-home')");
+ await wait("__blocks.walker.place?.id==='station'&&__blocks.walker.mode==='inside'&&!__blocks.ride",200);
+ await evaluate("__blocks.timeScale=1");assert.equal(await evaluate("document.body.dataset.place"),'station');
+ // Mobile.
+ await cdp('Page.navigate',{url:origin+'/?qa=live'});await wait("document.documentElement.dataset.scene==='webgl'");
+ await cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await delay(600);
  assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth'),true);
- assert.equal(await evaluate("document.querySelector('#mint').getBoundingClientRect().top<window.innerHeight"),true);
- await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-mobile-mocked.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
- await evaluate("document.querySelector('#explore').click();document.querySelector('#motion').click()");
- await until("document.body.classList.contains('exploring')");
- await cdp('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:110,y:300}]});
- await cdp('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:215,y:330}]});
- await cdp('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await delay(450);
- assert.equal(await evaluate("document.querySelector('#mint').getBoundingClientRect().bottom<innerHeight"),true);
- assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
- await writeFile(path.join(root,'previews/blocks-sepolia/site-street-mobile.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
- await evaluate("document.querySelector('#leave-street').click()");
- await until("!document.body.classList.contains('exploring')");
- await cdp('Emulation.setDeviceMetricsOverride',{width:320,height:740,deviceScaleFactor:1,mobile:true});await delay(100);
+ await shot('site-browser-mobile-mocked');
+ await evaluate("document.querySelector('#explore').click()");await wait("document.body.classList.contains('exploring')");
+ await cdp('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:110,y:300}]});await cdp('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:215,y:330}]});await cdp('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+ await delay(600);assert.equal(await evaluate("document.querySelector('#go-forward').getBoundingClientRect().bottom<=innerHeight"),true);
+ await shot('site-street-mobile');
+ await evaluate("__blocks.walker.placeAt('gallery',9,0)");await delay(900);
+ assert.equal(await evaluate("document.querySelector('#mint').getBoundingClientRect().bottom<innerHeight&&document.querySelector('#mint').getBoundingClientRect().top>0"),true);
+ await cdp('Emulation.setDeviceMetricsOverride',{width:320,height:740,deviceScaleFactor:1,mobile:true});await delay(300);
  assert.equal(await evaluate('document.documentElement.scrollWidth<=window.innerWidth'),true);
- assert.equal(await evaluate("document.querySelector('.hero-copy').getBoundingClientRect().bottom+16<document.querySelector('.mint-panel').getBoundingClientRect().top"),true);
- assert.equal(await evaluate("document.querySelector('#mint').getBoundingClientRect().bottom<window.innerHeight"),true);
- await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});await until("document.querySelector('#motion').getAttribute('aria-pressed')==='true'");
- await until("document.querySelector('#animated-icon').href==="+JSON.stringify('data:image/png;base64,'+iconPNG));
+ // Reduced motion freezes the scene and the tab icon.
+ await cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});await wait("document.querySelector('#motion').getAttribute('aria-pressed')==='true'");
+ await wait("document.querySelector('#animated-icon').href==="+JSON.stringify('data:image/png;base64,'+iconPNG));
  const stillIcon=await evaluate("document.querySelector('#animated-icon').href");await delay(250);
  assert.equal(await evaluate("document.querySelector('#animated-icon').href"),stillIcon,'Reduced motion must stop the tab icon');
-
+ // An offline feed keeps the last reading.
  await evaluate("window.__worldOffline=true;document.dispatchEvent(new Event('visibilitychange'))");
- await until("document.querySelector('#chain-status').textContent==='SEPOLIA / FEED OFFLINE'");
+ await wait("document.querySelector('#chain-status').textContent==='SEPOLIA / FEED OFFLINE'");
  assert.equal(await evaluate("document.querySelector('#chain-head').textContent"),'#13,000,000');
+ // Without WebGL the mint panel is always available.
  await cdp('Page.addScriptToEvaluateOnNewDocument',{source:"const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:originalContext.call(this,type,...args);};"});
- await cdp('Page.navigate',{url:origin+'/?qa=live'});await until("document.documentElement.dataset.scene==='fallback' && !document.querySelector('#mint').disabled");
- await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',closed_release:true,zero_argument_mint:true,threejs:'Eye-level infinite street, live planar reflections, enter/escape, paused-frame stability and mobile touch look verified; reduced-motion and no-WebGL fallback preserve mint',chain_feed:'Mocked head, base fee, minted count and offline state passed; no real wallet transactions',world_gallery:'Eight labelled kiosks with minted originals and demo fallback; WebCodecs GIF playback with static poster fallback',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
- console.log('PASS single-block site: WebGL city, pause, one-action zero-argument mint, receipt, scene selection, mobile');
+ await cdp('Page.navigate',{url:origin+'/?qa=live'});await wait("document.documentElement.dataset.scene==='fallback' && !document.querySelector('#mint').disabled");
+ assert.equal(await evaluate("getComputedStyle(document.querySelector('#mint-panel')).visibility"),'visible');
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',zero_argument_mint:true,threejs:'Walkable street grid with junction turns, arrow keys and on-screen arrows, guided route, walk-in ramen shop, gallery mint terminal, subway ticket-gate wallet connection, round-trip ride to Sakuragawa, paused-frame stability, mobile touch look; reduced-motion and no-WebGL fallback preserve mint',chain_feed:'Mocked head, base fee, minted count and offline state passed',gallery:'Seven framed artworks with minted originals and demo fallback; WebCodecs GIF playback with static poster fallback',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',audio:'procedural Web Audio; not asserted in headless Chrome',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
+ console.log('PASS blocks city: walk, turns, guided route, gallery mint, ticket gate wallet, Sakuragawa round trip, mobile, reduced motion, fallback');
 }finally{ws?.close();chrome?.kill();server.close();await delay(100);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:100});}

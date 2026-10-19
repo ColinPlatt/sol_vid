@@ -85,11 +85,13 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   keep small or tightly coupled work local. This does not authorize deployments
   or edits outside the user's task, and workers must preserve concurrent work.
 
-- For aesthetic work or recording design feedback, use
-  `.agents/skills/taste/SKILL.md`. Its living profile distinguishes confirmed
-  preferences from observed implementations and preserves project-specific
-  counterexamples. Update it from explicit feedback; do not treat existing code
-  or silence as approval. Keep blocks, ghoulballs and unrelated projects distinct.
+- Taste is maintained in the private `ColinPlatt/taste` template repository and
+  installed at `~/.agents/skills/taste/SKILL.md`. Use the installed skill for
+  aesthetic work or recording explicit design feedback. Keep personal profile
+  updates in that private repository rather than copying them into this public
+  project. Distinguish confirmed preferences from observed implementations and
+  preserve project-specific counterexamples. If Taste is unavailable, use the
+  current brief; do not require private repository access to work on sol_vid.
 
 - `BlockVideoNFT` / `BlockVideoRenderer` are the prepared `BLOCKS_VIDEO_V2`
   revision: native SVG first-frame poster plus a self-contained AVI player,
