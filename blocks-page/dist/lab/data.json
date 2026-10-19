@@ -504,25 +504,25 @@
   "exact_geometry_duplicates": 0
  },
  "v3_live": {
-  "collection": "0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f",
-  "renderer": "0xfc1f1f4d790646b628acd9671df60b6ad929649b",
-  "router": "0xd5b2189a5613d3637329d860d3c58638479d4d6b",
-  "first_token_id": 11947754,
-  "first_scene": "夜景 SKYLINE",
+  "collection": "0x555261be0c7b9c3decb85016c23777f53fa61b77",
+  "renderer": "0x72c77e3419986621922f7f96b317702602088d1b",
+  "router": "0xff9ab8556de392f84e82a31709fb58991cf1fb9f",
+  "first_token_id": 52810370,
+  "first_scene": "夜行 NIGHT TRAIN",
   "first_recipe": {
-   "hue": 63,
-   "saturation": 68,
-   "heightBand": 7,
-   "density": 0,
-   "layout": 2,
+   "hue": 81,
+   "saturation": 69,
+   "heightBand": 5,
+   "density": 3,
+   "layout": 0,
    "crop": 2,
-   "pan": 7,
-   "mirror": true,
+   "pan": 2,
+   "mirror": false,
    "reverse": false,
-   "phase": 7,
-   "tint": "1131984243320653791011976996315126458258738715649566139389642653624261379579"
+   "phase": 13,
+   "tint": "55526640630507595816785253991940117815531451492260807893217964290999868722844"
   },
-  "token_uri_gas": 420227050,
-  "poster": "assets/live/v3-11947754.svg"
+  "token_uri_gas": 357238769,
+  "poster": "assets/live/v3-52810370.svg"
  }
 }

@@ -54,10 +54,10 @@ def main():
             source = PREVIEWS / "blocks-diversity-v3" / name
             if source.exists():
                 shutil.copyfile(source, assets / "audit" / name)
-    live = read(ROOT / "deployments" / "blocks-video-v3-sepolia.json")
+    live = read(ROOT / "deployments" / "blocks-video-v3-base.json")
     if live and live.get("status") == "deployed":
         token = live["first_token_id"]
-        poster = PREVIEWS / "blocks-video-v3-sepolia" / f"{token}.svg"
+        poster = PREVIEWS / "blocks-video-v3-base-live" / f"{token}.svg"
         (assets / "live").mkdir(exist_ok=True)
         shutil.copyfile(poster, assets / "live" / f"v3-{token}.svg")
         data["v3_live"] = {"collection": live["collection"], "renderer": live["renderer"], "router": live["scene_router"],

@@ -10,8 +10,8 @@ and authorizations.
 |---|---|---|
 | `blocks` video, `BLOCKS_VIDEO_V3` | collection `0x555261be0c7b9c3decb85016c23777f53fa61b77` | Deployed 2026-10-19 by the user with `scripts/broadcast_blocks_v3_base.sh --broadcast` (keystore `ghoulballs_base`, `FOUNDRY_PROFILE=blocks_base`, Cancun). All eight scenes, router `0xff9a…fb9f`, renderer `0x72c7…8d1b`, collection and first mint (#52810370, 夜行 NIGHT TRAIN) in one broadcast; ~41M gas, 0.00022 ETH. All 11 contracts are verified on Basescan and Sourcify (exact). `scripts/record_blocks_v3.py base` passed: bytecode, mint block, recipe, all 90 frames vs the reference; `tokenURI` ≈357M gas through `mainnet.base.org`. Manifest: `deployments/blocks-video-v3-base.json`. **OpenSea playback on Base not yet recorded.** |
 
-The site (`blocks-page/dist/config.json`) mints this collection. The lab still renders
-from Sepolia (V1 router and the Sepolia V3 renderer), so it needs `SEPOLIA_RPC_URL`.
+The site (`blocks-page/dist/config.json`) and the art lab both use only this Base deployment;
+the lab simulates Base blocks (chain ID 8453) and renders through `mainnet.base.org`.
 
 ## Earlier deployments (Ethereum Sepolia)
 
@@ -66,7 +66,7 @@ from Sepolia (V1 router and the Sepolia V3 renderer), so it needs `SEPOLIA_RPC_U
   ticket gate and the ramen shop's ticket machine (食券機) all connect without a transaction.
 - **Mint checks:** `mint.mjs` requires `ART_VERSION === 'BLOCKS_VIDEO_V3'`, name and symbol
   `blocks`, and the configured renderer before sending the zero-argument `mint()`.
-- **Lab:**
+- **Lab (Base only):**
   - `api/lab.js` builds inputs from an integer seed only; the simulated block is
     13,000,000 with `prevrandao` = seed.
   - V1 asks the old router for `gif(bytes)`. V3 sends the `Info` tuple to the V3 renderer

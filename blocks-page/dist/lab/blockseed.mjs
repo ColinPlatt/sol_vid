@@ -65,7 +65,7 @@ export function recipeV3(info){
 }
 export const selector=signature=>hex(keccak256(utf8(signature)).subarray(0,4));
 export const SCENES=['峡谷 CANYON','地下 DESCENT','高架 MONORAIL','摩天楼 SPIRE','夜景 SKYLINE','路地 ALLEY','夜行 NIGHT TRAIN','里山 SATOYAMA'];
-// The lab's simulated block: fixed fields, with prevrandao as the study seed (as in the V3 diversity audit).
-export const LAB_BLOCK={number:13000000n,timestamp:1792335288n,gasLimit:60000000n,baseFee:15n,beneficiary:'0x0000000000000000000000000000000000000000',chainId:11155111n};
+// The lab's simulated Base block: fixed fields, with prevrandao as the study seed (as in the V3 diversity audit).
+export const LAB_BLOCK={number:13000000n,timestamp:1792335288n,gasLimit:60000000n,baseFee:15n,beneficiary:'0x0000000000000000000000000000000000000000',chainId:8453n};
 export const labInfo=n=>({...LAB_BLOCK,prevrandao:BigInt(n)});
 export const hex=b=>'0x'+[...b].map(x=>x.toString(16).padStart(2,'0')).join('');

@@ -4,7 +4,6 @@
 <header class="lab-head"><div><p class="eyebrow">BLOCKS // ART WORKSHOP · 研究室</p><h1>One-block night lab</h1></div><a href="/" class="back">← Back to the city</a></header>
 <nav class="tabs" aria-label="Lab sections" id="tabs"></nav>
 <div class="toolbar" id="toolbar">
- <div class="version-pick" id="version-pick" role="group" aria-label="Contract version"><button type="button" data-v="3">V3 · AVI</button><button type="button" data-v="1">V1 · GIF</button></div>
  <label for="seed">Seed</label><input id="seed" inputmode="numeric" pattern="[0-9]*" maxlength="7">
  <button type="button" id="reroll">Reroll ⟳</button>
  <div class="scene-pick" id="scene-pick" hidden></div>
@@ -12,8 +11,8 @@
 </div>
 <p class="lab-note" id="note"></p>
 <details class="context"><summary>Study notes</summary>
-<p>Renders here are real. Both deployed collections on Ethereum Sepolia draw each card inside a 500,000,000-gas static call: <code>BLOCKS_SINGLE_V1</code> returns its GIF, and <code>BLOCKS_VIDEO_V3</code> returns a native SVG poster of frame 0, its lossless AVI and the self-contained player its <code>animation_url</code> embeds. The input is what <code>mint()</code> would store. The lab block is simulated, as in the V3 diversity audit: block 13,000,000 with a fixed timestamp, gas limit, base fee, beneficiary and chain ID. Only <code>prevrandao</code> changes, and it is the seed shown on each card.</p>
-<p>Scene choice is computed in your browser with an exact port of <code>SingleBlockData</code> and <code>Epoch.scene</code>, verified byte-for-byte against the deployed contracts. V1 and V3 hash the same block under different version strings, so one seed lands in different scenes in each. Forced scene and rare studies search for seeds of that scene; they do not represent mint probabilities. V2 is a prepared, undeployed revision; its cards are first-frame posters from measured previews.</p>
+<p>Renders here are real. The deployed <code>BLOCKS_VIDEO_V3</code> renderer on Base draws each card inside a 500,000,000-gas static call and returns a native SVG poster of frame 0, its lossless AVI and the self-contained player its <code>animation_url</code> embeds. The input is what <code>mint()</code> would store.</p>
+<p>The lab block is simulated, as in the V3 diversity audit: block 13,000,000 on Base with a fixed timestamp, gas limit, base fee and beneficiary. Only <code>prevrandao</code> changes, and it is the seed shown on each card. Scene choice is computed in your browser with an exact port of the contract's seed and scene logic. Forced scene and rare studies search for seeds of that scene; they do not represent mint probabilities.</p>
 </details>
 <h2 class="study-title" id="study-title"></h2>
 <main id="study" class="study"></main>
