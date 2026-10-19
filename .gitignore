@@ -45,3 +45,5 @@ previews/blocks-video-v3/stress-*.avi
 previews/blocks-video-v3-base/*.uri
 previews/blocks-video-v3-base/*.reference.avi
 previews/blocks-video-v3-base/*.avi
+previews/blocks-video-v3-sepolia/*.uri
+previews/blocks-video-v3-sepolia/skyline.avi

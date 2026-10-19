@@ -1,0 +1,9 @@
+{
+  "scope": "live Ethereum Sepolia token 11947754 metadata (tokenURI read under a 500M-gas cap), not marketplace evidence",
+  "chrome": true,
+  "firefox": true,
+  "safari": "not_tested_requires_macOS",
+  "marketplace": "not_checked",
+  "native_svg_matches_ffmpeg_first_frame": true,
+  "sandboxed_player": true
+}

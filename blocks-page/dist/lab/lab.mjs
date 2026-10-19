@@ -1,40 +1,51 @@
 // The blocks art lab: real onchain renders for simulated blocks, forced scene studies, versions and checks.
-import {seed,sceneOf,labInfo,SCENES} from './blockseed.mjs';
+import {seed,sceneOf,labInfo,recipeV3,SCENES} from './blockseed.mjs';
 const $=id=>document.getElementById(id);
 const KEYS=['canyon','descent','monorail','spire','skyline','alley','nighttrain','satoyama'];
 const TABS=[
-  {id:'nights',jp:'夜',label:'Nights',note:'Twelve consecutive seeds, rendered by the deployed contract. Reroll to see the next twelve.'},
+  {id:'nights',jp:'夜',label:'Nights',note:'Twelve consecutive seeds, rendered by the deployed contract. Reroll to see the next twelve. V3 cards show the onchain first-frame poster; open one to play its AVI.'},
   {id:'scenes',jp:'場面',label:'Scenes',note:'Forced scene study: the first six seeds from here that land in the chosen scene. Not mint probabilities.'},
   {id:'rares',jp:'稀',label:'Rare',note:'Satoyama appears when one byte of the seed hash is below four: about 1 in 64. These are the next six rare seeds.'},
-  {id:'versions',jp:'版',label:'Versions',note:'V1 is live (GIF in metadata). V2 and V3 are prepared, undeployed AVI revisions shown by their first-frame posters.'},
+  {id:'versions',jp:'版',label:'Versions',note:'V1 (GIF) and V3 (AVI) are both deployed on Sepolia and render live here. V2 is a prepared, undeployed revision shown by its first-frame poster.'},
   {id:'checks',jp:'試験',label:'Checks',note:'Scene distribution measured from seeds in your browser, capped-call gas per scene, and the V3 100,000-render diversity audit.'},
-  {id:'minted',jp:'鋳造済',label:'Minted',note:'Actual tokens from the live collection, read through tokenURI.'}
+  {id:'minted',jp:'鋳造済',label:'Minted',note:'Actual tokens: the V3 collection\'s first mint, then the live V1 collection read through tokenURI.'}
 ];
 const params=new URLSearchParams(location.search);
-const state={tab:TABS.find(t=>t.id===params.get('tab'))?.id??'nights',seed:Math.min(9999999,Math.max(0,Number(params.get('seed'))||1)),scene:Math.min(7,Math.max(0,Number(params.get('scene'))||0))};
+const state={v:params.get('v')==='1'?'1':'3',tab:TABS.find(t=>t.id===params.get('tab'))?.id??'nights',seed:Math.min(9999999,Math.max(0,Number(params.get('seed'))||1)),scene:Math.min(7,Math.max(0,Number(params.get('scene'))||0))};
 let data=null,run=0;
-const sceneOfSeed=n=>sceneOf(seed(labInfo(n)));
-function sync(){const q=new URLSearchParams({tab:state.tab,seed:state.seed});if(state.tab==='scenes')q.set('scene',state.scene);history.replaceState(null,'','?'+q);}
+const VERSION={'1':'BLOCKS_SINGLE_V1','3':'BLOCKS_VIDEO_V3'};
+const sceneOfSeed=(n,v=state.v)=>sceneOf(seed(labInfo(n),VERSION[v]));
+function sync(){const q=new URLSearchParams({tab:state.tab,v:state.v,seed:state.seed});if(state.tab==='scenes')q.set('scene',state.scene);history.replaceState(null,'','?'+q);}
 function el(tag,props={},...children){const e=Object.assign(document.createElement(tag),props);e.append(...children.filter(c=>c!=null));return e;}
-function card({src,seedValue,scene,caption,tag,facts,download}){
+function card({src,seedValue,scene,caption,tag,facts,download,player}){
   const img=el('img',{src,alt:caption,loading:'lazy',decoding:'async'});
   const fig=el('figure',{className:'card'+(scene===7?' rare':'')},el('div',{className:'frame'},img,el('span',{className:'loading'},'描画中 · drawing onchain…')),
     el('figcaption',{},el('b',{},SCENES[scene]??caption),el('span',{},tag??(seedValue!=null?'SEED #'+seedValue.toLocaleString('en-US'):''))));
   img.onload=()=>fig.classList.add('ready');img.onerror=()=>{fig.classList.add('failed');fig.querySelector('.loading').textContent='Render failed — retry';};
   fig.tabIndex=0;fig.setAttribute('role','button');
-  const open=()=>detail({src,scene,seedValue,caption,facts,download});fig.onclick=open;fig.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
+  const open=()=>detail({src,scene,seedValue,caption,facts,download,player});fig.onclick=open;fig.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}};
   return fig;
 }
-function detail({src,scene,seedValue,caption,facts=[],download=true}){
-  $('detail-image').src=src;$('detail-image').alt=caption??SCENES[scene];
+function detail({src,scene,seedValue,caption,facts=[],download=true,player}){
+  $('detail-image').hidden=Boolean(player);$('detail-player').hidden=!player;
+  if(player){$('detail-image').removeAttribute('src');$('detail-player').src=player.src;}else{$('detail-player').src='about:blank';$('detail-image').src=src;}
+  $('detail-image').alt=caption??SCENES[scene];
   $('detail-eyebrow').textContent=seedValue!=null?'SEED #'+seedValue.toLocaleString('en-US')+' · SIMULATED BLOCK 13,000,000':'';
   $('detail-title').textContent=SCENES[scene]??caption;
   $('detail-facts').replaceChildren(...facts.flatMap(([k,v])=>[el('dt',{},k),el('dd',{},String(v))]));
-  $('detail-download').hidden=!download;$('detail-download').href=src;$('detail-download').download=`blocks-lab-${seedValue??'render'}.gif`;
+  const file=player?.download??src;$('detail-download').hidden=!download;$('detail-download').href=file;
+  $('detail-download').download=`blocks-lab-${seedValue??'render'}.${player?'avi':'gif'}`;$('detail-download').textContent=player?'Download AVI ↓':'Download GIF ↓';
   $('detail').showModal();
 }
-const render=n=>({src:'/api/lab?n='+n,seedValue:n,scene:sceneOfSeed(n),facts:[['Seed (prevrandao)',n],['Scene',SCENES[sceneOfSeed(n)]],['Rare',sceneOfSeed(n)===7?'Yes':'No'],['Renderer','deployed V1, 500M-gas static call']]});
-function findSeeds(start,scene,count){const found=[];for(let n=start;found.length<count&&n<start+20000;n++)if(sceneOfSeed(n)===scene)found.push(n);return found;}
+const yes=b=>b?'yes':'no';
+function render(n,v=state.v){
+  const scene=sceneOfSeed(n,v),base=[['Seed (prevrandao)',n],['Scene',SCENES[scene]],['Rare',scene===7?'Yes':'No']];
+  if(v==='1')return {src:'/api/lab?n='+n,seedValue:n,scene,facts:[...base,['Renderer','deployed V1, 500M-gas static call']]};
+  const r=recipeV3(labInfo(n)),api='/api/lab?v=3&n='+n;
+  return {src:api,seedValue:n,scene,player:{src:api+'&as=player',download:api+'&as=avi'},tag:'SEED #'+n.toLocaleString('en-US')+' · ▶',
+    facts:[...base,['Hue / saturation',r.hue+'° / '+r.saturation],['Height band · density · layout',[r.heightBand,r.density,r.layout].join(' · ')],['Crop · pan · mirror',[r.crop,r.pan,yes(r.mirror)].join(' · ')],['Reverse · phase',yes(r.reverse)+' · '+r.phase],['Renderer','deployed V3: poster, AVI and player in one 500M-gas static call']]};
+}
+function findSeeds(start,scene,count,v=state.v){const found=[];for(let n=start;found.length<count&&n<start+20000;n++)if(sceneOfSeed(n,v)===scene)found.push(n);return found;}
 function grid(cards){return el('section',{className:'grid'},...cards);}
 const studies={
   nights(){$('study-title').textContent='Twelve nights from seed '+state.seed.toLocaleString('en-US');return grid(Array.from({length:12},(_,i)=>card(render(state.seed+i))));},
@@ -43,12 +54,11 @@ const studies={
   versions(){
     $('study-title').textContent='Versions by scene';
     const rows=KEYS.map((key,s)=>{
-      const first=findSeeds(1,s,1)[0];
-      const v2=data?.v2[key],v3=data?.v3[key];
+      const v1=findSeeds(1,s,1,'1')[0],v3=findSeeds(1,s,1,'3')[0],v2=data?.v2[key];
       return el('div',{className:'version-row'},el('h3',{},SCENES[s]),
-        card({...render(first),tag:'V1 · LIVE · GIF'}),
+        card({...render(v1,'1'),tag:'V1 · LIVE · GIF'}),
         v2?card({src:'assets/v2/'+key+'.svg',scene:s,tag:'V2 · PREPARED · AVI',download:false,facts:[['Version','BLOCKS_VIDEO_V2 (not deployed)'],['Poster','first AVI frame, native SVG'],['Metadata gas',v2.metadata_gas?.toLocaleString('en-US')??'—']]}):null,
-        v3?card({src:'assets/v3/'+key+'.svg',scene:s,tag:'V3 · PREPARED · AVI',download:false,facts:[['Version','BLOCKS_VIDEO_V3 (not deployed)'],['Hue / saturation',v3.hue+'° / '+v3.saturation],['Height band · density · layout',[v3.heightBand,v3.density,v3.layout].join(' · ')],['Crop · pan · mirror',[v3.crop,v3.pan,v3.mirror?'yes':'no'].join(' · ')],['Reverse · phase',(v3.reverse?'yes':'no')+' · '+v3.phase],['Metadata gas',v3.metadata_gas?.toLocaleString('en-US')]]}):null);
+        card({...render(v3,'3'),tag:'V3 · LIVE · AVI ▶'}));
     });
     return el('section',{className:'versions'},...rows);
   },
@@ -77,7 +87,10 @@ const studies={
     return out;
   },
   minted(){
-    $('study-title').textContent='Minted tokens';const section=grid([]),status=el('p',{className:'small'},'Reading the live collection…');const token=run;
+    $('study-title').textContent='Minted tokens';const section=grid([]),status=el('p',{className:'small'},'Reading the live V1 collection…');const token=run;
+    const live=data?.v3_live,r=live?.first_recipe;
+    const first=live?el('div',{},el('h3',{className:'study-title'},'V3 collection'),grid([card({src:live.poster,scene:SCENES.indexOf(live.first_scene),caption:live.first_scene,tag:'BLOCK #'+live.first_token_id.toLocaleString('en-US')+' · V3',download:false,
+      facts:[['Collection',live.collection],['Token',live.first_token_id],['Hue / saturation',r.hue+'° / '+r.saturation],['Height band · density · layout',[r.heightBand,r.density,r.layout].join(' · ')],['Crop · pan · mirror',[r.crop,r.pan,yes(r.mirror)].join(' · ')],['tokenURI gas',live.token_uri_gas.toLocaleString('en-US')],['Poster','native SVG of AVI frame 0, read from tokenURI']]})]),el('h3',{className:'study-title'},'V1 collection')):null;
     fetch('/api/world',{cache:'no-store'}).then(r=>r.json()).then(async world=>{
       if(token!==run)return;const ids=(world.tokenIds??[]).filter(id=>/^\d{1,18}$/.test(id));status.textContent=Number(world.totalSupply).toLocaleString('en-US')+' minted · showing '+ids.length+' recent';
       for(const id of ids){
@@ -86,7 +99,7 @@ const studies={
         section.append(card({src:t.image,scene:scene>=0?scene:undefined,caption:t.name,tag:'BLOCK #'+Number(id).toLocaleString('en-US'),facts:t.attributes.map(a=>[a.trait_type,a.value])}));
       }
     }).catch(()=>{status.textContent='The chain feed is unavailable right now.';});
-    return el('div',{},status,section);
+    return el('div',{},first,status,section);
   }
 };
 function show(){
@@ -95,7 +108,8 @@ function show(){
   const tab=TABS.find(t=>t.id===state.tab);$('note').textContent=tab.note;
   $('scene-pick').hidden=state.tab!=='scenes';for(const b of $('scene-pick').children)b.setAttribute('aria-pressed',String(Number(b.dataset.scene)===state.scene));
   $('toolbar').dataset.tab=state.tab;$('seed').value=state.seed;
-  $('toolbar-note').textContent=state.tab==='versions'||state.tab==='minted'?'':state.tab==='checks'?'Distribution starts at this seed':'Simulated block 13,000,000 · prevrandao = seed';
+  for(const b of $('version-pick').children)b.setAttribute('aria-pressed',String(b.dataset.v===state.v));
+  $('toolbar-note').textContent=state.tab==='versions'||state.tab==='minted'?'':state.tab==='checks'?'Distribution starts at this seed':'Simulated block 13,000,000 · prevrandao = seed · '+VERSION[state.v];
   $('study').replaceChildren(studies[state.tab]());
 }
 for(const tab of TABS)$('tabs').append(el('button',{type:'button',onclick:()=>{state.tab=tab.id;show();}},el('b',{},tab.jp),' '+tab.label));
@@ -104,6 +118,8 @@ SCENES.forEach((name,s)=>$('scene-pick').append(el('button',{type:'button',title
 [...$('scene-pick').children].forEach((b,i)=>{b.dataset.scene=i;});
 $('seed').onchange=()=>{const n=Number($('seed').value);if(Number.isInteger(n)&&n>=0&&n<=9999999){state.seed=n;show();}else $('seed').value=state.seed;};
 $('reroll').onclick=()=>{state.seed=state.tab==='nights'?(state.seed+12)%9999988:1+Math.floor(Math.random()*9999000);show();};
+for(const b of $('version-pick').children)b.onclick=()=>{state.v=b.dataset.v;show();};
+$('detail').addEventListener('close',()=>{$('detail-player').src='about:blank';});
 $('detail').querySelector('.close').onclick=()=>$('detail').close();$('detail').onclick=e=>{if(e.target===$('detail'))$('detail').close();};
-fetch('data.json').then(r=>r.ok?r.json():null).then(d=>{data=d;if(['versions','checks'].includes(state.tab))show();}).catch(()=>{});
+fetch('data.json').then(r=>r.ok?r.json():null).then(d=>{data=d;if(['versions','checks','minted'].includes(state.tab))show();}).catch(()=>{});
 show();

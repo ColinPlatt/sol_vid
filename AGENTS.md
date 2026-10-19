@@ -107,3 +107,8 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   and `scripts/validate_blocks_video_v3.py` for recipe changes. Do not claim
   uniqueness from seed/trait counts, serial labels, phase, or camera transforms.
   No deployment authorization is implied by this prototype or its audit.
+- The user authorized the `BLOCKS_VIDEO_V3` Ethereum Sepolia deployment on 2026-10-19.
+  It is confirmed and Sourcify-verified in `deployments/blocks-video-v3-sepolia.json`.
+  OpenSea no longer supports testnets, so its marketplace gate cannot pass on Sepolia;
+  the live `blocks-page/` mint stays on V1 unless the user explicitly asks to switch.
+  This does not authorize Base, mainnet or other redeployments.

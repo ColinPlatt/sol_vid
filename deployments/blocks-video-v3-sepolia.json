@@ -1,0 +1,242 @@
+{
+  "status": "deployed",
+  "network": "Ethereum Sepolia",
+  "chain_id": 11155111,
+  "collection_name": "blocks",
+  "collection_symbol": "blocks",
+  "art_version": "BLOCKS_VIDEO_V3",
+  "collection": "0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f",
+  "renderer": "0xfc1f1f4d790646b628acd9671df60b6ad929649b",
+  "scene_router": "0xd5b2189a5613d3637329d860d3c58638479d4d6b",
+  "descent_v3": "0xc549f6d817bc44310bcea5dd832fc70e92ba88b7",
+  "scenes": {
+    "canyon": "0x9b98725f47fae11edc4d62cc1a6be6cdffa4ba9e",
+    "descent": "0xc549f6d817bc44310bcea5dd832fc70e92ba88b7",
+    "monorail": "0x052d7c4f8388868ee4d609b7b766b2e55493eadb",
+    "spire": "0x6a12fcab116179201e8ab8018524f48c66a89525",
+    "skyline": "0x5930977cb50acef591838b6dc60ea4798635a4d3",
+    "alley": "0x6b5c2c6e2fab7bfd3b35284aa3ec47a0e0ab1c1a",
+    "nighttrain": "0x8f9ba4f5a8ae784c771b0b17d7959dd9210430dd",
+    "satoyama": "0x82a997de5a28eeb9c772febb8a02fa70afa34b08"
+  },
+  "reused_scenes_from": "deployments/blocks-sepolia.json",
+  "mint_signature": "mint()",
+  "token_id": "execution block number",
+  "limit": "one NFT per block, first successful caller",
+  "image": "native SVG of final AVI frame 0",
+  "animation_url": "self-contained HTML data URI embedding AVI and decoder",
+  "gif_in_metadata": false,
+  "format": "AVI BI_RGB",
+  "width": 128,
+  "height": 128,
+  "frames": 90,
+  "fps": 15,
+  "duration_seconds": 6,
+  "compiler": "0.8.37+commit.f401782d",
+  "evm_version": "amsterdam",
+  "profile": "default",
+  "optimizer_runs": 200,
+  "via_ir": true,
+  "experimental": true,
+  "deployer": "0xa59523b0eB18415151307b57D5675480A3DEca38",
+  "first_token_id": 11947754,
+  "first_scene": "夜景 SKYLINE",
+  "first_recipe": {
+    "hue": 63,
+    "saturation": 68,
+    "heightBand": 7,
+    "density": 0,
+    "layout": 2,
+    "crop": 2,
+    "pan": 7,
+    "mirror": true,
+    "reverse": false,
+    "phase": 7,
+    "tint": "1131984243320653791011976996315126458258738715649566139389642653624261379579"
+  },
+  "transaction_hashes": [
+    "0xadb6baf0eb77db4561bea8f92e7a607532695a91ebdbac7e04bb7de5b24074b5",
+    "0x71aa36ceef11b99f0742e0e89ff789ed3ffd0d1e0839625f4f348ce380cbc92e",
+    "0x8f0d6c9ea264657ecf532cd889a394352d13b13681f0e17836487d826562ee7b",
+    "0x6faf95d0f6032c02db2dfc7273618ffd183b0ed4c9409e8b11eda7e1720b5bc4",
+    "0x9668b640e3d24d800d63848e6a30d96c747b3a89a6d846d3795a552a599ee482"
+  ],
+  "receipts": [
+    {
+      "type": "0x2",
+      "status": "0x1",
+      "cumulativeGasUsed": "0x56756ad",
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "transactionHash": "0xadb6baf0eb77db4561bea8f92e7a607532695a91ebdbac7e04bb7de5b24074b5",
+      "transactionIndex": "0x59",
+      "blockHash": "0x003a11f583231f7b36e3fbdab23358a0023a7c7b62b3120bfae7ba077911bebb",
+      "blockNumber": "0xb64ee5",
+      "gasUsed": "0x1ace05b",
+      "effectiveGasPrice": "0x12",
+      "from": "0xa59523b0eb18415151307b57d5675480a3deca38",
+      "to": null,
+      "contractAddress": "0xc549f6d817bc44310bcea5dd832fc70e92ba88b7"
+    },
+    {
+      "type": "0x2",
+      "status": "0x1",
+      "cumulativeGasUsed": "0x401c84f",
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "transactionHash": "0x71aa36ceef11b99f0742e0e89ff789ed3ffd0d1e0839625f4f348ce380cbc92e",
+      "transactionIndex": "0x54",
+      "blockHash": "0x28c5d02a5710aa1f44b500143299b2877edf84e66b623c594696dbf5d70a1eae",
+      "blockNumber": "0xb64ee6",
+      "gasUsed": "0x37b5d9",
+      "effectiveGasPrice": "0x12",
+      "from": "0xa59523b0eb18415151307b57d5675480a3deca38",
+      "to": null,
+      "contractAddress": "0xd5b2189a5613d3637329d860d3c58638479d4d6b"
+    },
+    {
+      "type": "0x2",
+      "status": "0x1",
+      "cumulativeGasUsed": "0x629aa07",
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "transactionHash": "0x8f0d6c9ea264657ecf532cd889a394352d13b13681f0e17836487d826562ee7b",
+      "transactionIndex": "0x5c",
+      "blockHash": "0x4e6d3cc0a23e1337ac8a90d34ad5a56216fdba1252f416102db77e18825f9904",
+      "blockNumber": "0xb64ee7",
+      "gasUsed": "0x23e4457",
+      "effectiveGasPrice": "0x12",
+      "from": "0xa59523b0eb18415151307b57d5675480a3deca38",
+      "to": null,
+      "contractAddress": "0xfc1f1f4d790646b628acd9671df60b6ad929649b"
+    },
+    {
+      "type": "0x2",
+      "status": "0x1",
+      "cumulativeGasUsed": "0x3dec0a3",
+      "logs": [],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "transactionHash": "0x6faf95d0f6032c02db2dfc7273618ffd183b0ed4c9409e8b11eda7e1720b5bc4",
+      "transactionIndex": "0x46",
+      "blockHash": "0xad29e72d7adc166cc2e3e82c80191172f7060cea6c63a4c64b74e1e5c34d71c0",
+      "blockNumber": "0xb64ee8",
+      "gasUsed": "0x8f2535",
+      "effectiveGasPrice": "0x12",
+      "from": "0xa59523b0eb18415151307b57d5675480a3deca38",
+      "to": null,
+      "contractAddress": "0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f"
+    },
+    {
+      "type": "0x2",
+      "status": "0x1",
+      "cumulativeGasUsed": "0x45c977e",
+      "logs": [
+        {
+          "address": "0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f",
+          "topics": [
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x000000000000000000000000a59523b0eb18415151307b57d5675480a3deca38",
+            "0x0000000000000000000000000000000000000000000000000000000000b64eea"
+          ],
+          "data": "0x",
+          "blockHash": "0x53ebe188ae030f13d10a9ff9059aef8afe917dfa465a4e4d5e9e7449fda9662c",
+          "blockNumber": "0xb64eea",
+          "blockTimestamp": "0x6ad5f8e4",
+          "transactionHash": "0x9668b640e3d24d800d63848e6a30d96c747b3a89a6d846d3795a552a599ee482",
+          "transactionIndex": "0x6a",
+          "logIndex": "0xa7",
+          "removed": false
+        }
+      ],
+      "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000080000000000000000000000000040008000000000000000000000000000000400000010000000000020000000000000000000800000000001000000000000010000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000000000002000002000000000000000000000080000000000000000000000000000020000000000000000000000000000000000000000000000000000000000010000000",
+      "transactionHash": "0x9668b640e3d24d800d63848e6a30d96c747b3a89a6d846d3795a552a599ee482",
+      "transactionIndex": "0x6a",
+      "blockHash": "0x53ebe188ae030f13d10a9ff9059aef8afe917dfa465a4e4d5e9e7449fda9662c",
+      "blockNumber": "0xb64eea",
+      "gasUsed": "0x10f001",
+      "effectiveGasPrice": "0x11",
+      "from": "0xa59523b0eb18415151307b57d5675480a3deca38",
+      "to": "0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f",
+      "contractAddress": null
+    }
+  ],
+  "gas_used": 79884225,
+  "transaction_fee_wei": "1436806033",
+  "runtimes": {
+    "DescentV3": {
+      "address": "0xc549f6d817bc44310bcea5dd832fc70e92ba88b7",
+      "runtime_bytes": 18043,
+      "runtime_sha256": "f888df91ba227b14b3fd07469de913abb5df29814b9385de90b458fd72ef6793",
+      "creation_bytecode_sha256": "af99cbd82bd46d00c043f1096a84c2ae6cb56ddec2f3440a1d7008a00697b0c6"
+    },
+    "BlockArtRenderer": {
+      "address": "0xd5b2189a5613d3637329d860d3c58638479d4d6b",
+      "runtime_bytes": 2206,
+      "runtime_sha256": "be5e7faeca08b4e96194b1fdd9742e73df349f1a0ac962f23b9e6a168aff798d",
+      "creation_bytecode_sha256": "4a8f9163cdf6667397190269801e13e38f57b9e54bd84d2c55e9248de050b57a"
+    },
+    "BlockVideoRendererV3": {
+      "address": "0xfc1f1f4d790646b628acd9671df60b6ad929649b",
+      "runtime_bytes": 24201,
+      "runtime_sha256": "183cb0eaf9a1cc6fd1f13dab94d4adf226385ea9af31688607c58a89fb94c20d",
+      "creation_bytecode_sha256": "6492bded1cdbe6e8d3f97fdb2017b09d81da9c11a5bac8636a4897dc9f7c2c0e"
+    },
+    "BlockVideoNFTV3": {
+      "address": "0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f",
+      "runtime_bytes": 5778,
+      "runtime_sha256": "6f122b5db0018f517e3aa7dea3068e8f8094042dbdfd7af4f9c87b88702cc4ad",
+      "creation_bytecode_sha256": "05304fbc809689750d369196b68c13b0c56bb2ccbe24f7bd5e95497bfb271b51"
+    }
+  },
+  "runtime_verified": true,
+  "broadcast_authorization": "explicit_user_approval_2026-10-19",
+  "live_media_validation": {
+    "gas_cap": 500000000,
+    "token_uri_min_passing_call_gas": 420227050,
+    "token_uri_bytes": 2775697,
+    "avi_bytes": 1477976,
+    "avi_sha256": "07f3b5fea1ed2deb722e039ca4c73bf8ad1223a420c511a3bf78faa2ffa1d73e",
+    "svg_bytes": 74836,
+    "svg_sha256": "68d8dfb72a9f90d8925ffb7bb739ed1376dd9cb9db77c19107b7e22fa33f986b",
+    "block_fields_match_mint_block": true,
+    "independent_reference": "seed, recipe and scene input rebuilt in Python; all 90 frames, palette, FFmpeg decode and SVG poster match scripts/blocks_diversity_reference.py transforms of the router AVI",
+    "files": "previews/blocks-video-v3-sepolia/11947754.*"
+  },
+  "mint_enabled": false,
+  "marketplace_playback": {
+    "status": "not_possible_on_testnet",
+    "checked_at_utc": "2026-10-19",
+    "reason": "OpenSea no longer supports testnets: testnets.opensea.io redirects to \"Farewell, Testnets\" and opensea.io/item/sepolia/... returns 404",
+    "gate": "production OpenSea playback can only be shown by a mainnet or Base deployment, which needs its own authorization"
+  },
+  "checked_at_utc": "2026-10-19T11:08:05+00:00",
+  "source_verification": {
+    "status": "exact_match",
+    "provider": "Sourcify",
+    "verified_contracts": 4,
+    "total_contracts": 4,
+    "creation_match": "exact_match",
+    "runtime_match": "exact_match",
+    "urls": [
+      "https://repo.sourcify.dev/11155111/0xc549f6d817bc44310bcea5dd832fc70e92ba88b7",
+      "https://repo.sourcify.dev/11155111/0xd5b2189a5613d3637329d860d3c58638479d4d6b",
+      "https://repo.sourcify.dev/11155111/0xfc1f1f4d790646b628acd9671df60b6ad929649b",
+      "https://repo.sourcify.dev/11155111/0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f"
+    ],
+    "job_ids": [
+      "9a28e0d1-87c9-43f7-ab5a-6e61fa93dbfa",
+      "7f9bef5e-2016-49f4-99be-7957273cc79a"
+    ],
+    "reused_scenes": "previously exact-source-verified (deployments/blocks-sepolia.json)",
+    "etherscan": "standard-JSON verification rejected: Invalid EVM version entered (amsterdam)"
+  },
+  "browser_playback": {
+    "status": "passed",
+    "chromium": true,
+    "firefox": true,
+    "safari": "not_tested_requires_macOS",
+    "evidence": "previews/blocks-video-v3-sepolia/browser-validation.json",
+    "checks": "native SVG matches AVI frame 0 pixel-for-pixel in Chromium; embedded AVI loops, pauses and resumes in Chromium and Firefox; sandboxed iframe playback"
+  }
+}

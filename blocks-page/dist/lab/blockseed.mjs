@@ -32,11 +32,12 @@ const utf8=s=>new TextEncoder().encode(s);
 const tail=s=>{const b=utf8(s);return concat(word(b.length),b,new Uint8Array((32-b.length%32)%32));};
 const toBig=b=>BigInt('0x'+[...b].map(x=>x.toString(16).padStart(2,'0')).join(''));
 
-/** keccak256(abi.encode("BLOCKS_SINGLE_V1", info)) */
-export function seed(info){
-  const fields=[info.number,info.timestamp,info.gasLimit,info.baseFee,info.prevrandao,BigInt(info.beneficiary),info.chainId].map(word);
-  return keccak256(concat(word(32*8),...fields,tail('BLOCKS_SINGLE_V1')));
+/** keccak256(abi.encode(version, info)): BLOCKS_SINGLE_V1 (live V1) or BLOCKS_VIDEO_V3 (VideoRecipeV3.seed). */
+export function seed(info,version='BLOCKS_SINGLE_V1'){
+  return keccak256(concat(word(32*8),infoWords(info),tail(version)));
 }
+/** The static SingleBlockData.Info tuple, as seven ABI words. */
+export const infoWords=info=>concat(...[info.number,info.timestamp,info.gasLimit,info.baseFee,info.prevrandao,BigInt(info.beneficiary),info.chainId].map(word));
 const encode2=(a,s)=>concat(a,word(64),tail(s));                     // abi.encode(bytes32, string)
 const encode3=(a,s,j)=>concat(a,word(96),word(j),tail(s));           // abi.encode(bytes32, string, uint256)
 /** The 3,520-byte, ten-record input the scene renderer reads. */
@@ -57,6 +58,12 @@ export function sceneOf(epochOrSeed){
   if(h[4]<4)return 7;
   return ((h[0]<<24>>>0)+(h[1]<<16)+(h[2]<<8)+h[3])%7;
 }
+/** VideoRecipeV3.recipe: the visible V3 channels exposed by recipeOf. */
+export function recipeV3(info){
+  const h=toBig(keccak256(encode2(seed(info,'BLOCKS_VIDEO_V3'),'composition'))),at=(shift,mod)=>Number((h>>BigInt(shift))%BigInt(mod));
+  return {hue:at(0,360),saturation:65+at(16,31),heightBand:at(24,8),density:at(32,4),layout:at(40,4),crop:at(48,4),pan:at(56,9),mirror:at(64,2)===1,reverse:at(72,2)===1,phase:at(80,90)};
+}
+export const selector=signature=>hex(keccak256(utf8(signature)).subarray(0,4));
 export const SCENES=['峡谷 CANYON','地下 DESCENT','高架 MONORAIL','摩天楼 SPIRE','夜景 SKYLINE','路地 ALLEY','夜行 NIGHT TRAIN','里山 SATOYAMA'];
 // The lab's simulated block: fixed fields, with prevrandao as the study seed (as in the V3 diversity audit).
 export const LAB_BLOCK={number:13000000n,timestamp:1792335288n,gasLimit:60000000n,baseFee:15n,beneficiary:'0x0000000000000000000000000000000000000000',chainId:11155111n};

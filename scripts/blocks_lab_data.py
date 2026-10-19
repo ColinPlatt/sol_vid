@@ -2,8 +2,9 @@
 """Collect measured blocks previews into the site's art lab (blocks-page/dist/lab).
 
 Copies V2/V3 first-frame posters and the V3 diversity images, and writes data.json
-with capped-call gas per scene, V3 recipes, stress cases and the diversity audit
-summary. Run after regenerating previews; it only reads `previews/`.
+with capped-call gas per scene, V3 recipes, stress cases, the diversity audit
+summary and the live V3 deployment. Run after regenerating previews or recording a
+deployment; it only reads `previews/` and `deployments/`.
 """
 import json
 import shutil
@@ -53,8 +54,18 @@ def main():
             source = PREVIEWS / "blocks-diversity-v3" / name
             if source.exists():
                 shutil.copyfile(source, assets / "audit" / name)
+    live = read(ROOT / "deployments" / "blocks-video-v3-sepolia.json")
+    if live and live.get("status") == "deployed":
+        token = live["first_token_id"]
+        poster = PREVIEWS / "blocks-video-v3-sepolia" / f"{token}.svg"
+        (assets / "live").mkdir(exist_ok=True)
+        shutil.copyfile(poster, assets / "live" / f"v3-{token}.svg")
+        data["v3_live"] = {"collection": live["collection"], "renderer": live["renderer"], "router": live["scene_router"],
+                           "first_token_id": token, "first_scene": live["first_scene"], "first_recipe": live["first_recipe"],
+                           "token_uri_gas": live["live_media_validation"]["token_uri_min_passing_call_gas"],
+                           "poster": f"assets/live/v3-{token}.svg"}
     (LAB / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=1) + "\n")
-    print(f"lab data: {len(data['v1'])} V1, {len(data['v2'])} V2, {len(data['v3'])} V3 scenes, {len(data['stress'])} stress cases")
+    print(f"lab data: {len(data['v1'])} V1, {len(data['v2'])} V2, {len(data['v3'])} V3 scenes, {len(data['stress'])} stress cases, V3 live: {bool(data.get('v3_live'))}")
 
 
 if __name__ == "__main__":

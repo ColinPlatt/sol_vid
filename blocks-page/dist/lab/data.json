@@ -502,5 +502,27 @@
   "near_duplicate_token_fraction": 0.0,
   "exact_rgb_duplicates": 0,
   "exact_geometry_duplicates": 0
+ },
+ "v3_live": {
+  "collection": "0x8d5ece93b3e5bedfabf1cddfebcc8e2cedb9cf9f",
+  "renderer": "0xfc1f1f4d790646b628acd9671df60b6ad929649b",
+  "router": "0xd5b2189a5613d3637329d860d3c58638479d4d6b",
+  "first_token_id": 11947754,
+  "first_scene": "夜景 SKYLINE",
+  "first_recipe": {
+   "hue": 63,
+   "saturation": 68,
+   "heightBand": 7,
+   "density": 0,
+   "layout": 2,
+   "crop": 2,
+   "pan": 7,
+   "mirror": true,
+   "reverse": false,
+   "phase": 7,
+   "tint": "1131984243320653791011976996315126458258738715649566139389642653624261379579"
+  },
+  "token_uri_gas": 420227050,
+  "poster": "assets/live/v3-11947754.svg"
  }
 }

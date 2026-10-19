@@ -57,11 +57,15 @@ GIF. WebCodecs-capable browsers animate the gallery's GIF textures.
 like the ghoul lab. Its renders are real: `api/lab.js` builds the 3,520-byte input
 for a simulated block (block 13,000,000, fixed fields, `prevrandao` = seed) with an
 exact JS port of `SingleBlockData`/`Epoch.scene` (`dist/lab/blockseed.mjs`), then asks
-the deployed V1 renderer for the GIF in a 500M-gas `eth_call`. Only an integer seed
-is accepted and responses are cached as immutable. Tabs: rerolled nights, forced
-scene and rare studies, V1 against prepared V2/V3 posters, checks (scene
+the deployed V1 renderer for the GIF in a 500M-gas `eth_call`. A V1/V3 switch
+(`?v=3`, the default) instead sends the `Info` tuple to the deployed V3 renderer:
+`/api/lab?v=3&n=` returns its SVG poster, `&as=player` the self-contained onchain
+player (served sandboxed) and `&as=avi` the lossless AVI. Only an integer seed is
+accepted and responses are cached as immutable. Tabs: rerolled nights, forced
+scene and rare studies, live V1 and V3 against the prepared V2 poster, checks (scene
 distribution, capped gas, V3 diversity audit and stress cases) and minted tokens.
-`python3 scripts/blocks_lab_data.py` refreshes its data and posters from `previews/`.
+`python3 scripts/blocks_lab_data.py` refreshes its data and posters from `previews/`
+and the live V3 manifest.
 
 The read-only `/api/world` feed refreshes every 30 seconds and reports the latest
 Sepolia block, base fee and collection mint count in the HUD and overhead signs.

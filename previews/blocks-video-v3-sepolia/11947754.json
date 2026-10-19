@@ -1,0 +1,98 @@
+{
+ "name": "夜景 SKYLINE #11947754",
+ "description": "One Ethereum block. A six-second onchain city. Native SVG first-frame poster and a fully embedded lossless AVI player.",
+ "attributes": [
+  {
+   "trait_type": "Art Version",
+   "value": "BLOCKS_VIDEO_V3"
+  },
+  {
+   "trait_type": "Scene",
+   "value": "夜景 SKYLINE"
+  },
+  {
+   "trait_type": "Rare",
+   "value": "No"
+  },
+  {
+   "trait_type": "Hue",
+   "value": 63
+  },
+  {
+   "trait_type": "Saturation",
+   "value": 68
+  },
+  {
+   "trait_type": "Height Band",
+   "value": 7
+  },
+  {
+   "trait_type": "Window Density",
+   "value": 0
+  },
+  {
+   "trait_type": "Street Layout",
+   "value": 2
+  },
+  {
+   "trait_type": "Vertical Crop",
+   "value": 2
+  },
+  {
+   "trait_type": "Vertical Pan",
+   "value": 7
+  },
+  {
+   "trait_type": "Mirror",
+   "value": "Yes"
+  },
+  {
+   "trait_type": "Direction",
+   "value": "Forward"
+  },
+  {
+   "trait_type": "Phase",
+   "value": 7
+  },
+  {
+   "trait_type": "Block",
+   "value": 11947754
+  },
+  {
+   "trait_type": "Timestamp",
+   "value": 1792407780
+  },
+  {
+   "trait_type": "Gas Limit",
+   "value": 199804498
+  },
+  {
+   "trait_type": "Base Fee (wei)",
+   "value": 15
+  },
+  {
+   "trait_type": "Chain ID",
+   "value": 11155111
+  },
+  {
+   "trait_type": "Duration Seconds",
+   "value": 6
+  },
+  {
+   "trait_type": "FPS",
+   "value": 15
+  },
+  {
+   "trait_type": "Format",
+   "value": "AVI BI_RGB"
+  },
+  {
+   "trait_type": "Width",
+   "value": 128
+  },
+  {
+   "trait_type": "Height",
+   "value": 128
+  }
+ ]
+}
