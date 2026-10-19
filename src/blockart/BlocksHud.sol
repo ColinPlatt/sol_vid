@@ -3,9 +3,10 @@ pragma solidity ^0.8.30;
 import {Strings} from "../../vendor/openzeppelin/Flattened.sol";
 import {Glyphs} from "./Glyphs.sol";
 import {SingleBlockData} from "./SingleBlockData.sol";
+import {BlockExtras} from "./BlockExtras.sol";
 
 /// @notice BLOCKS_VIDEO_V4 data bands drawn over the final, unmirrored frame: a header with ベース・ブロック and the block
-///         number, and a footer with ガス, the gas limit, the UTC time and a looping ticker of the other block fields.
+///         number, and a footer with ガス, the gas limit, 鎖 and the chain ID, the UTC time and a looping ticker.
 /// @dev Frames are 128x128 palette indices, top-down here; `paintMovie` writes them into the AVI's bottom-up rows.
 library BlocksHud {
     using Strings for uint256;
@@ -77,6 +78,11 @@ library BlocksHud {
         }
     }
 
+    /// @dev Whole millions as "400M"; anything else grouped in full.
+    function gas(uint256 n) internal pure returns (bytes memory) {
+        return n % 1e6 == 0 && n > 0 ? bytes.concat(bytes((n / 1e6).toString()), "M") : grouped(n);
+    }
+
     function _pad(uint256 n, uint256 width) private pure returns (bytes memory out) {
         out = bytes(n.toString());
         while (out.length < width) out = bytes.concat("0", out);
@@ -115,20 +121,35 @@ library BlocksHud {
         return bytes.concat(_pad(s / 3600, 2), ":", _pad(s / 60 % 60, 2), ":", _pad(s % 60, 2));
     }
 
-    function tickerText(SingleBlockData.Info memory info) internal pure returns (bytes memory) {
+    /// @dev The looping line: base fee, parent hash, the anchoring L1 block (when there is one), blob fee, coinbase, date.
+    function tickerText(SingleBlockData.Info memory info, BlockExtras.Extras memory x)
+        internal
+        pure
+        returns (bytes memory line)
+    {
         (uint256 y, uint256 m, uint256 d) = date(info.timestamp);
         uint256 coinbase = uint256(uint160(info.beneficiary));
-        return bytes.concat(
-            "BASE FEE ",
-            fee(info.baseFee),
-            " * RANDAO ",
-            _hex(info.prevrandao >> 224, 8),
+        line = bytes.concat("BASE FEE ", fee(info.baseFee), " * PARENT ", _hex(uint256(x.parentHash) >> 224, 8), " * ");
+        if (x.l1Number != 0) {
+            line = bytes.concat(
+                line,
+                "L1 ",
+                grouped(x.l1Number),
+                " * L1 HASH ",
+                _hex(uint256(x.l1Hash) >> 224, 8),
+                " * L1 FEE ",
+                fee(x.l1BaseFee),
+                " * "
+            );
+        }
+        line = bytes.concat(
+            line,
+            "BLOB FEE ",
+            fee(x.blobBaseFee),
             " * COINBASE ",
             _hex(coinbase >> 144, 4),
             "..",
             _hex(coinbase & 0xffff, 4),
-            " * CHAIN ",
-            bytes(info.chainId.toString()),
             " * ",
             bytes(y.toString()),
             "-",
@@ -139,7 +160,11 @@ library BlocksHud {
         );
     }
 
-    function bands(SingleBlockData.Info memory info, uint256 hue) internal pure returns (Bands memory b) {
+    function bands(SingleBlockData.Info memory info, BlockExtras.Extras memory x, uint256 hue)
+        internal
+        pure
+        returns (Bands memory b)
+    {
         uint256 acc = accent(hue);
         b.header = new bytes(HEADER * 128);
         for (uint256 i; i < b.header.length; ++i) {
@@ -154,11 +179,22 @@ library BlocksHud {
             b.footer[i] = bytes1(uint8(i < 128 ? acc : BG));
         }
         _kana(b.footer, 3, 2, Glyphs.GAS, acc);
-        text(b.footer, 128, 21, 4, grouped(info.gasLimit), TEXT);
+        bytes memory limit = gas(info.gasLimit);
+        text(b.footer, 128, 21, 4, limit, TEXT);
         bytes memory time = clock(info.timestamp);
         text(b.footer, 128, 125 - time.length * 4, 4, time, TEXT);
+        // 鎖 (chain) and the chain ID, centred between the gas limit and the time when they fit; the ticker always has it.
+        bytes memory chain = bytes(info.chainId.toString());
+        uint256 lo = 21 + limit.length * 4;
+        uint256 hi = 124 - time.length * 4;
+        uint256 w = chain.length * 4 + 9;
+        if (hi >= lo + w + 2) {
+            uint256 x = lo + (hi - lo - w) / 2;
+            _kana(b.footer, x, 2, hex"0a", acc);
+            text(b.footer, 128, x + 10, 4, chain, TEXT);
+        }
 
-        bytes memory line = tickerText(info);
+        bytes memory line = tickerText(info, x);
         b.period = line.length * 4;
         uint256 width = b.period + 128;
         b.ticker = new bytes(5 * width);

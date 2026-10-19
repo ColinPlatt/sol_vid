@@ -6,6 +6,7 @@ import {SingleBlockData} from "./SingleBlockData.sol";
 import {BlockVideoRendererV4} from "./BlockVideoRendererV4.sol";
 import {VideoRecipeV3} from "./VideoRecipeV3.sol";
 import {InPlace} from "./InPlace.sol";
+import {BlockExtras} from "./BlockExtras.sol";
 
 /// @notice One free NFT per mint block. mint() captures only that block's EVM-visible information.
 /// @dev No owner, supplied headers, caller seed, privileged mint or dependence on future/previous block data.
@@ -40,19 +41,33 @@ contract BlockVideoNFTV4 is ERC721 {
     function mint() external returns (uint256 tokenId) {
         tokenId = block.number;
         if (_data[tokenId] != address(0)) revert AlreadyMinted();
-        _data[tokenId] = _store(abi.encode(SingleBlockData.capture()));
+        _data[tokenId] = _store(abi.encode(SingleBlockData.capture(), BlockExtras.capture()));
         ++totalSupply;
         latestTokenId = tokenId;
         _safeMint(msg.sender, tokenId);
     }
 
-    function blockData(uint256 tokenId) public view returns (SingleBlockData.Info memory info) {
+    function _record(uint256 tokenId)
+        private
+        view
+        returns (SingleBlockData.Info memory info, BlockExtras.Extras memory extras)
+    {
         _requireOwned(tokenId);
         address ptr = _data[tokenId];
         uint256 size = ptr.code.length - 1;
         bytes memory raw = new bytes(size);
         assembly ("memory-safe") { extcodecopy(ptr, add(raw, 32), 1, size) }
-        info = abi.decode(raw, (SingleBlockData.Info));
+        (info, extras) = abi.decode(raw, (SingleBlockData.Info, BlockExtras.Extras));
+    }
+
+    /// @notice The seven fields the art is drawn from (the seed is unchanged from V3).
+    function blockData(uint256 tokenId) public view returns (SingleBlockData.Info memory info) {
+        (info,) = _record(tokenId);
+    }
+
+    /// @notice Display-only context captured at mint: parent hash, blob fee and the anchoring L1 block.
+    function extrasOf(uint256 tokenId) public view returns (BlockExtras.Extras memory extras) {
+        (, extras) = _record(tokenId);
     }
 
     function seedOf(uint256 tokenId) public view returns (bytes32) {
@@ -68,19 +83,23 @@ contract BlockVideoNFTV4 is ERC721 {
     }
 
     function video(uint256 tokenId) external view returns (bytes memory) {
-        InPlace.forward(address(renderer), abi.encodeCall(renderer.video, (blockData(tokenId))));
+        (SingleBlockData.Info memory info, BlockExtras.Extras memory extras) = _record(tokenId);
+        InPlace.forward(address(renderer), abi.encodeCall(renderer.video, (info, extras)));
     }
 
     function imageURI(uint256 tokenId) external view returns (string memory) {
-        InPlace.forward(address(renderer), abi.encodeCall(renderer.imageURI, (blockData(tokenId))));
+        (SingleBlockData.Info memory info, BlockExtras.Extras memory extras) = _record(tokenId);
+        InPlace.forward(address(renderer), abi.encodeCall(renderer.imageURI, (info, extras)));
     }
 
     function animationURI(uint256 tokenId) external view returns (string memory) {
-        InPlace.forward(address(renderer), abi.encodeCall(renderer.animationURI, (blockData(tokenId))));
+        (SingleBlockData.Info memory info, BlockExtras.Extras memory extras) = _record(tokenId);
+        InPlace.forward(address(renderer), abi.encodeCall(renderer.animationURI, (info, extras)));
     }
 
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        InPlace.forward(address(renderer), abi.encodeCall(renderer.tokenURI, (blockData(tokenId))));
+        (SingleBlockData.Info memory info, BlockExtras.Extras memory extras) = _record(tokenId);
+        InPlace.forward(address(renderer), abi.encodeCall(renderer.tokenURI, (info, extras)));
     }
 
     function _store(bytes memory data) private returns (address ptr) {

@@ -6,6 +6,7 @@ import {BlockVideoRendererV4} from "../../src/blockart/BlockVideoRendererV4.sol"
 import {VideoRecipeV3} from "../../src/blockart/VideoRecipeV3.sol";
 import {BlocksHud} from "../../src/blockart/BlocksHud.sol";
 import {BlocksBandsV4} from "../../src/blockart/BlocksBandsV4.sol";
+import {BlockExtras} from "../../src/blockart/BlockExtras.sol";
 import {Epoch} from "../../src/blockart/Epoch.sol";
 import {BlockArtRenderer} from "../../src/blockart/BlockArtRenderer.sol";
 import {Canyon} from "../../src/blockart/scenes/Canyon.sol";
@@ -18,6 +19,8 @@ import {NightTrain} from "../../src/blockart/scenes/NightTrain.sol";
 import {Satoyama} from "../../src/blockart/scenes/Satoyama.sol";
 
 interface VideoV4Vm {
+    function etch(address, bytes calldata) external;
+    function setBlockhash(uint256, bytes32) external;
     function envOr(string calldata, string calldata) external returns (string memory);
     function roll(uint256) external;
     function warp(uint256) external;
@@ -31,6 +34,25 @@ interface VideoV4Vm {
     function writeFile(string calldata, string calldata) external;
     function writeFileBinary(string calldata, bytes calldata) external;
     function toString(uint256) external pure returns (string memory);
+}
+
+/// @dev Stands in for Base's L1Block predeploy, with values read from Base on 2026-10-19.
+contract L1BlockMock {
+    function number() external pure returns (uint64) {
+        return 26226812;
+    }
+
+    function hash() external pure returns (bytes32) {
+        return 0x291518b4a194aab123c0c2d4cf5f6ff9f8025d5e6673cec7108deeb88038f8ac;
+    }
+
+    function basefee() external pure returns (uint256) {
+        return 100256339;
+    }
+
+    function blobBaseFee() external pure returns (uint256) {
+        return 5365424;
+    }
 }
 
 contract BlockVideoV4MediaTest {
@@ -54,6 +76,21 @@ contract BlockVideoV4MediaTest {
         revert("Scene search exhausted");
     }
 
+    function _extrasJson(BlockExtras.Extras memory x) private view returns (string memory) {
+        return string.concat(
+            ',"parentHash":"',
+            vm.toString(uint256(x.parentHash)),
+            '","blobBaseFee":',
+            vm.toString(x.blobBaseFee),
+            ',"l1Number":',
+            vm.toString(x.l1Number),
+            ',"l1Hash":"',
+            vm.toString(uint256(x.l1Hash)),
+            '","l1BaseFee":',
+            vm.toString(x.l1BaseFee)
+        );
+    }
+
     function _measure(address scene, string memory name, uint256 wanted) private {
         SingleBlockData.Info memory b = _info(wanted, 1);
         vm.roll(b.number);
@@ -68,7 +105,11 @@ contract BlockVideoV4MediaTest {
         require(address(renderer).code.length <= 24576, "Renderer exceeds EIP-170");
         BlockVideoNFTV4 nft = new BlockVideoNFTV4(renderer);
         require(address(nft).code.length <= 24576, "NFT exceeds EIP-170");
+        vm.etch(BlockExtras.L1_BLOCK, address(new L1BlockMock()).code);
+        vm.setBlockhash(b.number - 1, keccak256(abi.encode("parent", b.number)));
         uint256 id = nft.mint();
+        BlockExtras.Extras memory x = nft.extrasOf(id);
+        require(x.l1Number == 26226812 && x.parentHash != bytes32(0), "Extras not captured");
         b = nft.blockData(id);
         require(nft.sceneOf(id) == wanted, "Selected scene differs from measured scene");
         string memory output = vm.envOr("BLOCKS_VIDEO_V4_OUTPUT", string("previews/blocks-video-v4"));
@@ -104,6 +145,7 @@ contract BlockVideoV4MediaTest {
                 vm.toString(r.density),
                 ',"layout":',
                 vm.toString(r.layout),
+                _extrasJson(x),
                 ',"number":',
                 vm.toString(b.number),
                 ',"timestamp":',
@@ -167,6 +209,8 @@ contract BlocksHudTest {
     function testFormatsBlockData() public pure {
         require(keccak256(BlocksHud.grouped(52811146)) == keccak256("52,811,146"), "grouping");
         require(keccak256(BlocksHud.grouped(400)) == keccak256("400"), "short grouping");
+        require(keccak256(BlocksHud.gas(400000000)) == keccak256("400M"), "gas millions");
+        require(keccak256(BlocksHud.gas(29999972)) == keccak256("29,999,972"), "gas exact");
         require(keccak256(BlocksHud.fee(5000000)) == keccak256("0.005 GWEI"), "base fee");
         require(keccak256(BlocksHud.fee(15)) == keccak256("15 WEI"), "tiny fee");
         require(keccak256(BlocksHud.fee(12345678901)) == keccak256("12.345 GWEI"), "large fee");

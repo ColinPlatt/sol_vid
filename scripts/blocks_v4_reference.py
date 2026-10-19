@@ -12,6 +12,7 @@ _glyphs = re.search(r'TABLE =\s*hex"([0-9a-f]+)"', (ROOT / 'src/blockart/Glyphs.
 KANA = [int(_glyphs[i * 16:(i + 1) * 16], 16) for i in range(len(_glyphs) // 16)]
 BASE_BLOCK = [0x18, 0x19, 0x1a, 0x1f, 0x1b, 0x1c, 0x1d, 0x1e]  # ベース・ブロック
 GAS = [0x20, 0x1a]  # ガス
+CHAIN_KANA = 0x0a  # 鎖
 
 
 def accent(hue):
@@ -39,11 +40,14 @@ def fee(wei):
 
 
 def ticker_text(info):
+    """Base fee, parent hash, the anchoring L1 block when present, blob fee, coinbase and UTC date. No RANDAO."""
     when = datetime.datetime.fromtimestamp(info['timestamp'], datetime.timezone.utc)
     coinbase = f"{int(info['beneficiary']):040X}"
-    randao = f"{int(info['prevrandao']):064X}"[:8]
-    return (f"BASE FEE {fee(info['baseFee'])} * RANDAO {randao} * COINBASE {coinbase[:4]}..{coinbase[-4:]}"
-            f" * CHAIN {info['chainId']} * {when:%Y-%m-%d} UTC * ")
+    line = f"BASE FEE {fee(info['baseFee'])} * PARENT {int(info['parentHash']):064X}"[:-56] + " * "
+    if int(info['l1Number']):
+        line += (f"L1 {int(info['l1Number']):,} * L1 HASH {int(info['l1Hash']):064X}"[:-56]
+                 + f" * L1 FEE {fee(int(info['l1BaseFee']))} * ")
+    return line + f"BLOB FEE {fee(int(info['blobBaseFee']))} * COINBASE {coinbase[:4]}..{coinbase[-4:]} * {when:%Y-%m-%d} UTC * "
 
 
 def bands(info, hue):
@@ -56,9 +60,19 @@ def bands(info, hue):
     footer = np.full((16, 128), BG, np.uint8)
     footer[0] = acc
     kana(footer, 3, 2, GAS, acc)
-    text(footer, 21, 4, f"{info['gasLimit']:,}", TEXT)
+    limit = f"{info['gasLimit'] // 10 ** 6}M" if info['gasLimit'] and info['gasLimit'] % 10 ** 6 == 0 else f"{info['gasLimit']:,}"
+    text(footer, 21, 4, limit, TEXT)
     clock = datetime.datetime.fromtimestamp(info['timestamp'], datetime.timezone.utc).strftime('%H:%M:%S')
     text(footer, 125 - len(clock) * 4, 4, clock, TEXT)
+    # 鎖 + chain ID centred in the free columns between the gas limit and the clock (2 px clear of each), if it fits.
+    gas_last, clock_first = 21 + len(limit) * 4 - 2, 125 - len(clock) * 4
+    chain = str(info['chainId'])
+    free = range(gas_last + 2, clock_first - 1)
+    width = 8 + 2 + len(chain) * 4 - 1
+    if width + 2 <= len(free):
+        x = free.start + (len(free) - width - 2) // 2 + 1
+        kana(footer, x, 2, [CHAIN_KANA], acc)
+        text(footer, x + 10, 4, chain, TEXT)
     line = ticker_text(info)
     period = len(line) * 4
     strip = np.full((5, period), BG, np.uint8)

@@ -8,6 +8,7 @@ import {VideoRecipeV3} from "./VideoRecipeV3.sol";
 import {AviVariationV4} from "./AviVariationV4.sol";
 import {BlocksHud} from "./BlocksHud.sol";
 import {BlocksBandsV4} from "./BlocksBandsV4.sol";
+import {BlockExtras} from "./BlockExtras.sol";
 import {AviPoster} from "./AviPoster.sol";
 import {BlocksAviPlayer} from "./BlocksAviPlayer.sol";
 import {DataURI} from "./DataURI.sol";
@@ -25,44 +26,60 @@ contract BlockVideoRendererV4 {
         bands = bands_;
     }
 
-    function _bands(SingleBlockData.Info memory info, uint256 hue) private view returns (BlocksHud.Bands memory b) {
-        (b.header, b.footer, b.ticker, b.period) = bands.bands(info, hue);
+    function _bands(SingleBlockData.Info memory info, BlockExtras.Extras memory x, uint256 hue)
+        private
+        view
+        returns (BlocksHud.Bands memory b)
+    {
+        (b.header, b.footer, b.ticker, b.period) = bands.bands(info, x, hue);
     }
 
     function sceneOf(SingleBlockData.Info memory info) external view returns (uint256) {
         return scenes.sceneOf(VideoRecipeV3.artwork(info));
     }
 
-    function _video(SingleBlockData.Info memory info) private view returns (bytes memory) {
+    function _video(SingleBlockData.Info memory info, BlockExtras.Extras memory x) private view returns (bytes memory) {
         bytes memory movie = InPlace.call(address(scenes), abi.encodeCall(scenes.avi, (VideoRecipeV3.artwork(info))));
         VideoRecipeV3.Recipe memory r = VideoRecipeV3.recipe(info);
-        return AviVariationV4.remix(movie, r, scenes.sceneOf(VideoRecipeV3.artwork(info)), _bands(info, r.hue));
+        return AviVariationV4.remix(movie, r, scenes.sceneOf(VideoRecipeV3.artwork(info)), _bands(info, x, r.hue));
     }
 
-    function video(SingleBlockData.Info memory info) external view returns (bytes memory) {
-        InPlace.ret(_video(info));
+    function video(SingleBlockData.Info memory info, BlockExtras.Extras memory x) external view returns (bytes memory) {
+        InPlace.ret(_video(info, x));
     }
 
     function _image(bytes memory movie) private pure returns (string memory) {
         return string.concat("data:image/svg+xml;base64,", Base64.encode(AviPoster.svg(movie)));
     }
 
-    function imageURI(SingleBlockData.Info memory info) external view returns (string memory) {
-        InPlace.ret(bytes(_image(_video(info))));
+    function imageURI(SingleBlockData.Info memory info, BlockExtras.Extras memory x)
+        external
+        view
+        returns (string memory)
+    {
+        InPlace.ret(bytes(_image(_video(info, x))));
     }
 
-    function animationURI(SingleBlockData.Info memory info) external view returns (string memory) {
+    function animationURI(SingleBlockData.Info memory info, BlockExtras.Extras memory x)
+        external
+        view
+        returns (string memory)
+    {
         InPlace.ret(
             bytes(
                 string.concat(
-                    "data:text/html,", BlocksAviPlayer.HEAD, Base64.encode(_video(info)), BlocksAviPlayer.TAIL
+                    "data:text/html,", BlocksAviPlayer.HEAD, Base64.encode(_video(info, x)), BlocksAviPlayer.TAIL
                 )
             )
         );
     }
 
-    function tokenURI(SingleBlockData.Info memory info) external view returns (string memory) {
-        bytes memory movie = _video(info);
+    function tokenURI(SingleBlockData.Info memory info, BlockExtras.Extras memory x)
+        external
+        view
+        returns (string memory)
+    {
+        bytes memory movie = _video(info, x);
         VideoRecipeV3.Recipe memory r = VideoRecipeV3.recipe(info);
         uint256 scene = scenes.sceneOf(VideoRecipeV3.artwork(info));
         bytes memory pre = abi.encodePacked(
@@ -95,16 +112,7 @@ contract BlockVideoRendererV4 {
             r.reverse ? "Reverse" : "Forward",
             '"},{"trait_type":"Phase","value":',
             r.phase.toString(),
-            '},{"trait_type":"Block","value":',
-            info.number.toString(),
-            '},{"trait_type":"Timestamp","value":',
-            info.timestamp.toString(),
-            '},{"trait_type":"Gas Limit","value":',
-            info.gasLimit.toString(),
-            '},{"trait_type":"Base Fee (wei)","value":',
-            info.baseFee.toString(),
-            '},{"trait_type":"Chain ID","value":',
-            info.chainId.toString(),
+            bands.blockTraits(info, x),
             '},{"trait_type":"Duration Seconds","value":6},{"trait_type":"FPS","value":15},',
             '{"trait_type":"Format","value":"AVI BI_RGB"},{"trait_type":"Width","value":128},{"trait_type":"Height","value":128}]}'
         );

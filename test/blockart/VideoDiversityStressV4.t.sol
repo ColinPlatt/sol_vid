@@ -7,6 +7,7 @@ import {BlockArtRenderer} from "../../src/blockart/BlockArtRenderer.sol";
 import {Epoch} from "../../src/blockart/Epoch.sol";
 import {InPlace} from "../../src/blockart/InPlace.sol";
 import {BlocksBandsV4} from "../../src/blockart/BlocksBandsV4.sol";
+import {BlockExtras} from "../../src/blockart/BlockExtras.sol";
 import {Canyon} from "../../src/blockart/scenes/Canyon.sol";
 import {DescentV3} from "../../src/blockart/scenes/DescentV3.sol";
 import {Monorail} from "../../src/blockart/scenes/Monorail.sol";
@@ -35,8 +36,12 @@ contract DiversityStressV4Proxy {
         renderer = r;
     }
 
-    function tokenURI(SingleBlockData.Info memory info) external view returns (string memory) {
-        InPlace.forward(address(renderer), abi.encodeCall(renderer.tokenURI, (info)));
+    function tokenURI(SingleBlockData.Info memory info, BlockExtras.Extras memory x)
+        external
+        view
+        returns (string memory)
+    {
+        InPlace.forward(address(renderer), abi.encodeCall(renderer.tokenURI, (info, x)));
     }
 }
 
@@ -63,6 +68,21 @@ contract VideoDiversityStressV4Test {
         proxy = new DiversityStressV4Proxy(renderer);
     }
 
+    function _extrasJson(BlockExtras.Extras memory x) private view returns (string memory) {
+        return string.concat(
+            ',"parentHash":"',
+            vm.toString(uint256(x.parentHash)),
+            '","blobBaseFee":',
+            vm.toString(x.blobBaseFee),
+            ',"l1Number":',
+            vm.toString(x.l1Number),
+            ',"l1Hash":"',
+            vm.toString(uint256(x.l1Hash)),
+            '","l1BaseFee":',
+            vm.toString(x.l1BaseFee)
+        );
+    }
+
     function _stress(uint256 slot) private {
         if (!vm.envOr("BLOCKS_DIVERSITY_STRESS", false)) {
             vm.skip(true);
@@ -74,13 +94,17 @@ contract VideoDiversityStressV4Test {
         );
         SingleBlockData.Info memory info =
             SingleBlockData.Info(13000000, 1800000000, 60000000, 20, index + 1, address(0xBEEF), 11155111);
+        // Fixed Base-like display context; it does not affect the art.
+        BlockExtras.Extras memory x = BlockExtras.Extras(
+            keccak256(abi.encode(index)), 5365424, 26226812, keccak256(abi.encode("L1", index)), 100256339
+        );
         VideoRecipeV3.Recipe memory r = VideoRecipeV3.recipe(info);
         uint256 scene = VideoRecipeV3.artwork(info).scene();
         string memory stem = string.concat("previews/blocks-video-v4/stress-", vm.toString(slot));
         vm.createDir("previews/blocks-video-v4", true);
         uint256 before = gasleft();
         (bool ok, bytes memory result) =
-            address(proxy).staticcall{gas: 500000000}(abi.encodeCall(proxy.tokenURI, (info)));
+            address(proxy).staticcall{gas: 500000000}(abi.encodeCall(proxy.tokenURI, (info, x)));
         uint256 used = before - gasleft();
         require(ok && used < 499000000, "Stress metadata exceeds gas margin");
         vm.writeFile(string.concat(stem, ".uri"), abi.decode(result, (string)));
@@ -105,6 +129,7 @@ contract VideoDiversityStressV4Test {
                 vm.toString(r.density),
                 ',"layout":',
                 vm.toString(r.layout),
+                _extrasJson(x),
                 ',"number":13000000,"timestamp":1800000000,"gasLimit":60000000,"baseFee":20,"prevrandao":"',
                 vm.toString(index + 1),
                 '","beneficiary":"48879","chainId":11155111',
