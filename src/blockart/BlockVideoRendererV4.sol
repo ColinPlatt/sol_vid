@@ -31,7 +31,7 @@ contract BlockVideoRendererV4 {
         view
         returns (BlocksHud.Bands memory b)
     {
-        (b.header, b.footer, b.ticker, b.period) = bands.bands(info, x, hue);
+        (b.header, b.footer, b.pages, b.count) = bands.bands(info, x, hue);
     }
 
     function sceneOf(SingleBlockData.Info memory info) external view returns (uint256) {

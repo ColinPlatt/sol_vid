@@ -5,7 +5,7 @@ import {SingleBlockData} from "./SingleBlockData.sol";
 import {BlockExtras} from "./BlockExtras.sol";
 import {Strings} from "../../vendor/openzeppelin/Flattened.sol";
 
-/// @notice Formats a block's captured data into BLOCKS_VIDEO_V4's header, footer and ticker bitmaps. A separate
+/// @notice Formats a block's captured data into BLOCKS_VIDEO_V4's header, footer and page bitmaps. A separate
 ///         contract keeps the fonts and formatting out of the size-limited renderer.
 contract BlocksBandsV4 {
     using Strings for uint256;
@@ -13,10 +13,10 @@ contract BlocksBandsV4 {
     function bands(SingleBlockData.Info memory info, BlockExtras.Extras memory x, uint256 hue)
         external
         pure
-        returns (bytes memory header, bytes memory footer, bytes memory ticker, uint256 period)
+        returns (bytes memory header, bytes memory footer, bytes memory pages, uint256 count)
     {
         BlocksHud.Bands memory b = BlocksHud.bands(info, x, hue);
-        return (b.header, b.footer, b.ticker, b.period);
+        return (b.header, b.footer, b.pages, b.count);
     }
 
     /// @dev The block-data metadata attributes, as a fragment that follows a numeric attribute value.

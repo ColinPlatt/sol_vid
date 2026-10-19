@@ -5,15 +5,17 @@ import {Glyphs} from "./Glyphs.sol";
 import {SingleBlockData} from "./SingleBlockData.sol";
 import {BlockExtras} from "./BlockExtras.sol";
 
-/// @notice BLOCKS_VIDEO_V4 data bands drawn over the final, unmirrored frame: a header with ベース・ブロック and the block
-///         number, and a footer with ガス, the gas limit, 鎖 and the chain ID, the UTC time and a looping ticker.
+/// @notice BLOCKS_VIDEO_V4 data bands drawn over the final, unmirrored frame. The header holds ベース・ブロック with the
+///         block number, then ガス with the gas limit, 鎖 with the chain ID and the UTC time. The footer shows still
+///         pages, a label over a value, that cycle once per loop so every figure, full hashes included, can be read.
 /// @dev Frames are 128x128 palette indices, top-down here; `paintMovie` writes them into the AVI's bottom-up rows.
 library BlocksHud {
     using Strings for uint256;
 
-    uint256 internal constant HEADER = 14; // rows 0..13; row 13 is the accent rule
+    uint256 internal constant HEADER = 22; // rows 0..21; row 21 is the accent rule
     uint256 internal constant FOOTER = 112; // rows 112..127; row 112 is the accent rule
-    uint256 internal constant TICKER_Y = 122;
+    uint256 internal constant PAGE_Y = 115; // label rows 115..119, value rows 121..125
+    uint256 internal constant PAGE_ROWS = 11;
     uint256 internal constant BG = 240; // dark ramp, brightest end: near-black in every recolouring
     uint256 internal constant TEXT = 208; // white ramp, kept desaturated by the V3 palette
     /// @dev " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ#,.:-/*" as 15-bit 3x5 bitmaps (scripts/blocks_hud_font.py).
@@ -22,9 +24,9 @@ library BlocksHud {
 
     struct Bands {
         bytes header; // HEADER x 128
-        bytes footer; // 16 x 128, ticker rows left as background
-        bytes ticker; // 5 x (period + 128): the scrolling line, unrolled so any 128-wide window is contiguous
-        uint256 period; // ticker loop length in pixels
+        bytes footer; // 16 x 128 with an empty page area
+        bytes pages; // count x PAGE_ROWS x 128, each a label line over a value line
+        uint256 count; // pages shown in turn over the 90-frame loop
     }
 
     function accent(uint256 hue) internal pure returns (uint256) {
@@ -94,7 +96,7 @@ library BlocksHud {
         return bytes.concat(bytes((wei_ / 1e9).toString()), ".", _pad(wei_ % 1e9 / 1e6, 3), " GWEI");
     }
 
-    function _hex(uint256 v, uint256 digits) private pure returns (bytes memory out) {
+    function _hex(uint256 v, uint256 digits) internal pure returns (bytes memory out) {
         out = new bytes(digits);
         for (uint256 k = digits; k > 0; --k) {
             uint256 nib = v & 15;
@@ -121,32 +123,36 @@ library BlocksHud {
         return bytes.concat(_pad(s / 3600, 2), ":", _pad(s / 60 % 60, 2), ":", _pad(s % 60, 2));
     }
 
-    /// @dev The looping line: base fee, parent hash, the anchoring L1 block (when there is one), blob fee, coinbase, date.
-    function tickerText(SingleBlockData.Info memory info, BlockExtras.Extras memory x)
+    function _centred(bytes memory page, uint256 y, bytes memory s, uint256 c) private pure {
+        text(page, 128, (129 - s.length * 4) / 2, y, s, c);
+    }
+
+    /// @dev Label and value lines for each page; hashes are split into two 32-digit halves.
+    function pageText(SingleBlockData.Info memory info, BlockExtras.Extras memory x)
         internal
         pure
-        returns (bytes memory line)
+        returns (bytes[] memory labels, bytes[] memory values)
     {
+        bool l1 = x.l1Number != 0;
+        labels = new bytes[](l1 ? 7 : 4);
+        values = new bytes[](labels.length);
+        bytes memory parent = _hex(uint256(x.parentHash), 64);
+        (labels[0], values[0]) = ("BASE FEE * BLOB FEE", bytes.concat(fee(info.baseFee), " * ", fee(x.blobBaseFee)));
+        (labels[1], values[1]) = ("PARENT HASH 1/2", _slice(parent, 0));
+        (labels[2], values[2]) = ("PARENT HASH 2/2", _slice(parent, 32));
+        uint256 k = 3;
+        if (l1) {
+            bytes memory l1Hash = _hex(uint256(x.l1Hash), 64);
+            (labels[3], values[3]) =
+            ("L1 BLOCK * L1 BASE FEE", bytes.concat(grouped(x.l1Number), " * ", fee(x.l1BaseFee)));
+            (labels[4], values[4]) = ("L1 HASH 1/2", _slice(l1Hash, 0));
+            (labels[5], values[5]) = ("L1 HASH 2/2", _slice(l1Hash, 32));
+            k = 6;
+        }
         (uint256 y, uint256 m, uint256 d) = date(info.timestamp);
         uint256 coinbase = uint256(uint160(info.beneficiary));
-        line = bytes.concat("BASE FEE ", fee(info.baseFee), " * PARENT ", _hex(uint256(x.parentHash) >> 224, 8), " * ");
-        if (x.l1Number != 0) {
-            line = bytes.concat(
-                line,
-                "L1 ",
-                grouped(x.l1Number),
-                " * L1 HASH ",
-                _hex(uint256(x.l1Hash) >> 224, 8),
-                " * L1 FEE ",
-                fee(x.l1BaseFee),
-                " * "
-            );
-        }
-        line = bytes.concat(
-            line,
-            "BLOB FEE ",
-            fee(x.blobBaseFee),
-            " * COINBASE ",
+        labels[k] = "COINBASE * DATE UTC";
+        values[k] = bytes.concat(
             _hex(coinbase >> 144, 4),
             "..",
             _hex(coinbase & 0xffff, 4),
@@ -155,9 +161,15 @@ library BlocksHud {
             "-",
             _pad(m, 2),
             "-",
-            _pad(d, 2),
-            " UTC * "
+            _pad(d, 2)
         );
+    }
+
+    function _slice(bytes memory s, uint256 from) private pure returns (bytes memory out) {
+        out = new bytes(32);
+        for (uint256 i; i < 32; ++i) {
+            out[i] = s[from + i];
+        }
     }
 
     function bands(SingleBlockData.Info memory info, BlockExtras.Extras memory x, uint256 hue)
@@ -168,62 +180,67 @@ library BlocksHud {
         uint256 acc = accent(hue);
         b.header = new bytes(HEADER * 128);
         for (uint256 i; i < b.header.length; ++i) {
-            b.header[i] = bytes1(uint8(i >= 13 * 128 ? acc : BG));
+            b.header[i] = bytes1(uint8(i >= (HEADER - 1) * 128 ? acc : BG));
         }
-        _kana(b.header, 3, 3, Glyphs.BASE_BLOCK, acc);
+        _kana(b.header, 3, 2, Glyphs.BASE_BLOCK, acc);
         bytes memory num = grouped(info.number);
-        text(b.header, 128, 125 - num.length * 4, 4, num, TEXT);
-
-        b.footer = new bytes(16 * 128);
-        for (uint256 i; i < b.footer.length; ++i) {
-            b.footer[i] = bytes1(uint8(i < 128 ? acc : BG));
-        }
-        _kana(b.footer, 3, 2, Glyphs.GAS, acc);
+        text(b.header, 128, 125 - num.length * 4, 3, num, TEXT);
+        _kana(b.header, 3, 11, Glyphs.GAS, acc);
         bytes memory limit = gas(info.gasLimit);
-        text(b.footer, 128, 21, 4, limit, TEXT);
+        text(b.header, 128, 21, 13, limit, TEXT);
         bytes memory time = clock(info.timestamp);
-        text(b.footer, 128, 125 - time.length * 4, 4, time, TEXT);
-        // 鎖 (chain) and the chain ID, centred between the gas limit and the time when they fit; the ticker always has it.
+        text(b.header, 128, 125 - time.length * 4, 13, time, TEXT);
+        // 鎖 (chain) and the chain ID, centred between the gas limit and the time when they fit.
         bytes memory chain = bytes(info.chainId.toString());
         uint256 lo = 21 + limit.length * 4;
         uint256 hi = 124 - time.length * 4;
         uint256 w = chain.length * 4 + 9;
         if (hi >= lo + w + 2) {
-            uint256 x = lo + (hi - lo - w) / 2;
-            _kana(b.footer, x, 2, hex"0a", acc);
-            text(b.footer, 128, x + 10, 4, chain, TEXT);
+            uint256 cx = lo + (hi - lo - w) / 2;
+            _kana(b.header, cx, 11, hex"0a", acc);
+            text(b.header, 128, cx + 10, 13, chain, TEXT);
         }
 
-        bytes memory line = tickerText(info, x);
-        b.period = line.length * 4;
-        uint256 width = b.period + 128;
-        b.ticker = new bytes(5 * width);
-        for (uint256 i; i < b.ticker.length; ++i) {
-            b.ticker[i] = bytes1(uint8(BG));
+        b.footer = new bytes(16 * 128);
+        for (uint256 i; i < b.footer.length; ++i) {
+            b.footer[i] = bytes1(uint8(i < 128 ? acc : BG));
         }
-        // Two copies of the line so the window starting anywhere in the first period is contiguous.
-        text(b.ticker, width, 0, 0, line, acc);
-        text(b.ticker, width, b.period, 0, line, acc);
+
+        (bytes[] memory labels, bytes[] memory values) = pageText(info, x);
+        b.count = labels.length;
+        b.pages = new bytes(b.count * PAGE_ROWS * 128);
+        for (uint256 i; i < b.pages.length; ++i) {
+            b.pages[i] = bytes1(uint8(BG));
+        }
+        for (uint256 k; k < b.count; ++k) {
+            bytes memory page = new bytes(PAGE_ROWS * 128);
+            for (uint256 i; i < page.length; ++i) {
+                page[i] = bytes1(uint8(BG));
+            }
+            _centred(page, 0, labels[k], acc);
+            _centred(page, 6, values[k], TEXT);
+            uint256 o = k * page.length;
+            for (uint256 i; i < page.length; ++i) {
+                b.pages[o + i] = page[i];
+            }
+        }
     }
 
-    /// @dev The ticker scrolls one full period over the 90-frame loop, so frame 90 would equal frame 0.
-    function offset(Bands memory b, uint256 f) internal pure returns (uint256) {
-        return f * b.period / 90;
+    /// @dev Pages advance evenly through the loop, so frame 90 would show the first page again.
+    function pageAt(Bands memory b, uint256 f) internal pure returns (uint256) {
+        return f * b.count / 90;
     }
 
     /// @dev Overwrite the bands of one top-down 128x128 frame starting at `p` (a memory pointer).
     function paintTopDown(uint256 p, Bands memory b, uint256 f) internal pure {
         bytes memory header = b.header;
         bytes memory footer = b.footer;
-        bytes memory ticker = b.ticker;
-        uint256 width = b.period + 128;
-        uint256 start = offset(b, f);
+        bytes memory pages = b.pages;
+        uint256 page = pageAt(b, f) * PAGE_ROWS * 128;
         assembly ("memory-safe") {
-            mcopy(p, add(header, 32), 1792)
+            mcopy(p, add(header, 32), 2816)
             mcopy(add(p, 14336), add(footer, 32), 2048)
-            for { let r := 0 } lt(r, 5) { r := add(r, 1) } {
-                mcopy(add(p, mul(add(122, r), 128)), add(add(ticker, 32), add(mul(r, width), start)), 128)
-            }
+            mcopy(add(p, 14720), add(add(pages, 32), page), 1408)
         }
     }
 
@@ -231,19 +248,18 @@ library BlocksHud {
     function paintMovie(bytes memory movie, Bands memory b) internal pure {
         bytes memory header = b.header;
         bytes memory footer = b.footer;
-        bytes memory ticker = b.ticker;
-        uint256 width = b.period + 128;
+        bytes memory pages = b.pages;
         for (uint256 f; f < 90; ++f) {
-            uint256 start = offset(b, f);
+            uint256 page = pageAt(b, f) * PAGE_ROWS * 128;
             assembly ("memory-safe") {
                 let frame := add(add(movie, 32), add(1256, mul(f, 16392)))
-                for { let y := 0 } lt(y, 14) { y := add(y, 1) } {
+                for { let y := 0 } lt(y, 22) { y := add(y, 1) } {
                     mcopy(add(frame, shl(7, sub(127, y))), add(add(header, 32), shl(7, y)), 128)
                 }
                 for { let y := 112 } lt(y, 128) { y := add(y, 1) } {
                     let src := add(add(footer, 32), shl(7, sub(y, 112)))
-                    if and(iszero(lt(y, 122)), lt(y, 127)) {
-                        src := add(add(ticker, 32), add(mul(sub(y, 122), width), start))
+                    if and(iszero(lt(y, 115)), lt(y, 126)) {
+                        src := add(add(add(pages, 32), page), shl(7, sub(y, 115)))
                     }
                     mcopy(add(frame, shl(7, sub(127, y))), src, 128)
                 }

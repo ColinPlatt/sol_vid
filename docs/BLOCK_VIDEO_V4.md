@@ -14,15 +14,27 @@ same block gives the same city in both versions. V4 changes how the frame is sho
   fields, but V4 ignores them and drops them from the metadata.
 - **Block-data bands.** Two bands are drawn over every frame after recolouring, never
   flipped or scaled:
-  - **Header (rows 0–13):** ベース・ブロック in the Misaki 8×8 katakana, and the block
-    number with thousands separators.
-  - **Footer (rows 112–127):**
-    - ガス with the gas limit (`400M` for whole millions, otherwise in full), 鎖 with
-      the chain ID when it fits, and the UTC time on the right.
-    - A ticker that loops exactly once per 6-second movie. It shows the base fee in
-      gwei (or wei below 0.001 gwei), the parent block hash, and, on OP Stack chains
-      such as Base, the anchoring L1 block number, hash and base fee. Then come the blob
-      base fee, the shortened coinbase and the UTC date. RANDAO is not shown.
+  - **Header (rows 0–21):** two lines in the Misaki 8×8 katakana and a 3×5 font.
+    - Line 1: ベース・ブロック and the block number.
+    - Line 2: ガス with the gas limit (`400M` for whole millions, otherwise in full),
+      鎖 with the chain ID when it fits, and the UTC time.
+    - The header stays above source row 32, where the diversity audit's comparison
+      region starts.
+  - **Footer (rows 112–127):** still pages, each a label over a value, that advance
+    evenly once per 6-second loop. Fees are in gwei (or wei below 0.001 gwei), and
+    RANDAO is not shown. The pages are:
+    1. base and blob fee
+    2. parent hash, first half
+    3. parent hash, second half (all 64 hex digits, in two halves of 32)
+    4. L1 block and base fee
+    5. L1 hash, first half
+    6. L1 hash, second half
+    7. coinbase and date
+
+    That gives 7 pages of about 0.86 s on chains with an `L1Block` contract. Without
+    one, the L1 pages are omitted, leaving 4 pages of about 1.5 s.
+    Pages replaced an earlier scrolling ticker that had to move about 12 px per frame
+    to fit everything into one loop.
 - **Colours.**
   - The bands use the dark ramp's near-black for the background and the
     white ramp for figures; V3's palette keeps the white ramp desaturated.
@@ -53,13 +65,13 @@ into all 90 frames.
 
 - **Examples:** `test/blockart/BlockVideoV4.t.sol` renders one example per scene with
   Base-like block data and a mocked `L1Block`. Complete `tokenURI` reads measured
-  **207,116,513–409,619,708 gas** in capped static calls.
+  **211,368,799–414,057,027 gas** in capped static calls.
 - **Stress cases:** `test/blockart/VideoDiversityStressV4.t.sol` re-runs V3's 16
   corpus-selected stress seeds (`BLOCKS_DIVERSITY_STRESS=true`) with fixed extras.
-  The maximum is **436,558,618 gas**, compared with 452M for V3.
+  The maximum is **440,338,786 gas**, compared with 452M for V3.
 - **Base build:** under `FOUNDRY_PROFILE=blocks_base` (Cancun) the AVIs are
-  byte-identical to the Amsterdam build. Runtime sizes are 23,910 bytes (renderer),
-  6,783 (NFT) and 8,939 (bands).
+  byte-identical to the Amsterdam build. Runtime sizes are 23,920 bytes (renderer),
+  6,783 (NFT) and 9,679 (bands).
 - **Fork mint:** a simulated mint on a Base fork captured the real parent hash and L1
   block, and its `tokenURI` rendered within the cap.
 - **Independent check:** `python scripts/validate_blocks_video_v4.py` checks every frame
@@ -78,4 +90,4 @@ into all 90 frames.
 formatter, the renderer and the collection, then mints the first token in the same
 broadcast. Run `scripts/broadcast_blocks_v4_base.sh` to simulate, and add `--broadcast`
 to sign with the `ghoulballs_base` keystore. A dry run against Base on 2026-10-19
-estimated about 11.8M gas (≈0.00012 ETH).
+estimated about 12.0M gas (≈0.00013 ETH).

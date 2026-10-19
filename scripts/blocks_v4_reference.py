@@ -39,31 +39,40 @@ def fee(wei):
     return f'{wei} WEI' if wei < 10 ** 6 else f'{wei // 10 ** 9}.{wei % 10 ** 9 // 10 ** 6:03d} GWEI'
 
 
-def ticker_text(info):
-    """Base fee, parent hash, the anchoring L1 block when present, blob fee, coinbase and UTC date. No RANDAO."""
+def hexdigits(value):
+    return f"{int(value):064X}"
+
+
+def pages(info):
+    """(label, value) pairs: fees, the parent hash in two halves, the L1 block and its hash when present, coinbase."""
     when = datetime.datetime.fromtimestamp(info['timestamp'], datetime.timezone.utc)
     coinbase = f"{int(info['beneficiary']):040X}"
-    line = f"BASE FEE {fee(info['baseFee'])} * PARENT {int(info['parentHash']):064X}"[:-56] + " * "
+    parent = hexdigits(info['parentHash'])
+    out = [("BASE FEE * BLOB FEE", f"{fee(info['baseFee'])} * {fee(int(info['blobBaseFee']))}"),
+           ("PARENT HASH 1/2", parent[:32]), ("PARENT HASH 2/2", parent[32:])]
     if int(info['l1Number']):
-        line += (f"L1 {int(info['l1Number']):,} * L1 HASH {int(info['l1Hash']):064X}"[:-56]
-                 + f" * L1 FEE {fee(int(info['l1BaseFee']))} * ")
-    return line + f"BLOB FEE {fee(int(info['blobBaseFee']))} * COINBASE {coinbase[:4]}..{coinbase[-4:]} * {when:%Y-%m-%d} UTC * "
+        l1 = hexdigits(info['l1Hash'])
+        out += [("L1 BLOCK * L1 BASE FEE", f"{int(info['l1Number']):,} * {fee(int(info['l1BaseFee']))}"),
+                ("L1 HASH 1/2", l1[:32]), ("L1 HASH 2/2", l1[32:])]
+    return out + [("COINBASE * DATE UTC", f"{coinbase[:4]}..{coinbase[-4:]} * {when:%Y-%m-%d}")]
+
+
+def centred(buf, y, s, colour):
+    text(buf, (129 - len(s) * 4) // 2, y, s, colour)
 
 
 def bands(info, hue):
     acc = accent(hue)
-    header = np.full((14, 128), BG, np.uint8)
-    header[13] = acc
-    kana(header, 3, 3, BASE_BLOCK, acc)
+    header = np.full((22, 128), BG, np.uint8)
+    header[21] = acc
+    kana(header, 3, 2, BASE_BLOCK, acc)
     number = f"{info['number']:,}"
-    text(header, 125 - len(number) * 4, 4, number, TEXT)
-    footer = np.full((16, 128), BG, np.uint8)
-    footer[0] = acc
-    kana(footer, 3, 2, GAS, acc)
+    text(header, 125 - len(number) * 4, 3, number, TEXT)
+    kana(header, 3, 11, GAS, acc)
     limit = f"{info['gasLimit'] // 10 ** 6}M" if info['gasLimit'] and info['gasLimit'] % 10 ** 6 == 0 else f"{info['gasLimit']:,}"
-    text(footer, 21, 4, limit, TEXT)
+    text(header, 21, 13, limit, TEXT)
     clock = datetime.datetime.fromtimestamp(info['timestamp'], datetime.timezone.utc).strftime('%H:%M:%S')
-    text(footer, 125 - len(clock) * 4, 4, clock, TEXT)
+    text(header, 125 - len(clock) * 4, 13, clock, TEXT)
     # 鎖 + chain ID centred in the free columns between the gas limit and the clock (2 px clear of each), if it fits.
     gas_last, clock_first = 21 + len(limit) * 4 - 2, 125 - len(clock) * 4
     chain = str(info['chainId'])
@@ -71,21 +80,24 @@ def bands(info, hue):
     width = 8 + 2 + len(chain) * 4 - 1
     if width + 2 <= len(free):
         x = free.start + (len(free) - width - 2) // 2 + 1
-        kana(footer, x, 2, [CHAIN_KANA], acc)
-        text(footer, x + 10, 4, chain, TEXT)
-    line = ticker_text(info)
-    period = len(line) * 4
-    strip = np.full((5, period), BG, np.uint8)
-    text(strip, 0, 0, line, acc)
-    return header, footer, strip, period
+        kana(header, x, 11, [CHAIN_KANA], acc)
+        text(header, x + 10, 13, chain, TEXT)
+    footer = np.full((16, 128), BG, np.uint8)
+    footer[0] = acc
+    sheets = []
+    for label, value in pages(info):
+        page = np.full((11, 128), BG, np.uint8)
+        centred(page, 0, label, acc)
+        centred(page, 6, value, TEXT)
+        sheets.append(page)
+    return header, footer, sheets
 
 
 def paint(frame, info, hue, f):
     """Overwrite the bands of a top-down 128x128 index frame for output frame f (0..89)."""
-    header, footer, strip, period = bands(info, hue)
+    header, footer, sheets = bands(info, hue)
     out = np.array(frame, copy=True).reshape(128, 128)
-    out[:14] = header
+    out[:22] = header
     out[112:] = footer
-    start = f * period // 90
-    out[122:127] = strip[:, (start + np.arange(128)) % period]
+    out[115:126] = sheets[f * len(sheets) // 90]
     return out
