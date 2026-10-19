@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="1000" viewBox="0 0 1120 1000" role="img" aria-labelledby="title desc">
+<title id="title">Taste: contextual palette and icon references</title>
+<desc id="desc">Five observed project palette families and three existing project marks. Working references, not universally approved colours. The marine simulation instead uses photographic source colours. Icons are static identity snapshots.</desc>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#f0edf6}.meta{font-family:monospace;fill:#b7b3c9;font-size:13px}.label{font-size:13px;fill:#cbc6dd}.family{font-size:15px;font-weight:700;letter-spacing:1px}</style>
+<rect width="1120" height="1000" fill="#11101b"/>
+<text x="44" y="58" font-size="34" font-weight="700" letter-spacing="5">TASTE</text>
+<text x="44" y="88" class="meta">Distinctive worlds. Simple actions. Details that feel alive.</text>
+<text x="44" y="111" class="meta">Working references / captured 2026-10-19 / see profile.md for evidence and scope</text>
+<text x="44" y="146" class="family">BLOCKS / NEON NIGHT</text>
+<text x="44" y="167" class="meta">A vivid street; one obvious action.</text>
+<rect x="44" y="180" width="127" height="33" fill="#090713" stroke="#777184" stroke-width="0.6"/>
+<text x="44" y="231" class="label">night <tspan class="meta" dx="6">#090713</tspan></text>
+<rect x="189" y="180" width="127" height="33" fill="#edf6f5" stroke="#777184" stroke-width="0.6"/>
+<text x="189" y="231" class="label">text <tspan class="meta" dx="6">#edf6f5</tspan></text>
+<rect x="334" y="180" width="127" height="33" fill="#46f5ff" stroke="#777184" stroke-width="0.6"/>
+<text x="334" y="231" class="label">cyan <tspan class="meta" dx="6">#46f5ff</tspan></text>
+<rect x="479" y="180" width="127" height="33" fill="#ff32b5" stroke="#777184" stroke-width="0.6"/>
+<text x="479" y="231" class="label">pink <tspan class="meta" dx="6">#ff32b5</tspan></text>
+<rect x="624" y="180" width="127" height="33" fill="#ffb51b" stroke="#777184" stroke-width="0.6"/>
+<text x="624" y="231" class="label">amber <tspan class="meta" dx="6">#ffb51b</tspan></text>
+<text x="44" y="272" class="family">GHOUL / WARM ARCADE</text>
+<text x="44" y="293" class="meta">UI chrome; artwork has its own generative palette.</text>
+<rect x="44" y="306" width="127" height="33" fill="#070708" stroke="#777184" stroke-width="0.6"/>
+<text x="44" y="357" class="label">black <tspan class="meta" dx="6">#070708</tspan></text>
+<rect x="189" y="306" width="127" height="33" fill="#211d28" stroke="#777184" stroke-width="0.6"/>
+<text x="189" y="357" class="label">panel <tspan class="meta" dx="6">#211d28</tspan></text>
+<rect x="334" y="306" width="127" height="33" fill="#fff1c7" stroke="#777184" stroke-width="0.6"/>
+<text x="334" y="357" class="label">bone <tspan class="meta" dx="6">#fff1c7</tspan></text>
+<rect x="479" y="306" width="127" height="33" fill="#ff9d18" stroke="#777184" stroke-width="0.6"/>
+<text x="479" y="357" class="label">orange <tspan class="meta" dx="6">#ff9d18</tspan></text>
+<rect x="624" y="306" width="127" height="33" fill="#ffd226" stroke="#777184" stroke-width="0.6"/>
+<text x="624" y="357" class="label">yellow <tspan class="meta" dx="6">#ffd226</tspan></text>
+<rect x="769" y="306" width="127" height="33" fill="#8d36d8" stroke="#777184" stroke-width="0.6"/>
+<text x="769" y="357" class="label">purple <tspan class="meta" dx="6">#8d36d8</tspan></text>
+<rect x="914" y="306" width="127" height="33" fill="#6ee236" stroke="#777184" stroke-width="0.6"/>
+<text x="914" y="357" class="label">green <tspan class="meta" dx="6">#6ee236</tspan></text>
+<text x="44" y="398" class="family">NUMERATE / PASTEL PHOSPHOR</text>
+<text x="44" y="419" class="meta">Handmade computing, with night and daylight modes.</text>
+<rect x="44" y="432" width="127" height="33" fill="#15141f" stroke="#777184" stroke-width="0.6"/>
+<text x="44" y="483" class="label">screen <tspan class="meta" dx="6">#15141f</tspan></text>
+<rect x="189" y="432" width="127" height="33" fill="#faf7ee" stroke="#777184" stroke-width="0.6"/>
+<text x="189" y="483" class="label">paper <tspan class="meta" dx="6">#faf7ee</tspan></text>
+<rect x="334" y="432" width="127" height="33" fill="#1b1b25" stroke="#777184" stroke-width="0.6"/>
+<text x="334" y="483" class="label">ink <tspan class="meta" dx="6">#1b1b25</tspan></text>
+<rect x="479" y="432" width="127" height="33" fill="#bff0d4" stroke="#777184" stroke-width="0.6"/>
+<text x="479" y="483" class="label">mint <tspan class="meta" dx="6">#bff0d4</tspan></text>
+<rect x="624" y="432" width="127" height="33" fill="#d9ccff" stroke="#777184" stroke-width="0.6"/>
+<text x="624" y="483" class="label">lilac <tspan class="meta" dx="6">#d9ccff</tspan></text>
+<rect x="769" y="432" width="127" height="33" fill="#fff1a8" stroke="#777184" stroke-width="0.6"/>
+<text x="769" y="483" class="label">butter <tspan class="meta" dx="6">#fff1a8</tspan></text>
+<rect x="914" y="432" width="127" height="33" fill="#ffc8e3" stroke="#777184" stroke-width="0.6"/>
+<text x="914" y="483" class="label">bubble <tspan class="meta" dx="6">#ffc8e3</tspan></text>
+<text x="44" y="524" class="family">POS_SWAP / OPERATOR CONSOLE</text>
+<text x="44" y="545" class="meta">Density serves the operator and the data.</text>
+<rect x="44" y="558" width="127" height="33" fill="#05060e" stroke="#777184" stroke-width="0.6"/>
+<text x="44" y="609" class="label">ground <tspan class="meta" dx="6">#05060e</tspan></text>
+<rect x="189" y="558" width="127" height="33" fill="#0b0e1c" stroke="#777184" stroke-width="0.6"/>
+<text x="189" y="609" class="label">panel <tspan class="meta" dx="6">#0b0e1c</tspan></text>
+<rect x="334" y="558" width="127" height="33" fill="#5bb8ff" stroke="#777184" stroke-width="0.6"/>
+<text x="334" y="609" class="label">blue <tspan class="meta" dx="6">#5bb8ff</tspan></text>
+<rect x="479" y="558" width="127" height="33" fill="#bd8cff" stroke="#777184" stroke-width="0.6"/>
+<text x="479" y="609" class="label">purple <tspan class="meta" dx="6">#bd8cff</tspan></text>
+<rect x="624" y="558" width="127" height="33" fill="#4dff88" stroke="#777184" stroke-width="0.6"/>
+<text x="624" y="609" class="label">green <tspan class="meta" dx="6">#4dff88</tspan></text>
+<rect x="769" y="558" width="127" height="33" fill="#ece7da" stroke="#777184" stroke-width="0.6"/>
+<text x="769" y="609" class="label">paper <tspan class="meta" dx="6">#ece7da</tspan></text>
+<text x="44" y="650" class="family">_MAEVA / TROPICAL PLAY</text>
+<text x="44" y="671" class="meta">A brighter, softer counterexample.</text>
+<rect x="44" y="684" width="127" height="33" fill="#1aa9cf" stroke="#777184" stroke-width="0.6"/>
+<text x="44" y="735" class="label">water <tspan class="meta" dx="6">#1aa9cf</tspan></text>
+<rect x="189" y="684" width="127" height="33" fill="#0b3954" stroke="#777184" stroke-width="0.6"/>
+<text x="189" y="735" class="label">ink <tspan class="meta" dx="6">#0b3954</tspan></text>
+<rect x="334" y="684" width="127" height="33" fill="#22d3c5" stroke="#777184" stroke-width="0.6"/>
+<text x="334" y="735" class="label">aqua <tspan class="meta" dx="6">#22d3c5</tspan></text>
+<rect x="479" y="684" width="127" height="33" fill="#b784ff" stroke="#777184" stroke-width="0.6"/>
+<text x="479" y="735" class="label">purple <tspan class="meta" dx="6">#b784ff</tspan></text>
+<path d="M44 778H1076" stroke="#3b354c"/>
+<text x="44" y="807" class="family">SMALL IDENTITIES / EXISTING MARKS, STATIC SNAPSHOTS</text>
+<image x="44" y="830" width="64" height="64" style="image-rendering:pixelated" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAEV0lEQVR4AeyaO0wVQRSGT2i08FFoARqjiZpIBRrwEZHCRqKJSGE0sVK0MCgEO4xaCJEOIoqVFFpphZiA2FgoPiEqFRhFpRApoNHGTvmv/DcnC3dn5+7sg1fy3zP37M6Z8387yy4JBStWF/1dyiqQJf6zDGCJbwBZ3gHLO2CJE0jsFth4YJdU93XK+V+vpLypNrHLEDsAGj/ae1s2VOzMGC+bAZAUiNgAeI1PD3+Rl5duyad7TzIQ8JEEiMgB5DI+0NghUx8/y+gMgJ6D9YmBKAD5KGQy7l0zKRDOAdgaTxqEMwBhjScFIjQA18bjBpE3gKiNRwXCW9cagCvj1c86RMvbWK7vrn9ZBgbgynguY7Z5VyCMAFwZ11cbY69h5LS8x3N9DwvCFwDM3zl3Rc5MFcn07JsbX2ByNZRUftTnhcqvJ18AY+tr5VD3z4zut/2WU99W+dVKxbGpmQs1PaOgzfgC8BZpWFMqXzedloa1//+I8R5P8vv60u1S0V4v+9suyrqSbTI5NBqonUAAtj5vl47xN9mC+YDA+75WttjsQB/DeDZtDPMZ7z/bKv21N4xzcUIgADjx5vhrcQECtVzIz/jk4EjgJQIDYEVXIHCVtVjfFF0Z5zrWADjRFQjWM0XXxrle3gBYIGoQURln/6EBsJBrEFEbZ9/WAMZOXhOKRXQMCyIu4+zZGgAnmqItiLiNs//IAHABEwhXxq8OPxSKaweJ1gC2PrgulF6AtwWiznOcC0Rz5fHsmxtfYGye46yfK5ry1gBMBU3HNYinNUXSf6xQkjDOPmMHwIUBAubx3eaKc5sjYi7VXHJCKOaCRGsA2OKUXoC3BaLO81xEnU/L2BpAWhp31UdqAWCLU9ostzmizm8o2y2UzpvG1gCwxSldHFuc0nmei6jzaRlbA0hL4676SC0AbHFKm+VtgajzE0PvhNJ509gaALc5oi6OLU7p/J4txULpfFrG1gDS0rirPlILAFuc0mZ5WyDqPJ8AiDpvGlsD4DZH1MW5zRF1/u33EaF0Pi1jawBpadxVH4EANGze52q9wHWwxSk9CVuc0nk+ARCRLywvRjAqEID6zXtlrLJR/EBwmyPqVXFLUDof1RjGq7ouS9XdpswSEwMfMjHXhy+Ald110jLal50bBET25JgHNA7jhWU7BMYfH7kgPYfrfDvxBYCZLSO9kgQIPgEQ0QeFLU4h52f8x4v3OMVXRgCcnS8I3BIUa7mIYY2zh8AAOCFfEJwfNroyzj6sAXBi1CD4BEDEmq6NoyaUNwBMhqIGEZVx9A6FBoAikGsQURtHz5AzACgGhQURl3H0CjkHgKKQLYi4jaNHKDIAKA75gah6NIlThG9u3heYIM/xTIEQH5EDYG/zgcA/YAFCEsbZV2wAuKAGgddsfOcraxxXnH0wxg6AC8M4NNjaJUkYZx9zAPyp6ZT5xAmLLc4BsNgMmvzMAYC//OaTqdBCPT4HwEIzErbffwAAAP//ufbMMgAAAAZJREFUAwCsdwS9Md25MwAAAABJRU5ErkJggg=="/>
+<text x="126" y="853" font-size="17">blocks</text>
+<text x="126" y="877" class="meta">neon block / moving windows</text>
+<image x="390" y="830" width="64" height="64" style="image-rendering:pixelated" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAFCUlEQVR4nO3dvascVRjH8V25YsAiikYQLBRUUERRsFHQBLEREaMmgqQVsTCFYCOC2FkpmCIE/4K8iCJqJ/iClaCNpNBCCysRxNoIFiPnws7eycz5np3zMt9PNezszpw7/HgezszZvesjN9y/SuHMX990G6/d+FiSA6oK1+QegOpmgISsU7UwLZMVSIgBErKXewDVcJq5lRVIiAES4ixMiBVIiAES4ixM/4ubZlqBhBggIc7ChFiBhBggIQZIiAESYoCEGCAhBkiIARKyxGdhv9x+X7dx128/5R1JA6xAQgyQkFKehSVfsh76VBy720hWICEGSEgpLSwV2Ln67GXDrEBCDJCQRm4k/vrp393GldMHvufaH891G/88+ErEke945nDk4FarVbvfjLYCCTFAQhppYQNC5+q/MqmXQY11rsAKJMQACWnkRuKY+4ewcx1+/1jEpwbccvxM2gNmYQUSYoCErO+56cncY4j3/cc/b7xy5fSjaU+x98F3G69c/+9baU9x7wsX0h5wTlYgIQZISN03Eh8+fne30e9lY7x03ZGrvid0l+SdK7h86eTGKxU1NSuQEAMkxAAJMUBCDJCQum8kBnF3FMfMwoLP3028XH+M8qdjViAhBkhIIy3s7T8vdhtPf/vAVd8cutuYFpalc/UV28usQEIMkJBGWljfmKdjJ9949qBdhXSuwBamNhkgIc22sAGhu+1uhUZy54+e6DbeuflE3pFssAIJMUBC6l6RGCesY7x8Ke9AJiitcwVWICEGSIgBEmKAhBggIQZIiAESYoCELPFGYvD8y1/nHkL1rEBCDJCQUS0sLFkv9omMcrECCTFAQpa4IjHo/7JTsVxUrzYZICGLbmFBmGa++NXFvCPZUGznCqxAQgyQkPVzd57KPQZVzAokxAAJMUBCDJAQAyRk0SsSx/jow8d3fYqqF0ZagYQYICHeSBwreS+runMFViAhBkiILUyIFUiIARJigIQYICEGSIgBEmKAhBggIetDh27ttp667Ym8QynBF79/edAur89q2/WxAgkxQEL2W9iAxqr3QJ+Ks+TrYwUSYoCEjGphA4qt3sn7VJzmr48VSIgBEkJb2IAZqnchfSpOG9fHCiTEAAnZYQsbMKl6V92n4lR0faxAQgyQkDwtTM2wAgkxQELWf5z6LPcYVDErkBADJGTLLOz1h852G+/98Kq73DW8ywokxAAJWb/5yCfdVr9eBXHlrvmPlz/CGT5uBRJigITstzApghVIiAESsn8jMdWUZNKb2zhgG39F3AGtQEIMkJBpz8L6fPPC32wFEmKAhEybhU3SP2Abp0h+wKpPYQUSYoCEuKheiBVIiAESEvnV5uTPX6o+afIDVnRSK5AQAyRkVAuDFdWPN/xxK5AQAyRky7OwINUUYJJihxEUMp5ChmEFEmKAhPi9MCFWICEGSEgpP/NbyCyjL/ljKai0C2UFEmKAhOxNencbiyXygiOM+xmoSSYd0AokxAAJobOwuPqZpdHMOdTm/8DACiTEAAnxe2FCrEBCDJCQOWZhxd7cy/IbiXOaYfBWICEGSMgOl3PMUNg9RfZTWIGEGCAh6VvY7qplRQ+Yij1p8iNbgYQYICFbViQW+w+Cx/xobfJdA4q9UAO7kl9DK5AQAyQkz4rEVKq+BTfnKXZ3diuQEAMkZIc/85ucJy3wpFYgIQZIyLQWtrv/pVisBf4VfrVZ8zFAQv4DJ6GdU1wNOwAAAAAASUVORK5CYII="/>
+<text x="472" y="853" font-size="17">ghoulballs</text>
+<text x="472" y="877" class="meta">token artwork / frame loop</text>
+<svg x="764" y="830" width="64" height="64" viewBox="0 0 16 16" shape-rendering="crispEdges"><rect width="16" height="16" fill="#bff0d4"/><path fill="#15141f" d="M1 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM10 4h1v1h-1zM14 4h1v1h-1zM1 5h1v1h-1zM2 5h1v1h-1zM4 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM10 5h1v1h-1zM11 5h1v1h-1zM13 5h1v1h-1zM14 5h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM4 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM1 7h1v1h-1zM3 7h1v1h-1zM4 7h1v1h-1zM6 7h1v1h-1zM8 7h1v1h-1zM10 7h1v1h-1zM12 7h1v1h-1zM14 7h1v1h-1zM1 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM6 8h1v1h-1zM8 8h1v1h-1zM10 8h1v1h-1zM14 8h1v1h-1zM1 9h1v1h-1zM4 9h1v1h-1zM6 9h1v1h-1zM8 9h1v1h-1zM10 9h1v1h-1zM14 9h1v1h-1zM1 10h1v1h-1zM4 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM10 10h1v1h-1zM14 10h1v1h-1z"/></svg>
+<text x="846" y="853" font-size="17">numerate</text>
+<text x="846" y="877" class="meta">pixel mark / theme phosphor</text>
+<text x="44" y="930" class="meta">3_mer: photographic neutrality and reference lighting; do not impose a neon palette.</text>
+<text x="44" y="956" class="meta">Palette values are observed source examples. Confirmation applies only where profile.md records it.</text>
+</svg>

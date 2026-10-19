@@ -85,6 +85,12 @@ the complete `tokenURI`, including both media files, JSON and base64 layers.
   keep small or tightly coupled work local. This does not authorize deployments
   or edits outside the user's task, and workers must preserve concurrent work.
 
+- For aesthetic work or recording design feedback, use
+  `.agents/skills/taste/SKILL.md`. Its living profile distinguishes confirmed
+  preferences from observed implementations and preserves project-specific
+  counterexamples. Update it from explicit feedback; do not treat existing code
+  or silence as approval. Keep blocks, ghoulballs and unrelated projects distinct.
+
 - `BlockVideoNFT` / `BlockVideoRenderer` are the prepared `BLOCKS_VIDEO_V2`
   revision: native SVG first-frame poster plus a self-contained AVI player,
   without GIF metadata. Do not replace the deployed V1 page/config until a new
