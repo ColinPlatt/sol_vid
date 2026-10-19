@@ -10,6 +10,9 @@
     },
     "api/world.js": {
       "maxDuration": 30
+    },
+    "api/lab.js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -19,6 +22,15 @@
         {
           "key": "Cache-Control",
           "value": "no-store"
+        }
+      ]
+    },
+    {
+      "source": "/lab(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
         }
       ]
     }

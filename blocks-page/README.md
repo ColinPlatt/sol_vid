@@ -53,6 +53,16 @@ background-tab suspension and a no-WebGL fallback (mint panel always shown) are
 supported. The city is a browser illustration; the artwork is the original onchain
 GIF. WebCodecs-capable browsers animate the gallery's GIF textures.
 
+**Art lab.** `/lab/` (unlisted, `noindex`) is a workshop for reviewing the NFTs,
+like the ghoul lab. Its renders are real: `api/lab.js` builds the 3,520-byte input
+for a simulated block (block 13,000,000, fixed fields, `prevrandao` = seed) with an
+exact JS port of `SingleBlockData`/`Epoch.scene` (`dist/lab/blockseed.mjs`), then asks
+the deployed V1 renderer for the GIF in a 500M-gas `eth_call`. Only an integer seed
+is accepted and responses are cached as immutable. Tabs: rerolled nights, forced
+scene and rare studies, V1 against prepared V2/V3 posters, checks (scene
+distribution, capped gas, V3 diversity audit and stress cases) and minted tokens.
+`python3 scripts/blocks_lab_data.py` refreshes its data and posters from `previews/`.
+
 The read-only `/api/world` feed refreshes every 30 seconds and reports the latest
 Sepolia block, base fee and collection mint count in the HUD and overhead signs.
 Delayed/offline readings are marked. Mint discovery uses the collection's
