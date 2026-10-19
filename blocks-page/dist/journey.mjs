@@ -146,7 +146,9 @@ export function createJourney(kit,{keep,interactive}){
   for(const z of [-5,5])b.cylinder(25,6,RIDE.end-40+z,.6,12,.6,0xd8352a);
   b.part('solid',25,12.3,RIDE.end-40,1.2,.8,15,0xd8352a);b.part('solid',25,10.6,RIDE.end-40,.8,.5,12,0xd8352a);kit.halo(g,25,9,RIDE.end-40,30,'#ff5a4a',.3);
   // A distant arcology on a ridge keeps it futurist.
-  b.part('solid',-260,160,RIDE.end-380,40,160,40,0x232a44);for(let k=0;k<16;k++)b.part('lit',-260,90+k*9,RIDE.end-380+20.3,36,.5,.2,k%2?0x46f5ff:0xff32b5);
+  // Standing on the ground beneath it (it was placed for the old cone mountains and floated over the new terrain).
+  const arcology=height(-260,RIDE.end-380)-4;
+  b.part('solid',-260,arcology+80,RIDE.end-380,40,160,40,0x232a44);for(let k=0;k<16;k++)b.part('lit',-260,arcology+10+k*9,RIDE.end-380+20.3,36,.5,.2,k%2?0x46f5ff:0xff32b5);
   // Sakuragawa: platform, canopy, signs, a riverside deck and an unstaffed station office.
   b.part('matte',5.55,.3,E,7.3,1.6,48,0x6e6a72);b.part('lit',2.2,1.11,E,.3,.01,46,0xffd23a);
   b.part('matte',12,.3,E,6,1.6,16,0x5d4a3e);for(let z=E-7.8;z<=E+7.8;z+=.4)b.part('matte',15,1.6,z,.06,1,.06,0x3a2a24);b.part('lit',15,2.1,E,.06,.04,16,0xffb24a);

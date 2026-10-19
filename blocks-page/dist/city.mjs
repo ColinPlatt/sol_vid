@@ -187,10 +187,19 @@ try{
     if(direction==='out'){
       const {b}=stationFrame.local(walker.x,walker.z),door=stationFrame.at(30.2,Math.max(-14,Math.min(14,b)));
       const seat=cabCity(-18);
-      walker.play([{...door,y:-6,d:.9},{x:seat.x-Math.sin(0)*cabOffset,z:seat.z+cabOffset,y:-6,yaw:walker.yaw+Math.atan2(Math.sin(-walker.yaw),Math.cos(-walker.yaw)),d:2}],()=>{ride.phase='depart';ride.t=0;station.train.visible=false;journey.setCab(seat,'out');scene.add(journey.cab);});
+      // Walk to the doors, then swap the parked train's shell for the cab interior before stepping in,
+      // so the camera never passes through the train's body. The far end's parked train stays hidden until arrival.
+      journey.train.visible=false;
+      walker.play([{...door,y:-6,d:.9}],()=>{
+        station.train.visible=false;journey.setCab(seat,'out');scene.add(journey.cab);
+        walker.play([{x:seat.x-Math.sin(0)*cabOffset,z:seat.z+cabOffset,y:-6,yaw:walker.yaw+Math.atan2(Math.sin(-walker.yaw),Math.cos(-walker.yaw)),d:2}],()=>{ride.phase='depart';ride.t=0;});
+      });
     }else{
       const seat={x:0,y:RIDE.floor,z:RIDE.end+17.8,yaw:Math.PI};
-      walker.play([{x:1.2,z:walker.z,y:RIDE.floor,d:.8},{x:0,z:seat.z-cabOffset,y:RIDE.floor,yaw:walker.yaw+Math.atan2(Math.sin(Math.PI-walker.yaw),Math.cos(Math.PI-walker.yaw)),d:2}],()=>{ride.phase='journey';ride.t=0;journey.train.visible=false;journey.setCab(seat,'back');});
+      walker.play([{x:1.2,z:walker.z,y:RIDE.floor,d:.8}],()=>{
+        journey.train.visible=false;journey.setCab(seat,'back');
+        walker.play([{x:0,z:seat.z-cabOffset,y:RIDE.floor,yaw:walker.yaw+Math.atan2(Math.sin(Math.PI-walker.yaw),Math.cos(Math.PI-walker.yaw)),d:2}],()=>{ride.phase='journey';ride.t=0;});
+      });
     }
   }
   function rideStep(dt){
@@ -201,18 +210,19 @@ try{
     }else if(ride.phase==='journey'){
       const pose=journey.ride(ride.direction,ride.t);journey.setCab(pose,ride.direction);
       if(pose.done){
-        if(ride.direction==='out'){ride.phase='alight';journey.train.visible=true;journey.cab.visible=false;
+        // Step out of the cab first; the parked train reappears once the camera is on the platform.
+        if(ride.direction==='out'){ride.phase='alight';
           walker.x=pose.x;walker.z=pose.z+cabOffset;walker.y=RIDE.floor;walker.yaw=0;
-          walker.play([{yaw:-Math.PI/2,d:.7},{x:3.6,z:pose.z+3,d:1.4},{x:4.2,z:REMOTE_Z-4,yaw:-Math.PI/2-.5,d:2.4}],()=>{walker.placeAt('remote',4.2,-4,-Math.PI/2-.5);endRide('remote');});}
+          walker.play([{yaw:-Math.PI/2,d:.7},{x:3.6,z:pose.z+3,d:1.4},{x:4.2,z:REMOTE_Z-4,yaw:-Math.PI/2-.5,d:2.4}],()=>{journey.train.visible=true;walker.placeAt('remote',4.2,-4,-Math.PI/2-.5);endRide('remote');});}
         else{flash();ride.phase='arrive';ride.t=0;scene.add(journey.cab);activeScene=scene;}
       }
     }else if(ride.phase==='arrive'){
       // The train pulls in nose first from the north tunnel and stops at the far end of the platform.
       const k=Math.min(1,ride.t/4),b=18-80*(1-k)*(1-k),pose={...cabCity(b),yaw:Math.PI};journey.setCab(pose,'back');
       if(k>=1){
-        ride.phase='alight';station.train.visible=true;journey.cab.visible=false;
+        ride.phase='alight';
         walker.x=pose.x;walker.z=pose.z-cabOffset;walker.y=-6;walker.yaw=Math.PI;const out=stationFrame.at(27.6,10);
-        walker.play([{yaw:Math.PI/2,d:.7},{...out,y:-6,d:1.6},{yaw:Math.PI/2-.35,d:.6}],()=>{walker.placeAt('station',27.6,10,Math.PI/2-.35);walker.gate=true;endRide('station');});
+        walker.play([{yaw:Math.PI/2,d:.7},{...out,y:-6,d:1.6},{yaw:Math.PI/2-.35,d:.6}],()=>{station.train.visible=true;walker.placeAt('station',27.6,10,Math.PI/2-.35);walker.gate=true;endRide('station');});
       }
     }
   }
