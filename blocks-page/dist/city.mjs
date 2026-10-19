@@ -79,20 +79,25 @@ try{
   window.dispatchEvent(new Event('blocks:ramen-ready'));
   walker=new Walker();
   // Wet ground with a planar reflection, centred on the camera. A hole opens over the subway stairs.
+  // Phones and tablets skip the mirror pass: refreshed only a few times a second it lagged and jittered there, so
+  // they get a steady neon sheen anchored to the ground instead.
+  const simpleGround=matchMedia('(pointer: coarse)').matches||/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   const reflection=keep(new THREE.WebGLRenderTarget(512,512,{depthBuffer:true})),reflectedMatrix=new THREE.Matrix4();
   const stairs=frameOf(PLACES.station),s0=stairs.at(8,-1.5),s1=stairs.at(17,1.5);
   const groundMaterial=keep(new THREE.ShaderMaterial({
-    uniforms:{reflection:{value:reflection.texture},reflectedMatrix:{value:reflectedMatrix},time:{value:0},pulse:{value:0},eye:{value:new THREE.Vector3()},
+    uniforms:{reflection:{value:reflection.texture},reflectedMatrix:{value:reflectedMatrix},mirrorOn:{value:simpleGround?0:1},time:{value:0},pulse:{value:0},eye:{value:new THREE.Vector3()},
       hole:{value:new THREE.Vector4(Math.min(s0.x,s1.x),Math.min(s0.z,s1.z),Math.max(s0.x,s1.x),Math.max(s0.z,s1.z))}},
     vertexShader:'varying vec3 world;varying vec4 mirror;uniform mat4 reflectedMatrix;void main(){vec4 p=modelMatrix*vec4(position,1.);world=p.xyz;mirror=reflectedMatrix*p;gl_Position=projectionMatrix*viewMatrix*p;}',
-    fragmentShader:`varying vec3 world;varying vec4 mirror;uniform sampler2D reflection;uniform float time;uniform float pulse;uniform vec3 eye;uniform vec4 hole;
+    fragmentShader:`varying vec3 world;varying vec4 mirror;uniform sampler2D reflection;uniform float mirrorOn;uniform float time;uniform float pulse;uniform vec3 eye;uniform vec4 hole;
       float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
       void main(){
         if(world.x>hole.x&&world.x<hole.z&&world.z>hole.y&&world.z<hole.w)discard;
         vec2 p=world.xz;float grain=hash(floor(p*90.));float tiles=step(.978,fract(p.y*.6))+step(.985,fract(p.x*.8));
         vec3 base=mix(vec3(.035,.052,.069),vec3(.012,.024,.035),min(tiles,1.));
-        vec2 uv=mirror.xy/mirror.w*.5+.5;uv+=vec2(sin(p.y*4.+time*.7),cos(p.x*9.+p.y*3.+time))*.0014;
-        vec3 light=texture2D(reflection,clamp(uv,.001,.999)).rgb;float d=length(world.xz-eye.xz);
+        vec3 light;
+        if(mirrorOn>.5){vec2 uv=mirror.xy/mirror.w*.5+.5;uv+=vec2(sin(p.y*4.+time*.7),cos(p.x*9.+p.y*3.+time))*.0014;light=texture2D(reflection,clamp(uv,.001,.999)).rgb;}
+        else light=vec3(.045,.03,.085)+vec3(.9,.18,.62)*pow(max(0.,sin(p.x*.7+1.3)),24.)*.22+vec3(.1,.8,.9)*pow(max(0.,sin(p.y*.55)),24.)*.18;
+        float d=length(world.xz-eye.xz);
         float wet=.66+.16*sin(p.y*.8+sin(p.x*2.));float fresnel=.8+min(d*.012,.35);
         vec3 colour=mix(base,light,wet*fresnel)+vec3(.01,.035,.038)*pulse+(grain-.5)*.012;
         colour=mix(colour,vec3(.028,.015,.065),1.-exp(-d*.018));gl_FragColor=vec4(colour,1.);
@@ -376,7 +381,7 @@ try{
       distant.position.set(camera.position.x,0,camera.position.z);
       ground.position.set(Math.round(camera.position.x),0,Math.round(camera.position.z));
       groundMaterial.uniforms.time.value=elapsed;groundMaterial.uniforms.pulse.value=pulse;groundMaterial.uniforms.eye.value.copy(camera.position);
-      if(!indoors&&(forceMirror||elapsed-lastMirror>.14)){
+      if(!simpleGround&&!indoors&&(forceMirror||elapsed-lastMirror>.14)){
         reflected.position.set(camera.position.x,-camera.position.y,camera.position.z);reflected.rotation.set(-look.y,camera.rotation.y,0,'YXZ');reflected.updateMatrixWorld();
         reflectedMatrix.copy(reflected.projectionMatrix).multiply(reflected.matrixWorldInverse);
         ground.visible=false;marker.visible=false;renderer.setRenderTarget(reflection);renderer.render(scene,reflected);renderer.setRenderTarget(null);ground.visible=true;lastMirror=elapsed;
