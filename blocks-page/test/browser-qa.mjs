@@ -38,7 +38,8 @@ try{
  const shot=async name=>writeFile(path.join(root,'previews/blocks-sepolia/'+name+'.png'),Buffer.from((await cdp('Page.captureScreenshot',{format:'png'})).data,'base64'));
  const key=async(code,hold=80)=>{const k={ArrowLeft:37,ArrowUp:38,ArrowRight:39,ArrowDown:40,Escape:27,Enter:13,KeyT:84}[code];await cdp('Input.dispatchKeyEvent',{type:'keyDown',code,key:code,windowsVirtualKeyCode:k});await delay(hold);await cdp('Input.dispatchKeyEvent',{type:'keyUp',code,key:code,windowsVirtualKeyCode:k});};
  // Unreleased config: the mint stays closed and the city still renders.
- await cdp('Page.navigate',{url:origin+'/'});await wait("['webgl','fallback'].includes(document.documentElement.dataset.scene)&&document.querySelector('#scenes').children.length===8");
+ await cdp('Page.navigate',{url:origin+'/'});await wait("['webgl','fallback'].includes(document.documentElement.dataset.scene)&&document.querySelector('.nights li')!==null");
+ assert.equal(await evaluate("document.querySelectorAll('#collection img').length"),0,'The collection panel explains rather than shows examples');
  assert.equal(await evaluate("document.querySelector('#mint').disabled"),true);
  await cdp('Page.navigate',{url:origin+'/?qa=live'});await wait("document.querySelector('#mint')?.disabled===false");
  assert.equal(await evaluate("document.documentElement.dataset.scene"),'webgl');
@@ -59,10 +60,12 @@ try{
  const z0=await evaluate('__blocks.walker.z');await delay(1500);
  assert.ok(await evaluate('__blocks.walker.z')<z0,'Cruising walks north');
  assert.equal(await evaluate("document.body.dataset.firstVisit"),'true','First visits highlight the help button');
- await evaluate("delete document.body.dataset.firstVisit;document.querySelector('#motion').click()");await delay(400);
+ await evaluate("delete document.body.dataset.firstVisit;document.querySelector('#motion').click()");await delay(1200);
  // Compare the scene below the top bar; the bar's buttons may still be animating focus or hover.
  const scene={x:0,y:70,width:1280,height:1030,scale:1},paused=(await cdp('Page.captureScreenshot',{format:'png',clip:scene})).data;await delay(400);
- assert.ok((await cdp('Page.captureScreenshot',{format:'png',clip:scene})).data===paused,'Pause must freeze the street and reflections');
+ const pausedAfter=(await cdp('Page.captureScreenshot',{format:'png',clip:scene})).data;
+ if(pausedAfter!==paused&&process.env.QA_DEBUG){await writeFile(process.env.QA_DEBUG+'/p1.png',Buffer.from(paused,'base64'));await writeFile(process.env.QA_DEBUG+'/p2.png',Buffer.from(pausedAfter,'base64'));}
+ assert.ok(pausedAfter===paused,'Pause must freeze the street and reflections');
  await shot('site-street-desktop');
  await evaluate("document.querySelector('#motion').click()");
  await key('ArrowRight');assert.equal(await evaluate("__blocks.walker.queued?.side"),'right');
@@ -77,13 +80,16 @@ try{
  await delay(800);await shot('site-gallery-desktop');
  await evaluate("document.querySelector('#action').click()");await wait("document.querySelector('#status').textContent.includes('is yours')",60);
  assert.equal(await evaluate("window.__sends.length"),1);assert.equal(await evaluate("window.__sends[0].data"),'0x1249c58b');assert.equal(await evaluate("window.__sends[0].value"),'0x0');
- await wait("document.querySelector('#collection').open&&document.querySelector('#hero').naturalWidth===128");
- await shot('site-browser-desktop-mocked');
- await evaluate("document.querySelector('#collection').close()");
+ // The new token pops up centre stage, and then floats in the gallery's terminal.
+ await wait("document.querySelector('#reveal').open&&document.querySelector('#reveal').classList.contains('mine')&&document.querySelector('#reveal-image').naturalWidth===128");
+ assert.equal(await evaluate("document.querySelector('#reveal-block').textContent.includes('13,000,000')&&!document.querySelector('#reveal-tx').hidden"),true);
+ await delay(900);await shot('site-browser-desktop-mocked');
+ await evaluate("document.querySelector('#reveal').close()");await delay(1200);await shot('site-gallery-minted-desktop');
  // Leaving with Escape returns to the street.
  await key('Escape');await wait("__blocks.walker.mode==='street'",60);
  // The subway: the ticket gate connects the wallet, then the train rides out to Sakuragawa and back.
- await evaluate("window.__requested=false;__blocks.walker.placeAt('station',18,0)");await delay(600);
+ // Minting already connected the wallet, which opens the gates; close them to test the tap.
+ await evaluate("window.__requested=false;__blocks.walker.gate=false;__blocks.walker.placeAt('station',18,0)");await delay(600);
  assert.equal(await evaluate("__blocks.walker.gate"),false);
  await evaluate("__blocks.interact('gate')");await wait("__blocks.walker.gate&&!document.querySelector('#wallet-chip').hidden");
  await evaluate("__blocks.walker.placeAt('station',25,-4,Math.PI/2)");await delay(900);await shot('site-station-desktop');
@@ -121,6 +127,6 @@ try{
  await cdp('Page.addScriptToEvaluateOnNewDocument',{source:"const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:originalContext.call(this,type,...args);};"});
  await cdp('Page.navigate',{url:origin+'/?qa=live'});await wait("document.documentElement.dataset.scene==='fallback' && !document.querySelector('#mint').disabled");
  assert.equal(await evaluate("getComputedStyle(document.querySelector('#mint-panel')).visibility"),'visible');
- await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',zero_argument_mint:true,threejs:'Walkable street grid with junction turns, arrow keys and on-screen arrows, guided route, walk-in ramen shop, gallery mint terminal, subway ticket-gate wallet connection, round-trip ride to Sakuragawa, paused-frame stability, mobile touch look; reduced-motion and no-WebGL fallback preserve mint',chain_feed:'Mocked head, base fee, minted count and offline state passed',gallery:'Seven framed artworks with minted originals and demo fallback; WebCodecs GIF playback with static poster fallback',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',audio:'procedural Web Audio; not asserted in headless Chrome',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
+ await writeFile(path.join(root,'previews/blocks-sepolia/site-browser-validation.json'),JSON.stringify({network:'Ethereum Sepolia',site:'standalone blocks-page',chromium:'passed',wallet:'mocked only; no real transactions',zero_argument_mint:true,threejs:'Walkable street grid with junction turns, arrow keys and on-screen arrows, guided route, walk-in ramen shop, gallery mint terminal, subway ticket-gate wallet connection, round-trip ride to Sakuragawa, paused-frame stability, mobile touch look; reduced-motion and no-WebGL fallback preserve mint',chain_feed:'Mocked head, base fee, minted count and offline state passed',gallery:'Seven frames show minted originals (empty frames await a block, no demos); a fresh mint pops up in a reveal and floats inside the terminal; WebCodecs GIF playback with static poster fallback',scenes:8,mobile:true,narrow_mobile_320:true,animated_favicon:'PNG swaps, reduced motion and static first-frame export passed',audio:'procedural Web Audio; not asserted in headless Chrome',firefox:'not_checked',safari:'not_checked'},null,2)+'\n');
  console.log('PASS blocks city: walk, turns, guided route, gallery mint, ticket gate wallet, Sakuragawa round trip, mobile, reduced motion, fallback');
 }finally{ws?.close();chrome?.kill();server.close();await delay(100);await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:100});}

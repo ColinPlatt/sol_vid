@@ -6,7 +6,7 @@
   "zero_argument_mint": true,
   "threejs": "Walkable street grid with junction turns, arrow keys and on-screen arrows, guided route, walk-in ramen shop, gallery mint terminal, subway ticket-gate wallet connection, round-trip ride to Sakuragawa, paused-frame stability, mobile touch look; reduced-motion and no-WebGL fallback preserve mint",
   "chain_feed": "Mocked head, base fee, minted count and offline state passed",
-  "gallery": "Seven framed artworks with minted originals and demo fallback; WebCodecs GIF playback with static poster fallback",
+  "gallery": "Seven frames show minted originals (empty frames await a block, no demos); a fresh mint pops up in a reveal and floats inside the terminal; WebCodecs GIF playback with static poster fallback",
   "scenes": 8,
   "mobile": true,
   "narrow_mobile_320": true,

@@ -1,5 +1,5 @@
 import * as THREE from './vendor/three.module.min.js';
-import {demos,watchWorld} from './world.mjs';
+import {watchWorld} from './world.mjs';
 import {Walker,PLACES,frameOf,streetName,EYE,PITCH,FACADE,REMOTE_Z} from './walker.mjs';
 import {createKit} from './kit.mjs';
 import {createStreets} from './streets.mjs';
@@ -109,7 +109,7 @@ try{
   const markerCanvas=document.createElement('canvas');markerCanvas.width=markerCanvas.height=64;const mc=markerCanvas.getContext('2d');
   mc.fillStyle='#ff32b5';mc.shadowColor='#ff32b5';mc.shadowBlur=12;mc.beginPath();mc.moveTo(14,16);mc.lineTo(50,16);mc.lineTo(32,46);mc.closePath();mc.fill();
   const marker=new THREE.Sprite(keep(new THREE.SpriteMaterial({map:keep(new THREE.CanvasTexture(markerCanvas)),transparent:true,depthTest:false,toneMapped:false})));marker.scale.set(.5,.5,1);marker.visible=false;marker.renderOrder=10;
-  // Gallery artworks: minted originals first, demos otherwise. WebCodecs animates GIF textures.
+  // Gallery artworks: minted originals, newest first. WebCodecs animates GIF textures.
   const mintedArt=[],artSources=new Map(),boardContent=[];let artStamp=-1;
   function artwork(source){
     if(artSources.has(source))return artSources.get(source);
@@ -123,19 +123,29 @@ try{
     image.onload=()=>{if(disposed)return;ctx.drawImage(image,0,0,128,128);texture.needsUpdate=true;if(paused)render(true);};image.src=source;
     return entry;
   }
+  // Frames without a minted block wait for one; the gallery shows no demo artwork.
+  const emptyCanvas=document.createElement('canvas');emptyCanvas.width=emptyCanvas.height=128;
+  {const c=emptyCanvas.getContext('2d');c.fillStyle='#0b0a1c';c.fillRect(0,0,128,128);c.fillStyle='#ff32b522';for(let y=0;y<128;y+=4)c.fillRect(0,y,128,1);
+   c.textAlign='center';c.fillStyle='#ff75d0';c.font='800 44px "Noto Sans CJK JP",sans-serif';c.fillText('空',64,64);c.font='bold 9px monospace';c.fillStyle='#9eebff';c.fillText('AWAITING A BLOCK',64,98);}
+  const emptyTexture=keep(new THREE.CanvasTexture(emptyCanvas));emptyTexture.colorSpace=THREE.SRGBColorSpace;emptyTexture.magFilter=THREE.NearestFilter;
+  let myToken=null;
   function galleryLabels(){
     gallery.boards.forEach((board,i)=>{
-      const token=mintedArt[i]??null,scene=demos[(i+mintedArt.length)%demos.length],source=token?token.image:'assets/'+scene+'.gif';
-      boardContent[i]=token?{tokenId:token.tokenId}:{scene};
-      board.picture.material.map=artwork(source).texture;board.picture.material.color.set(0xffffff);board.picture.material.needsUpdate=true;
+      const token=mintedArt[i]??null,mine=token&&token.tokenId===myToken?.tokenId;
+      boardContent[i]=token?{tokenId:token.tokenId}:null;
+      board.picture.material.map=token?artwork(token.image).texture:emptyTexture;board.picture.material.color.set(0xffffff);board.picture.material.needsUpdate=true;
       const ctx=board.ctx;ctx.fillStyle='#080c21';ctx.fillRect(0,0,512,96);ctx.textAlign='center';
-      ctx.fillStyle=token?'#66ffce':'#ff75d0';ctx.font='bold 24px monospace';ctx.fillText(token?'鋳造済 MINTED / #'+token.tokenId:'見本 DEMO / '+scene.toUpperCase(),256,40);
-      ctx.font='15px monospace';ctx.fillStyle='#b1d0e1';ctx.fillText(token?'BLOCKS · ONCHAIN ORIGINAL':'SCENE STUDY · NOT MINTED',256,72);board.texture.needsUpdate=true;
+      ctx.fillStyle=mine?'#ff75d0':token?'#66ffce':'#7c8aa0';ctx.font='bold 24px "Noto Sans CJK JP",monospace';
+      ctx.fillText(mine?'あなたの夜 · YOURS #'+token.tokenId:token?'鋳造済 MINTED / #'+token.tokenId:'空 · AWAITING A BLOCK',256,40);
+      ctx.font='15px monospace';ctx.fillStyle='#b1d0e1';ctx.fillText(token?'BLOCKS · ONCHAIN ORIGINAL':'MINT AT THE TERMINAL',256,72);board.texture.needsUpdate=true;
     });
-    const used=new Set(gallery.boards.map(board=>board.picture.material.map));
+    const {centre,centreArt}=gallery.terminal;
+    if(myToken){centreArt.material.map=artwork(myToken.image).texture;centreArt.material.needsUpdate=true;centre.visible=true;}
+    const used=new Set([...gallery.boards.map(board=>board.picture.material.map),myToken?centreArt.material.map:null]);
     for(const [source,entry] of artSources)if(!used.has(entry.texture)){entry.removed=true;entry.decoder?.close();entry.image.onload=null;entry.image.src='';entry.texture.dispose();resources.delete(entry.texture);artSources.delete(source);}
   }
   showToken=token=>{if(disposed)return;const i=mintedArt.findIndex(item=>item.tokenId===token.tokenId);if(i>=0)mintedArt.splice(i,1);mintedArt.unshift(token);mintedArt.length=Math.min(mintedArt.length,gallery.boards.length);galleryLabels();if(paused)render(true);};
+  window.addEventListener('blocks:mine',event=>{myToken=event.detail;showToken(myToken);pulse=1;});
   galleryLabels();
   // The mint terminal and ticket gate screens mirror the page's wallet and mint state.
   let mintState={stage:'idle',text:'No inputs. Just the block your mint lands in.'},wallet={state:'none'},pulse=0;
@@ -226,7 +236,7 @@ try{
     if(id.startsWith('door:')){const place=PLACES[id.slice(5)],near=walker.nearby().door;if(near?.place===place)walker.queue(near.side);return;}
     if(id==='gate'){if(walker.gate){toast2('The gate is open. The train is waiting on the platform.');return;}window.dispatchEvent(new Event('blocks:connect-request'));return;}
     if(id==='terminal'){window.dispatchEvent(new Event('blocks:mint-request'));return;}
-    if(id.startsWith('art:')){window.dispatchEvent(new CustomEvent('blocks:inspect',{detail:boardContent[Number(id.slice(4))]}));return;}
+    if(id.startsWith('art:')){const content=boardContent[Number(id.slice(4))];if(content)window.dispatchEvent(new CustomEvent('blocks:inspect',{detail:content}));else toast2('空 · This frame is waiting for a block. Mint at the terminal to fill it.');return;}
     if(id==='train'){if(!walker.gate){toast2('改札 · Tap a ticket gate first.');return;}if(walker.place?.id==='station'&&walker.mode==='inside')startRide('out');return;}
     if(id==='train-home'){if(walker.place?.remote&&walker.mode==='inside')startRide('back');return;}
     if(id==='chef')toast2('いらっしゃいませ！ Welcome in — one shoyu ramen, coming right up.');
@@ -404,7 +414,7 @@ try{
   if(['gallery','ramen','station'].includes(link)){walker.placeAt(link,PLACES[link].id==='station'?18:FACADE+2,0);explore(true,false);}
   else walker.wander();
   // A small hook for automated browser QA.
-  window.__blocks={walker,startRide,interact,get ride(){return ride;},set timeScale(v){timeScale=v;},stats:()=>({...renderer.info.render,programs:renderer.info.programs.length,segments:[...streets.cache.values()].filter(e=>e.group.parent).length,cached:streets.cache.size})};
+  window.__blocks={walker,startRide,interact,get ride(){return ride;},set timeScale(v){timeScale=v;},gallery:()=>({centre:gallery.terminal.centre.visible,mine:myToken?.tokenId??null,minted:mintedArt.map(t=>t.tokenId),boards:boardContent.map(c=>c?.tokenId??null)}),stats:()=>({...renderer.info.render,programs:renderer.info.programs.length,segments:[...streets.cache.values()].filter(e=>e.group.parent).length,cached:streets.cache.size})};
   document.documentElement.dataset.scene='webgl';resize();visibility();
 }catch(error){
   console.error(error);

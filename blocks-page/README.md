@@ -32,8 +32,13 @@ controls and can guide you to any place. `#gallery`, `#ramen` and `#station`
 deep-link straight inside.
 
 **Places.** A ramen shop (ラーメン) with a robot chef. The gallery (ギャラリー),
-whose walls show minted originals and labelled demos and whose central terminal
-(鋳造) is the only place to mint; the one-action `mint()` flow is unchanged. The
+whose walls show minted originals and whose central terminal
+(鋳造) is the only place to mint; the one-action `mint()` flow is unchanged. A fresh
+mint pops up full-screen as *your night*, then floats inside the terminal's hologram
+rings and takes the first frame on the wall. Empty frames await a block; the site
+shows no demo artwork. The collection panel explains how a block becomes a night
+and describes the eight scenes in words; looking up a minted block opens the same
+reveal. The
 subway (地下鉄): tapping a ticket gate (改札) connects a wallet, or lets a visitor
 through, then the train runs out through tunnels and a viaduct to Sakuragawa
 (桜川), a riverside station among cherry blossoms. You can explore the platform

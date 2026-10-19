@@ -107,11 +107,16 @@ export function buildGallery(kit,b,g,s,{neonSide,r,interactive,animated,keep}){
   const ring2=ring.clone();ring2.scale.setScalar(.7);ring2.material=keep(new THREE.MeshBasicMaterial({color:0x46f5ff,toneMapped:false}));terminal.add(ring2);
   const floorRing=new THREE.Mesh(keep(new THREE.TorusGeometry(1.4,.03,6,64)),ring2.material);floorRing.rotation.x=Math.PI/2;floorRing.position.y=.08;terminal.add(floorRing);
   kit.sign(terminal,0,3.25,0,['鋳造','MINT · ONE BLOCK'],'#ff32b5',1.9,.6);
+  // After a mint, the new artwork floats inside the hologram rings.
+  const centre=new THREE.Group();centre.position.y=2.45;centre.visible=false;terminal.add(centre);
+  const centreBorder=new THREE.Mesh(kit.plane,keep(new THREE.MeshBasicMaterial({color:0xff32b5,toneMapped:false,side:THREE.DoubleSide})));centreBorder.scale.set(1.24,1.24,1);centreBorder.position.z=-.01;centre.add(centreBorder);
+  const centreArt=new THREE.Mesh(kit.plane,keep(new THREE.MeshBasicMaterial({toneMapped:false,side:THREE.DoubleSide})));centreArt.scale.set(1.12,1.12,1);centre.add(centreArt);
+  animated.custom.push(time=>{if(centre.visible){centre.rotation.y=Math.sin(time*.6)*.35;centre.position.y=2.45+Math.sin(time*1.3)*.05;}});
   kit.halo(terminal,0,2.4,0,3.4,'#ff32b5',.5);
   animated.custom.push(time=>{ring.rotation.set(time*.6,time*.9,0);ring2.rotation.set(-time*.8,0,time*.5);});
   interactive({id:'terminal',object:terminal,jp:'鋳造する',en:'Mint your block'});
   light(kit,g,0x9a7cff,16,18,A(H+6),4.6,ZC);
-  return {id:'gallery',boards,terminal:{canvas,ctx:canvas.getContext('2d'),texture}};
+  return {id:'gallery',boards,terminal:{canvas,ctx:canvas.getContext('2d'),texture,centre,centreArt}};
 }
 buildGallery.id='gallery';
 
