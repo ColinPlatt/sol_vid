@@ -5,5 +5,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "check": "node --check dist/app.mjs && node --check dist/mint.mjs && node --check dist/city.mjs && node --check dist/wallet.mjs && node --check dist/world.mjs && node --check api/world.js && node --check api/token.js && node --check dist/favicon.mjs && node --check dist/walker.mjs && node --check dist/kit.mjs && node --check dist/streets.mjs && node --check dist/places.mjs && node --check dist/journey.mjs && node --check dist/audio.mjs && node --check dist/lab/lab.mjs && node --check dist/lab/blockseed.mjs && node --check api/lab.js && node --check dist/avi.mjs && node --check dist/networks.mjs && node --check api/_rpc.js && node --check dist/ramen.mjs && node --check dist/ramen-scene.mjs && node --check dist/tip.mjs"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }
